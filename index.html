@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elden Ring Boss Checklist</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="page">
+
+    <header class="site-header">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <div class="brand-text">
+          <p class="brand-eyebrow">Lands Between tracker</p>
+          <h1 class="brand-title">Elden Ring Boss Checklist</h1>
+        </div>
+      </div>
+      <button id="reset-btn" type="button" class="reset-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>
+        Reset progress
+      </button>
+    </header>
+
+    <main class="layout">
+
+      <section class="overview-card" aria-label="Overall progress">
+        <div class="overview-chart">
+          <svg class="chart" viewBox="0 0 130 130" width="130" height="130" role="img" aria-label="Overall completion chart">
+            <defs>
+              <linearGradient id="chartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#DDA0DD" />
+                <stop offset="100%" stop-color="#80EE99" />
+              </linearGradient>
+            </defs>
+            <circle class="chart-track" cx="65" cy="65" r="54" />
+            <circle id="chart-fill" class="chart-fill" cx="65" cy="65" r="54" transform="rotate(-90 65 65)" />
+          </svg>
+          <div class="chart-center">
+            <span id="chart-percent" class="chart-percent">0%</span>
+            <span class="chart-caption">cleared</span>
+          </div>
+        </div>
+
+        <div class="overview-stats">
+          <div class="stat-block">
+            <span class="stat-figure"><span id="completed-count">0</span><span class="stat-slash">/</span><span id="total-count">0</span></span>
+            <span class="stat-caption">bosses defeated</span>
+          </div>
+
+          <div class="bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Overall progress bar">
+            <div id="overall-bar" class="bar-fill"><span class="bar-glow"></span></div>
+          </div>
+
+          <div class="stat-chips">
+            <span class="chip chip-percent"><span id="percent-label">0%</span> complete</span>
+            <span class="chip chip-muted"><span id="remaining-count">0</span> remaining</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="controls-card" aria-label="Search and filters">
+        <div class="search-field">
+          <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Zm9 2-5.2-5.2"/></svg>
+          <label class="visually-hidden" for="search-input">Search bosses</label>
+          <input id="search-input" type="text" placeholder="Search a boss by name…" autocomplete="off" />
+        </div>
+
+        <div class="filters" role="group" aria-label="Filter bosses">
+          <button type="button" class="filter-btn active" data-filter="all" aria-pressed="true">All</button>
+          <button type="button" class="filter-btn" data-filter="remaining" aria-pressed="false">Remaining</button>
+          <button type="button" class="filter-btn" data-filter="completed" aria-pressed="false">Completed</button>
+        </div>
+      </section>
+
+      <section class="regions-section" aria-label="Regions">
+        <div class="regions-heading">
+          <h2>Regions</h2>
+          <span class="regions-heading-meta"><span id="regions-found-count">8</span> shown</span>
+        </div>
+
+        <div id="accordion" class="accordion"></div>
+
+        <p id="empty-state" class="no-results" hidden>Nothing found. Try a different search term.</p>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      <p>Progress is saved automatically in this browser.</p>
+    </footer>
+  </div>
+
+  <script src="scripts/script.js"></script>
+</body>
+</html>
