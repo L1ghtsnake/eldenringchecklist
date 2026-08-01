@@ -1,6 +1,12 @@
 'use strict';
 
 const STORAGE_KEY = 'eldenRingBossChecklist';
+const THEME_KEY = 'eldenRingBossChecklistTheme';
+const LANG_KEY = 'eldenRingBossChecklistLang';
+
+/* ==========================================================================
+   Data — English source names (ids are stable, used for storage & lookup)
+   ========================================================================== */
 
 const regions = [
   {
@@ -240,30 +246,311 @@ const regions = [
   }
 ];
 
+/* Russian localization — region and boss names */
+const ruNames = {
+  regions: {
+    limgrave: 'Лимгрейв',
+    'weeping-peninsula': 'Плачущий полуостров',
+    liurnia: 'Лиурния Озёр',
+    'altus-plateau': 'Альтус Плато',
+    'caelid-wilds': 'Дикий край Каэлид',
+    'gelmir-volcano-manor': 'Гора Гельмир и Поместье Вулкан',
+    leyndell: 'Лейндел, Столица',
+    mountaintops: 'Вершины Великанов и Святое Заснеженное поле'
+  },
+  bosses: {
+    'lim-01': 'Солдат Годрика',
+    'lim-02': 'Вожди полулюдей',
+    'lim-03': 'Сторож погребального древа',
+    'lim-04': 'Зверочеловек Фарум Азулы',
+    'lim-05': 'Тролль-камнерой',
+    'lim-06': 'Дуэлянт — хранитель могил',
+    'lim-07': 'Кровавый Палец Нериюс',
+    'lim-08': 'Пэтчес',
+    'lim-09': 'Голем-страж',
+    'lim-10': 'Убийца из Чёрных ножей',
+    'lim-11': 'Раскольник Генрикус',
+    'lim-12': 'Безумный тыквоголовый',
+    'lim-13': 'Ночной всадник (мост на тракте)',
+    'lim-14': 'Древесный страж',
+    'lim-15': 'Летающий дракон Агил',
+    'lim-16': 'Лодочник Тибия',
+    'lim-17': 'Анастасия, пожирательница Погасших',
+    'lim-18': 'Рыцарь-ищейка Дарривил',
+    'lim-19': 'Рыцарь Тигля (Штормхилл)',
+    'lim-20': 'Охотник за печатями торговца (хижина Мастера войны)',
+    'lim-21': 'Птица смерти (к востоку от хижины Мастера войны)',
+    'lim-22': 'Старый рыцарь Иштван',
+    'lim-23': 'Изъязвлённый древесный дух (Могила героя Окраинного народа)',
+    'lim-24': 'Изъязвлённый древесный дух (замок Штормвилль)',
+    'lim-25': 'Рыцарь Тигля (замок Штормвилль)',
+    'lim-26': 'Приплавленный Отпрыск',
+    'lim-27': 'Маргит, Омен Забвения',
+    'lim-28': 'Годрик Приплавленный',
+
+    'wp-01': 'Сторож погребального древа и бесы',
+    'wp-02': 'Рунный медведь',
+    'wp-03': 'Ночной всадник (вал замка Морн)',
+    'wp-04': 'Птица смерти (окрестности замка Морн)',
+    'wp-05': 'Кладбищенская тень',
+    'wp-06': 'Воплощение Древа Эрд',
+    'wp-07': 'Чешуйчатый Иначе-рождённый',
+    'wp-08': 'Миранда, порочный цветок',
+    'wp-09': 'Древний герой Замора',
+    'wp-10': 'Львиный Иначе-рождённый',
+
+    'liu-01': 'Рыцарь Чистой Гнили',
+    'liu-02': 'Адан, похититель огня',
+    'liu-03': 'Сторож погребального древа',
+    'liu-04': 'Лодочник Тибия (восток Лиурнии)',
+    'liu-05': 'Ночной всадник (мост у Врат)',
+    'liu-06': 'Наставница Мириам',
+    'liu-07': 'Дворянин Кожи Бога',
+    'liu-08': 'Птица смерти (Живописный остров)',
+    'liu-09': 'Рак и Приплавленный Отпрыск',
+    'liu-10': 'Дракон блескучего камня Смараг',
+    'liu-11': 'Кристалиане (Хрустальная пещера Академии)',
+    'liu-12': 'Погребальная птица (к северу от Врат)',
+    'liu-13': 'Кристалианин с кольцевым клинком',
+    'liu-14': 'Охотник за печатями торговца (Церковь Обетов)',
+    'liu-15': 'Воплощение Древа Эрд (малое древо на востоке)',
+    'liu-16': 'Кладбищенская тень и убийца из Чёрных ножей',
+    'liu-17': 'Вик, Гноящийся Отпечаток Пальца',
+    'liu-18': 'Ночной всадник (лес у тракта Беллум)',
+    'liu-19': 'Королевский ревенант',
+    'liu-20': 'Больс, рыцарь Кариан',
+    'liu-21': 'Эдгар Мститель',
+    'liu-22': 'Воплощение Древа Эрд (малое древо на западе)',
+    'liu-23': 'Улитка — призывательница духов',
+    'liu-24': 'Убийца Оменов',
+    'liu-25': 'Драконы x3 (Алтарь лунного света)',
+    'liu-26': 'Кристалиане x4 (Алтарь лунного света)',
+    'liu-27': 'Красный волк Алтаря лунного света',
+    'liu-28': 'Алекто, предводительница Чёрных ножей',
+    'liu-29': 'Королевский рыцарь Лоретта',
+    'liu-30': 'Дракон блескучего камня Адула',
+    'liu-31': 'Красный волк (за поместьем Кария)',
+    'liu-32': 'Алебастровый лорд',
+    'liu-33': 'Магматический змей Макар',
+    'liu-34': 'Убийца-наездник ворона',
+    'liu-35': 'Красный волк Радагона',
+    'liu-36': 'Реналла, королева полной луны',
+
+    'alt-01': 'Древний дракон Лансьё',
+    'alt-02': 'Воин Иначе-рождённых и парфюмерша Триша',
+    'alt-03': 'Годфруа Приплавленный',
+    'alt-04': 'Ночной всадник (тракт Альтуса)',
+    'alt-05': 'Королева полулюдей Гилика',
+    'alt-06': 'Лодочник Тибия (руины Виндхэма)',
+    'alt-07': 'Некромант Гаррис и убийца из Чёрных ножей',
+    'alt-08': 'Погребальный страж Древа Эрд',
+    'alt-09': 'Тролль-камнерой (старый туннель Альтуса)',
+    'alt-10': 'Элеонора, Лиловый Кровавый Палец',
+    'alt-11': 'Мали Маре, кастелян Затенённого замка',
+    'alt-12': 'Элемер Тернистый',
+    'alt-13': 'Райли Праздный',
+    'alt-14': 'Кровавый дворянин',
+    'alt-15': 'Червеликий (малое древо)',
+    'alt-16': 'Апостол Кожи Бога (деревня Доминула)',
+    'alt-17': 'Кристалиане x2 (туннель Альтуса)',
+    'alt-18': 'Убийца из Чёрных ножей (Могила святого героя)',
+    'alt-19': 'Древний герой Замора (Могила святого героя)',
+    'alt-20': 'Убийца Оменов и Миранда, порочный цветок',
+    'alt-21': 'Зверь падающей звезды (юг Альтус Плато)',
+    'alt-22': 'Древесные стражи x2 (вход в Лейндел)',
+
+    'cae-01': 'Магматический змей (туннель Гаэль)',
+    'cae-02': 'Воплощение Древа Эрд (малое древо на западе)',
+    'cae-03': 'Погребальные стражи Древа Эрд x2',
+    'cae-04': 'Безумные тыквоголовые x2',
+    'cae-05': 'Рыцари Великого Кувшина x3',
+    'cae-06': 'Обезумевший дуэлянт',
+    'cae-07': 'Разлагающийся Экзайкс',
+    'cae-08': 'Ночной всадник (юг тракта Каэлида)',
+    'cae-09': 'Погребальная птица (южный берег болота Эония)',
+    'cae-10': "Командир О'Нил",
+    'cae-11': 'Миллисента',
+    'cae-12': 'Мечница Нокс и жрец Нокс',
+    'cae-13': 'Зверь падающей звезды (Хрустальный туннель Селии)',
+    'cae-14': 'Рыцари Чистой Гнили x2',
+    'cae-15': 'Боевой маг Хьюг',
+    'cae-16': 'Древний дракон Грейолл',
+    'cae-17': 'Кристалиане x3 (укрытие Селии)',
+    'cae-18': 'Апостол Кожи Бога (Святая башня Каэлида)',
+    'cae-19': 'Гнилостное воплощение',
+    'cae-20': 'Зверолюди Фарум Азулы x2',
+    'cae-21': 'Ночной всадник (мост Возвышения Ленны)',
+    'cae-22': 'Летающий дракон Грейлл',
+    'cae-23': 'Родич Чёрного Клинка',
+    'cae-24': 'Гурранк, звероподобный священник',
+    'cae-25': 'Воин Иначе-рождённых и рыцарь Тигля',
+    'cae-26': 'Радан, Бич Звёзд',
+    'cae-27': 'Гнилостный древесный дух',
+
+    'gel-01': 'Приплавленный Отпрыск (север горы Гельмир)',
+    'gel-02': 'Королева полулюдей Марго',
+    'gel-03': 'Изъязвлённый древесный дух (малое древо)',
+    'gel-04': 'Родичи Гнили x2',
+    'gel-05': 'Красный волк Чемпиона',
+    'gel-06': 'Взрослый зверь падающей звезды',
+    'gel-07': 'Червеликий (Дорога нечестия)',
+    'gel-08': 'Огненный прелат',
+    'gel-09': 'Магматический змей (юг форта Лайед)',
+    'gel-10': 'Королева полулюдей Мэгги',
+    'gel-11': 'Девы-похитительницы x2',
+    'gel-12': 'Магматический змей (Поместье Вулкан)',
+    'gel-13': 'Дворянин Кожи Бога (Поместье Вулкан)',
+    'gel-14': 'Рикард, Владыка Богохульства',
+    'gel-15': 'Рыцарь Танит',
+
+    'ley-01': 'Изъязвлённый древесный дух (запад Лейндела)',
+    'ley-02': 'Горгулья с двумя клинками',
+    'ley-03': 'Маргит, Омен Забвения (запад Лейндела)',
+    'ley-04': 'Птица смерти (север Лейндела)',
+    'ley-05': 'Ониксовый лорд',
+    'ley-06': 'Омерзительный Пожиратель Дерьма',
+    'ley-07': 'Драконий страж Древа',
+    'ley-08': 'Дуэлянт — хранитель могил (боковая гробница Аурицы)',
+    'ley-09': 'Рыцарь Тигля Ордовис и рыцарь Тигля',
+    'ley-10': 'Воплощение Древа Эрд (главная дорога Лейндела)',
+    'ley-11': 'Изъязвлённый древесный дух (церковь Нижней столицы)',
+    'ley-12': 'Горгулья (западный вал столицы)',
+    'ley-13': 'Варграм и Вильгельм',
+    'ley-14': 'Годфри, Первый Элден Лорд',
+    'ley-15': 'Убийца из Чёрных ножей (опочивальня королевы)',
+    'ley-16': 'Морготт, Король Омен',
+    'ley-17': 'Зловещие близнецы x2',
+
+    'mtn-01': 'Ночной всадник',
+    'mtn-02': 'Родич Чёрного Клинка',
+    'mtn-03': 'Древний герой Замора',
+    'mtn-04': 'Изъязвлённый древесный дух',
+    'mtn-05': 'Воплощение Древа Эрд',
+    'mtn-06': 'Джуно Хослоу, рыцарь крови',
+    'mtn-07': 'Погребальная птица',
+    'mtn-08': 'Лодочник Тибия',
+    'mtn-09': 'Командир Найлл',
+    'mtn-10': 'Вик, рыцарь Круглого стола',
+    'mtn-11': 'Главный страж Арганти',
+    'mtn-12': 'Борелис Леденящий Туман',
+    'mtn-13': 'Улитка-призывательница духов и Аристократ божественной кожи',
+    'mtn-14': 'Окина, Окровавленный палец',
+    'mtn-15': 'Огненный великан',
+    'mtn-16': 'Ложная Слеза',
+    'mtn-17': 'Гнилостный дуэлянт, хранитель могил',
+    'mtn-18': 'Ночной всадник x2',
+    'mtn-19': 'Астель, Звёзды Тьмы',
+    'mtn-20': 'Кровавый аристократ',
+    'mtn-21': 'Анастасия, пожирательница Погасших',
+    'mtn-22': 'Великий змей Теодорикс',
+    'mtn-23': 'Крестоносец-бастард',
+    'mtn-24': 'Гнилостное воплощение',
+    'mtn-25': 'Погребальная птица',
+    'mtn-26': 'Убийца из Чёрных ножей',
+    'mtn-27': 'Лоретта, рыцарь Святого Древа',
+    'mtn-28': 'Гнилостный древесный дух',
+    'mtn-29': 'Гнилостный древесный дух',
+    'mtn-30': 'Сестры Миллисенты',
+    'mtn-31': 'Гнилостное воплощение',
+    'mtn-32': 'Маления, клинок Микеллы'
+  }
+};
+
+/* UI string dictionary */
+const i18n = {
+  en: {
+    eyebrow: 'Lands Between tracker',
+    title: 'Elden Ring Boss Checklist',
+    reset: 'Reset progress',
+    searchPlaceholder: 'Search a boss by name…',
+    filterAll: 'All',
+    filterRemaining: 'Remaining',
+    filterCompleted: 'Completed',
+    regionsTitle: 'Regions',
+    shown: 'shown',
+    defeated: 'bosses defeated',
+    cleared: 'cleared',
+    complete: 'complete',
+    remaining: 'remaining',
+    selectAll: 'Select all bosses',
+    deselectAll: 'Deselect all bosses',
+    noneFound: 'Nothing found. Try a different search term.',
+    noMatch: 'No bosses match this filter.',
+    footer: 'Progress is saved automatically in this browser.',
+    resetConfirm: 'Reset all boss progress? This cannot be undone.',
+    themeToggle: 'Toggle dark or light theme'
+  },
+  ru: {
+    eyebrow: 'Трекер Промежуточных Земель',
+    title: 'Чек-лист боссов Elden Ring',
+    reset: 'Сбросить прогресс',
+    searchPlaceholder: 'Поиск босса по имени…',
+    filterAll: 'Все',
+    filterRemaining: 'Не пройдены',
+    filterCompleted: 'Пройдены',
+    regionsTitle: 'Регионы',
+    shown: 'показано',
+    defeated: 'боссов повержено',
+    cleared: 'пройдено',
+    complete: 'завершено',
+    remaining: 'осталось',
+    selectAll: 'Выделить всех боссов',
+    deselectAll: 'Снять все отметки',
+    noneFound: 'Ничего не найдено. Попробуйте другой запрос.',
+    noMatch: 'Нет боссов, подходящих под фильтр.',
+    footer: 'Прогресс сохраняется автоматически в этом браузере.',
+    resetConfirm: 'Сбросить весь прогресс по боссам? Это действие необратимо.',
+    themeToggle: 'Переключить тёмную или светлую тему'
+  }
+};
+
+/* ==========================================================================
+   State
+   ========================================================================== */
+
 const state = {
   filter: 'all',
   searchTerm: '',
   completed: new Set(),
-  openRegions: new Set([regions[0].id])
+  openRegions: new Set([regions[0].id]),
+  lang: 'en',
+  theme: 'dark'
 };
 
 const els = {};
 
 function cacheDom() {
+  els.html = document.documentElement;
   els.accordion = document.getElementById('accordion');
   els.searchInput = document.getElementById('search-input');
   els.filterButtons = document.querySelectorAll('.filter-btn');
   els.resetBtn = document.getElementById('reset-btn');
+  els.resetLabel = document.getElementById('reset-label');
   els.completedCount = document.getElementById('completed-count');
   els.totalCount = document.getElementById('total-count');
   els.percentLabel = document.getElementById('percent-label');
   els.overallBar = document.getElementById('overall-bar');
   els.chartFill = document.getElementById('chart-fill');
   els.chartPercent = document.getElementById('chart-percent');
+  els.chartCaption = document.getElementById('chart-caption-label');
   els.emptyState = document.getElementById('empty-state');
   els.regionsFoundCount = document.getElementById('regions-found-count');
+  els.regionsShownLabel = document.getElementById('regions-shown-label');
+  els.regionsTitle = document.getElementById('regions-title');
   els.remainingCount = document.getElementById('remaining-count');
+  els.remainingLabel = document.getElementById('remaining-label');
+  els.completeLabel = document.getElementById('complete-label');
+  els.statCaption = document.getElementById('stat-caption');
+  els.brandEyebrow = document.getElementById('brand-eyebrow');
+  els.brandTitle = document.getElementById('brand-title');
+  els.footerText = document.getElementById('footer-text');
+  els.themeToggle = document.getElementById('theme-toggle');
+  els.langButtons = document.querySelectorAll('.lang-btn');
 }
+
+/* ==========================================================================
+   Persistence
+   ========================================================================== */
 
 function loadProgress() {
   try {
@@ -284,6 +571,46 @@ function saveProgress() {
     /* storage unavailable */
   }
 }
+
+function loadPreference(key, fallback, validValues) {
+  try {
+    const value = localStorage.getItem(key);
+    if (value && validValues.includes(value)) return value;
+  } catch (err) {
+    /* ignore */
+  }
+  return fallback;
+}
+
+function savePreference(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch (err) {
+    /* storage unavailable */
+  }
+}
+
+/* ==========================================================================
+   Localization helpers
+   ========================================================================== */
+
+function t(key) {
+  return i18n[state.lang][key];
+}
+
+function getRegionName(region) {
+  if (state.lang === 'ru' && ruNames.regions[region.id]) return ruNames.regions[region.id];
+  return region.name;
+}
+
+function getBossName(boss) {
+  if (state.lang === 'ru' && ruNames.bosses[boss.id]) return ruNames.bosses[boss.id];
+  return boss.name;
+}
+
+/* ==========================================================================
+   Data helpers
+   ========================================================================== */
 
 function getAllBosses() {
   const list = [];
@@ -308,8 +635,12 @@ function matchesFilter(boss) {
 function matchesSearch(boss) {
   const term = state.searchTerm.trim().toLowerCase();
   if (!term) return true;
-  return boss.name.toLowerCase().includes(term);
+  return getBossName(boss).toLowerCase().includes(term);
 }
+
+/* ==========================================================================
+   Rendering — accordion
+   ========================================================================== */
 
 function buildAccordion() {
   els.accordion.innerHTML = '';
@@ -333,13 +664,15 @@ function buildAccordion() {
 
     const headerId = 'header-' + region.id;
     const panelId = 'panel-' + region.id;
+    const allDoneInRegion = total > 0 && done === total;
+    const selectAllLabel = allDoneInRegion ? t('deselectAll') : t('selectAll');
 
     item.innerHTML = `
       <h3 class="accordion-heading">
         <button type="button" class="accordion-trigger" id="${headerId}" aria-expanded="${isOpen}" aria-controls="${panelId}" data-region-id="${region.id}">
           <span class="trigger-main">
             <span class="region-dot" aria-hidden="true"></span>
-            <span class="region-name">${region.name}</span>
+            <span class="region-name">${getRegionName(region)}</span>
           </span>
           <span class="trigger-meta">
             <span class="region-count">${done}<span class="count-sep">/</span>${total}</span>
@@ -350,6 +683,9 @@ function buildAccordion() {
       </h3>
       <div class="accordion-content ${isOpen ? 'is-open' : ''}" id="${panelId}" role="region" aria-labelledby="${headerId}">
         <div class="accordion-inner">
+          <div class="accordion-toolbar">
+            <button type="button" class="select-all-btn" data-region-id="${region.id}">${selectAllLabel}</button>
+          </div>
           <ul class="boss-list"></ul>
         </div>
       </div>
@@ -358,12 +694,10 @@ function buildAccordion() {
     const list = item.querySelector('.boss-list');
     const bossesToRender = hasSearch ? visibleBosses : region.bosses.filter((b) => matchesFilter(b));
 
-    list.appendChild(createRegionSelectRow(region));
-
     if (bossesToRender.length === 0) {
       const empty = document.createElement('li');
       empty.className = 'boss-empty';
-      empty.textContent = 'No bosses match this filter.';
+      empty.textContent = t('noMatch');
       list.appendChild(empty);
     } else {
       bossesToRender.forEach((boss, index) => {
@@ -374,6 +708,12 @@ function buildAccordion() {
     const trigger = item.querySelector('.accordion-trigger');
     trigger.addEventListener('click', () => toggleRegion(region.id));
 
+    const selectAllBtn = item.querySelector('.select-all-btn');
+    selectAllBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      toggleSelectAll(region.id);
+    });
+
     els.accordion.appendChild(item);
   });
 
@@ -382,51 +722,7 @@ function buildAccordion() {
   }
 
   els.emptyState.hidden = visibleRegionCount !== 0;
-}
-
-function createRegionSelectRow(region) {
-  const { total, done } = getTotals(region.bosses);
-  const li = document.createElement('li');
-  li.className = 'region-select-item';
-
-  li.innerHTML = `
-    <label class="region-select-row" for="select-${region.id}">
-      <span class="boss-checkbox-wrap">
-        <input
-          type="checkbox"
-          id="select-${region.id}"
-          class="boss-checkbox region-select-checkbox"
-          data-region-select="${region.id}"
-          ${total > 0 && done === total ? 'checked' : ''}
-        />
-        <span class="boss-checkbox-visual" aria-hidden="true">
-          <svg class="region-select-check" width="13" height="10" viewBox="0 0 13 10"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <svg class="region-select-minus" width="12" height="2" viewBox="0 0 12 2"><path d="M1 1h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        </span>
-      </span>
-      <span>Select all in this region</span>
-    </label>
-  `;
-
-  const checkbox = li.querySelector('.region-select-checkbox');
-  checkbox.indeterminate = done > 0 && done < total;
-  checkbox.addEventListener('change', () => toggleRegionBosses(region.id, checkbox.checked));
-
-  return li;
-}
-
-function toggleRegionBosses(regionId, completed) {
-  const region = regions.find((item) => item.id === regionId);
-  if (!region) return;
-
-  region.bosses.forEach((boss) => {
-    if (completed) state.completed.add(boss.id);
-    else state.completed.delete(boss.id);
-  });
-
-  saveProgress();
-  buildAccordion();
-  updateProgress();
+  els.emptyState.textContent = t('noneFound');
 }
 
 function createBossRow(boss, index) {
@@ -444,7 +740,7 @@ function createBossRow(boss, index) {
         </span>
       </span>
       <span class="boss-name-wrap">
-        <span class="boss-name">${boss.name}</span>
+        <span class="boss-name">${getBossName(boss)}</span>
       </span>
     </label>
   `;
@@ -454,6 +750,10 @@ function createBossRow(boss, index) {
 
   return li;
 }
+
+/* ==========================================================================
+   Actions
+   ========================================================================== */
 
 function toggleBoss(bossId, rowEl) {
   const nowDone = !state.completed.has(bossId);
@@ -479,6 +779,26 @@ function toggleBoss(bossId, rowEl) {
   updateProgress();
 }
 
+function toggleSelectAll(regionId) {
+  const region = regions.find((r) => r.id === regionId);
+  if (!region) return;
+
+  const { total, done } = getTotals(region.bosses);
+  const shouldSelectAll = done < total;
+
+  region.bosses.forEach((boss) => {
+    if (shouldSelectAll) {
+      state.completed.add(boss.id);
+    } else {
+      state.completed.delete(boss.id);
+    }
+  });
+
+  saveProgress();
+  buildAccordion();
+  updateProgress();
+}
+
 function refreshRegionMeta() {
   regions.forEach((region) => {
     const { total, done } = getTotals(region.bosses);
@@ -488,14 +808,15 @@ function refreshRegionMeta() {
     const countEl = trigger.querySelector('.region-count');
     const fillEl = trigger.querySelector('.region-mini-fill');
     const itemEl = trigger.closest('.accordion-item');
-    const selectEl = itemEl ? itemEl.querySelector(`[data-region-select="${region.id}"]`) : null;
     if (countEl) countEl.innerHTML = `${done}<span class="count-sep">/</span>${total}`;
     if (fillEl) fillEl.style.width = pct + '%';
-    if (selectEl) {
-      selectEl.checked = total > 0 && done === total;
-      selectEl.indeterminate = done > 0 && done < total;
-    }
     if (itemEl) itemEl.classList.toggle('is-finished', total > 0 && done === total);
+
+    const selectAllBtn = document.querySelector(`.select-all-btn[data-region-id="${region.id}"]`);
+    if (selectAllBtn) {
+      const allDone = total > 0 && done === total;
+      selectAllBtn.textContent = allDone ? t('deselectAll') : t('selectAll');
+    }
   });
 }
 
@@ -531,13 +852,17 @@ function handleSearch(term) {
 }
 
 function resetProgress() {
-  const confirmed = confirm('Reset all boss progress? This cannot be undone.');
+  const confirmed = confirm(t('resetConfirm'));
   if (!confirmed) return;
   state.completed = new Set();
   saveProgress();
   buildAccordion();
   updateProgress();
 }
+
+/* ==========================================================================
+   Progress display
+   ========================================================================== */
 
 function updateProgress() {
   const allBosses = getAllBosses();
@@ -549,7 +874,6 @@ function updateProgress() {
   els.percentLabel.textContent = pct + '%';
   els.remainingCount.textContent = total - done;
   els.overallBar.style.width = pct + '%';
-
   updateChart(pct);
 }
 
@@ -561,20 +885,89 @@ function updateChart(pct) {
   els.chartPercent.textContent = pct + '%';
 }
 
+/* ==========================================================================
+   Theme system
+   ========================================================================== */
+
+function applyTheme(theme) {
+  state.theme = theme;
+  els.html.setAttribute('data-theme', theme);
+  if (els.themeToggle) {
+    els.themeToggle.setAttribute('aria-pressed', String(theme === 'light'));
+  }
+  savePreference(THEME_KEY, theme);
+}
+
+function toggleTheme() {
+  applyTheme(state.theme === 'dark' ? 'light' : 'dark');
+}
+
+/* ==========================================================================
+   Language system
+   ========================================================================== */
+
+function applyLanguage(lang) {
+  state.lang = lang;
+  els.html.setAttribute('lang', lang);
+
+  els.langButtons.forEach((btn) => {
+    const active = btn.dataset.lang === lang;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-pressed', String(active));
+  });
+
+  els.brandEyebrow.textContent = t('eyebrow');
+  els.brandTitle.textContent = t('title');
+  document.title = t('title');
+  els.resetLabel.textContent = t('reset');
+  els.searchInput.setAttribute('placeholder', t('searchPlaceholder'));
+  els.chartCaption.textContent = t('cleared');
+  els.statCaption.textContent = t('defeated');
+  els.completeLabel.textContent = t('complete');
+  els.remainingLabel.textContent = t('remaining');
+  els.regionsTitle.textContent = t('regionsTitle');
+  els.regionsShownLabel.textContent = t('shown');
+  els.footerText.textContent = t('footer');
+  els.themeToggle.setAttribute('aria-label', t('themeToggle'));
+
+  els.filterButtons.forEach((btn) => {
+    const key = btn.dataset.filter;
+    if (key === 'all') btn.textContent = t('filterAll');
+    if (key === 'remaining') btn.textContent = t('filterRemaining');
+    if (key === 'completed') btn.textContent = t('filterCompleted');
+  });
+
+  savePreference(LANG_KEY, lang);
+  buildAccordion();
+  updateProgress();
+}
+
+/* ==========================================================================
+   Events & init
+   ========================================================================== */
+
 function attachEvents() {
   els.searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
   els.filterButtons.forEach((btn) => {
     btn.addEventListener('click', () => setFilter(btn.dataset.filter));
   });
   els.resetBtn.addEventListener('click', resetProgress);
+  els.themeToggle.addEventListener('click', toggleTheme);
+  els.langButtons.forEach((btn) => {
+    btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
+  });
 }
 
 function init() {
   cacheDom();
   state.completed = loadProgress();
+
+  const savedTheme = loadPreference(THEME_KEY, 'dark', ['dark', 'light']);
+  const savedLang = loadPreference(LANG_KEY, 'en', ['en', 'ru']);
+
   attachEvents();
-  buildAccordion();
-  updateProgress();
+  applyTheme(savedTheme);
+  applyLanguage(savedLang);
   requestAnimationFrame(() => document.body.classList.add('is-ready'));
 }
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -13,14 +13,28 @@
       <div class="brand">
         <span class="brand-mark" aria-hidden="true"></span>
         <div class="brand-text">
-          <p class="brand-eyebrow">Lands Between tracker</p>
-          <h1 class="brand-title">Elden Ring Boss Checklist</h1>
+          <p class="brand-eyebrow" id="brand-eyebrow">Lands Between tracker</p>
+          <h1 class="brand-title" id="brand-title">Elden Ring Boss Checklist</h1>
         </div>
       </div>
-      <button id="reset-btn" type="button" class="reset-btn">
-        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>
-        Reset progress
-      </button>
+
+      <div class="header-controls">
+        <div class="lang-toggle" role="group" aria-label="Language">
+          <button type="button" class="lang-btn active" data-lang="en" aria-pressed="true">EN</button>
+          <button type="button" class="lang-btn" data-lang="ru" aria-pressed="false">RU</button>
+        </div>
+
+        <button id="theme-toggle" type="button" class="theme-toggle" aria-pressed="false" aria-label="Toggle dark or light theme">
+          <svg class="theme-icon theme-icon--sun" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+          <span class="theme-toggle-thumb" aria-hidden="true"></span>
+          <svg class="theme-icon theme-icon--moon" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5Z"/></svg>
+        </button>
+
+        <button id="reset-btn" type="button" class="reset-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>
+          <span id="reset-label">Reset progress</span>
+        </button>
+      </div>
     </header>
 
     <main class="layout">
@@ -28,34 +42,28 @@
       <section class="overview-card" aria-label="Overall progress">
         <div class="overview-chart">
           <svg class="chart" viewBox="0 0 130 130" width="130" height="130" role="img" aria-label="Overall completion chart">
-            <defs>
-              <linearGradient id="chartGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#DDA0DD" />
-                <stop offset="100%" stop-color="#80EE99" />
-              </linearGradient>
-            </defs>
             <circle class="chart-track" cx="65" cy="65" r="54" />
             <circle id="chart-fill" class="chart-fill" cx="65" cy="65" r="54" transform="rotate(-90 65 65)" />
           </svg>
           <div class="chart-center">
             <span id="chart-percent" class="chart-percent">0%</span>
-            <span class="chart-caption">cleared</span>
+            <span class="chart-caption" id="chart-caption-label">cleared</span>
           </div>
         </div>
 
         <div class="overview-stats">
           <div class="stat-block">
             <span class="stat-figure"><span id="completed-count">0</span><span class="stat-slash">/</span><span id="total-count">0</span></span>
-            <span class="stat-caption">bosses defeated</span>
+            <span class="stat-caption" id="stat-caption">bosses defeated</span>
           </div>
 
           <div class="bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Overall progress bar">
-            <div id="overall-bar" class="bar-fill"><span class="bar-glow"></span></div>
+            <div id="overall-bar" class="bar-fill"></div>
           </div>
 
           <div class="stat-chips">
-            <span class="chip chip-percent"><span id="percent-label">0%</span> complete</span>
-            <span class="chip chip-muted"><span id="remaining-count">0</span> remaining</span>
+            <span class="chip chip-percent"><span id="percent-label">0%</span> <span id="complete-label">complete</span></span>
+            <span class="chip chip-muted"><span id="remaining-count">0</span> <span id="remaining-label">remaining</span></span>
           </div>
         </div>
       </section>
@@ -76,8 +84,8 @@
 
       <section class="regions-section" aria-label="Regions">
         <div class="regions-heading">
-          <h2>Regions</h2>
-          <span class="regions-heading-meta"><span id="regions-found-count">8</span> shown</span>
+          <h2 id="regions-title">Regions</h2>
+          <span class="regions-heading-meta"><span id="regions-found-count">8</span> <span id="regions-shown-label">shown</span></span>
         </div>
 
         <div id="accordion" class="accordion"></div>
@@ -88,7 +96,7 @@
     </main>
 
     <footer class="site-footer">
-      <p>Progress is saved automatically in this browser.</p>
+      <p id="footer-text">Progress is saved automatically in this browser.</p>
     </footer>
   </div>
 
