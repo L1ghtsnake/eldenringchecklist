@@ -472,8 +472,8 @@ const i18n = {
     cleared: 'cleared',
     complete: 'complete',
     remaining: 'remaining',
-    selectAll: 'Select all bosses',
-    deselectAll: 'Deselect all bosses',
+    selectAll: 'Select All Bosses',
+    deselectAll: 'Deselect All Bosses',
     noneFound: 'Nothing found. Try a different search term.',
     noMatch: 'No bosses match this filter.',
     footer: 'Progress is saved automatically in this browser.',
@@ -495,7 +495,7 @@ const i18n = {
     complete: 'завершено',
     remaining: 'осталось',
     selectAll: 'Выделить всех боссов',
-    deselectAll: 'Снять все отметки',
+    deselectAll: 'Снять отметки со всех боссов',
     noneFound: 'Ничего не найдено. Попробуйте другой запрос.',
     noMatch: 'Нет боссов, подходящих под фильтр.',
     footer: 'Прогресс сохраняется автоматически в этом браузере.',
@@ -675,6 +675,7 @@ function buildAccordion() {
             <span class="region-name">${getRegionName(region)}</span>
           </span>
           <span class="trigger-meta">
+            ${finished ? '<span class="region-complete-badge" aria-hidden="true"><svg width="10" height="8" viewBox="0 0 13 10"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>' : ''}
             <span class="region-count">${done}<span class="count-sep">/</span>${total}</span>
             <span class="region-mini-bar"><span class="region-mini-fill" style="width:${pct}%"></span></span>
             <svg class="chevron" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"/></svg>
@@ -684,9 +685,12 @@ function buildAccordion() {
       <div class="accordion-content ${isOpen ? 'is-open' : ''}" id="${panelId}" role="region" aria-labelledby="${headerId}">
         <div class="accordion-inner">
           <div class="accordion-toolbar">
-            <button type="button" class="select-all-btn" data-region-id="${region.id}">${selectAllLabel}</button>
+            <button type="button" class="select-all-btn" data-region-id="${region.id}" aria-pressed="${allDoneInRegion}">
+              <svg class="select-all-icon" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="m7.5 12.5 3 3 6-6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="select-all-label">${selectAllLabel}</span>
+            </button>
           </div>
-          <ul class="boss-list"></ul>
+          <ol class="boss-list"></ol>
         </div>
       </div>
     `;
@@ -733,6 +737,7 @@ function createBossRow(boss, index) {
 
   li.innerHTML = `
     <label class="boss-label" for="chk-${boss.id}">
+      <span class="boss-number" aria-hidden="true">${index + 1}</span>
       <span class="boss-checkbox-wrap">
         <input type="checkbox" id="chk-${boss.id}" class="boss-checkbox" ${isDone ? 'checked' : ''} />
         <span class="boss-checkbox-visual" aria-hidden="true">
@@ -808,14 +813,29 @@ function refreshRegionMeta() {
     const countEl = trigger.querySelector('.region-count');
     const fillEl = trigger.querySelector('.region-mini-fill');
     const itemEl = trigger.closest('.accordion-item');
+    const allDone = total > 0 && done === total;
+
     if (countEl) countEl.innerHTML = `${done}<span class="count-sep">/</span>${total}`;
     if (fillEl) fillEl.style.width = pct + '%';
-    if (itemEl) itemEl.classList.toggle('is-finished', total > 0 && done === total);
+    if (itemEl) itemEl.classList.toggle('is-finished', allDone);
+
+    let badge = trigger.querySelector('.region-complete-badge');
+    if (allDone && !badge) {
+      badge = document.createElement('span');
+      badge.className = 'region-complete-badge';
+      badge.setAttribute('aria-hidden', 'true');
+      badge.innerHTML = '<svg width="10" height="8" viewBox="0 0 13 10"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      const metaEl = trigger.querySelector('.trigger-meta');
+      if (metaEl) metaEl.insertBefore(badge, metaEl.firstChild);
+    } else if (!allDone && badge) {
+      badge.remove();
+    }
 
     const selectAllBtn = document.querySelector(`.select-all-btn[data-region-id="${region.id}"]`);
     if (selectAllBtn) {
-      const allDone = total > 0 && done === total;
-      selectAllBtn.textContent = allDone ? t('deselectAll') : t('selectAll');
+      const labelEl = selectAllBtn.querySelector('.select-all-label');
+      if (labelEl) labelEl.textContent = allDone ? t('deselectAll') : t('selectAll');
+      selectAllBtn.setAttribute('aria-pressed', String(allDone));
     }
   });
 }
