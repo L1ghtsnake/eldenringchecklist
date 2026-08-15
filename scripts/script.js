@@ -481,7 +481,7 @@ const i18n = {
     themeToggle: 'Toggle dark or light theme'
   },
   ru: {
-    eyebrow: 'Трекер Промежуточных Земель',
+    eyebrow: 'Междуземье',
     title: 'Чек-лист боссов Elden Ring',
     reset: 'Сбросить прогресс',
     searchPlaceholder: 'Поиск босса по имени…',
