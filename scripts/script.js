@@ -3,12 +3,13 @@
 const STORAGE_KEY = 'eldenRingBossChecklist';
 const THEME_KEY = 'eldenRingBossChecklistTheme';
 const LANG_KEY = 'eldenRingBossChecklistLang';
+const GAME_KEY = 'eldenRingBossChecklistGame';
 
 /* ==========================================================================
    Data — English source names (ids are stable, used for storage & lookup)
    ========================================================================== */
 
-const regions = [
+const eldenRingRegions = [
   {
     id: 'limgrave',
     name: 'Limgrave',
@@ -243,183 +244,419 @@ const regions = [
       { id: 'mtn-31', name: 'Putrid Avatar' },
       { id: 'mtn-32', name: 'Malenia, Blade of Miquella' }
     ]
+  },
+  {
+    id: 'farum-azula',
+    name: 'Farum Azula',
+    bosses: [
+      { id: 'far-01', name: 'Dragon' },
+      { id: 'far-02', name: 'Godskin Duo' },
+      { id: 'far-03', name: 'Crucible Knight' },
+      { id: 'far-04', name: 'Draconic Tree Sentinel' },
+      { id: 'far-05', name: 'Maliketh, The Black Blade' }
+    ]
+  },
+  {
+    id: 'leyndell-ashen-capital',
+    name: 'Leyndell, Ashen Capital',
+    bosses: [
+      { id: 'leyac-01', name: 'Sir Gideon Ofnir, the All-Knowing' },
+      { id: 'leyac-02', name: 'Godfrey, First Elden Lord' },
+      { id: 'leyac-03', name: 'Hoarah Loux' },
+      { id: 'leyac-04', name: 'Radagon of the Golden Order' },
+      { id: 'leyac-05', name: 'Elden Beast' }
+    ]
   }
 ];
+
+/* Shadow of the Erdtree — kept as a fully separate region set so the two
+   games never mix, while reusing the exact same {id, name, bosses} shape. */
+const shadowErdtreeRegions = [
+  {
+    id: 'gravesite-plain',
+    name: 'Gravesite Plain',
+    bosses: [
+      { id: 'gp-01', name: 'Logur the Beast Claw' },
+      { id: 'gp-02', name: 'Blackgaol Knight' },
+      { id: 'gp-03', name: 'Furnace Golem' },
+      { id: 'gp-04', name: 'Ghostflame Dragon' },
+      { id: 'gp-05', name: 'Demi-Human Swordmaster Onze' },
+      { id: 'gp-06', name: 'Ancient Dragon-Man' },
+      { id: 'gp-07', name: 'Magma Wyrm' },
+      { id: 'gp-08', name: 'Ancient Dragon-Man' },
+      { id: 'gp-09', name: 'Death Knight' },
+      { id: 'gp-10', name: 'Ulcerated Tree Spirit' },
+      { id: 'gp-11', name: 'Chief Bloodfiend' },
+      { id: 'gp-12', name: 'Furnace Golem' },
+      { id: 'gp-13', name: 'Moore' }
+    ]
+  },
+  {
+    id: 'belurat-tower-settlement',
+    name: 'Belurat, Tower Settlement',
+    bosses: [
+      { id: 'bts-01', name: 'Ulcerated Tree Spirit' },
+      { id: 'bts-02', name: 'Fire Knight Queelign' },
+      { id: 'bts-03', name: 'Divine Beast Dancing Lion' }
+    ]
+  },
+  {
+    id: 'cerulean-coast',
+    name: 'Cerulean Coast',
+    bosses: [
+      { id: 'cc-01', name: 'Demi-Human Queen Marigga' },
+      { id: 'cc-02', name: 'Ghostflame Dragon' },
+      { id: 'cc-03', name: 'Dancer of Ranah' }
+    ]
+  },
+  {
+    id: 'castle-ensis',
+    name: 'Castle Ensis',
+    bosses: [
+      { id: 'ce-01', name: 'Troll Knight' },
+      { id: 'ce-02', name: 'Moonrithyll, Carian Knight' },
+      { id: 'ce-03', name: 'Rellana, Twin Moon Knight' }
+    ]
+  },
+  {
+    id: 'scadu-altus',
+    name: 'Scadu Altus',
+    bosses: [
+      { id: 'sa-01', name: 'Troll Knight Apparition' },
+      { id: 'sa-02', name: 'Black Knight Garrew' },
+      { id: 'sa-03', name: 'Fire Knight Queelign' },
+      { id: 'sa-04', name: 'Furnace Golem' },
+      { id: 'sa-05', name: 'Black Knight' },
+      { id: 'sa-06', name: 'Ralva the Great Red Bear' },
+      { id: 'sa-07', name: 'Dryleaf Dane' },
+      { id: 'sa-08', name: 'Ghostflame Dragon' },
+      { id: 'sa-09', name: 'Black Knight Edredd' },
+      { id: 'sa-10', name: 'Greater Potentate' },
+      { id: 'sa-11', name: 'Greater Potentate' },
+      { id: 'sa-12', name: 'Curseblade Labirith' },
+      { id: 'sa-13', name: 'Furnace Golem' },
+      { id: 'sa-14', name: 'Swordhand of Night Anna' }
+    ]
+  },
+  {
+    id: 'foot-of-the-jagged-peak',
+    name: 'Foot of the Jagged Peak',
+    bosses: [
+      { id: 'fjp-01', name: 'Jagged Peak Drake' },
+      { id: 'fjp-02', name: 'Jagged Peak Drake & Lesser Dragon' }
+    ]
+  },
+  {
+    id: 'charos-hidden-grave',
+    name: "Charo's Hidden Grave",
+    bosses: [
+      { id: 'chg-01', name: 'Tibia Mariner' },
+      { id: 'chg-02', name: 'Death Rite Bird' },
+      { id: 'chg-03', name: 'Hippopotamus' },
+      { id: 'chg-04', name: 'Furnace Golem' },
+      { id: 'chg-05', name: 'Lamenter' }
+    ]
+  },
+  {
+    id: 'jagged-peak',
+    name: 'Jagged Peak',
+    bosses: [
+      { id: 'jp-01', name: 'Ancient Dragon Senessax' },
+      { id: 'jp-02', name: 'Bayle the Dread' }
+    ]
+  },
+  {
+    id: 'rauh-base',
+    name: 'Rauh Base',
+    bosses: [
+      { id: 'rb-01', name: 'Red Bear' },
+      { id: 'rb-02', name: 'Rugalea the Great Red Bear' },
+      { id: 'rb-03', name: 'Death Knight' }
+    ]
+  },
+  {
+    id: 'stone-coffin-fissure',
+    name: 'Stone Coffin Fissure',
+    bosses: [
+      { id: 'scf-01', name: 'Misbegotten Crusader' },
+      { id: 'scf-02', name: 'Putrescent Knight' },
+      { id: 'scf-03', name: 'Thiollier' }
+    ]
+  },
+  {
+    id: 'shadow-keep',
+    name: 'Shadow Keep',
+    bosses: [
+      { id: 'sk-01', name: 'Golden Hippopotamus' },
+      { id: 'sk-02', name: 'Assist Leda/Hornsent' },
+      { id: 'sk-03', name: 'Ulcerated Tree Spirit' },
+      { id: 'sk-04', name: 'Ulcerated Tree Spirit' },
+      { id: 'sk-05', name: 'Wego, Fire Knight Elder' },
+      { id: 'sk-06', name: 'Assist Leda/Ansbach' },
+      { id: 'sk-07', name: 'Kood, Fire Knight Captain' },
+      { id: 'sk-08', name: 'Messmer the Impaler' },
+      { id: 'sk-09', name: 'Salza, Fire Knight Sage' }
+    ]
+  },
+  {
+    id: 'scadutree-base',
+    name: 'Scadutree Base',
+    bosses: [
+      { id: 'stb-01', name: 'Scadutree Avatar' }
+    ]
+  },
+  {
+    id: 'scaduview',
+    name: 'Scaduview',
+    bosses: [
+      { id: 'sv-01', name: 'Commander Gaius' }
+    ]
+  },
+  {
+    id: 'hinterland',
+    name: 'Hinterland',
+    bosses: [
+      { id: 'hl-01', name: 'Tree Sentinel Duo' },
+      { id: 'hl-02', name: 'Fallingstar Beast' }
+    ]
+  },
+  {
+    id: 'ymirs-quest',
+    name: "Ymir's Quest",
+    bosses: [
+      { id: 'yq-01', name: 'Metyr, Mother of Fingers' },
+      { id: 'yq-02', name: 'Jolán & Count Ymir' }
+    ]
+  },
+  {
+    id: 'ancient-ruins-of-rauh',
+    name: 'Ancient Ruins of Rauh',
+    bosses: [
+      { id: 'aror-01', name: 'Crucible Knight Devonia' },
+      { id: 'aror-02', name: 'Hippopotamus' },
+      { id: 'aror-03', name: 'Furnace Golem' },
+      { id: 'aror-04', name: 'Divine Beast Dancing Lion' },
+      { id: 'aror-05', name: 'Romina, Saint of the Bud' }
+    ]
+  },
+  {
+    id: 'recluses-river',
+    name: "Recluses' River",
+    bosses: [
+      { id: 'rr-01', name: 'Furnace Golem' },
+      { id: 'rr-02', name: 'Furnace Golem' },
+      { id: 'rr-03', name: 'Rakshasa' },
+      { id: 'rr-04', name: 'Hippopotamus' },
+      { id: 'rr-05', name: 'Hippopotamus' },
+      { id: 'rr-06', name: 'Jori, Elder Inquisitor' }
+    ]
+  },
+  {
+    id: 'abyssal-woods',
+    name: 'Abyssal Woods',
+    bosses: [
+      { id: 'aw-01', name: 'Madding Hand' },
+      { id: 'aw-02', name: 'Aging Untouchables' },
+      { id: 'aw-03', name: 'Midra, Lord of Frenzied Flame' }
+    ]
+  },
+  {
+    id: 'enir-ilim',
+    name: 'Enir-Ilim',
+    bosses: [
+      { id: 'ei-01', name: 'Divine Beast Warrior of Lightning' },
+      { id: 'ei-02', name: 'Divine Beast Warrior of Frost' },
+      { id: 'ei-03', name: 'Divine Beast Warrior of Wind' },
+      { id: 'ei-04', name: 'Divine Beast Warrior of Wind' },
+      { id: 'ei-05', name: 'Leda, Dane & Allies' },
+      { id: 'ei-06', name: 'Promised Consort Radahn' }
+    ]
+  }
+];
+
+/* Internal-only code names (never shown in the UI — see i18n gameEldenRing /
+   gameShadowErdtree for the user-facing labels). */
+const games = {
+  eldenring: { id: 'eldenring', regions: eldenRingRegions },
+  shadowerdtree: { id: 'shadowerdtree', regions: shadowErdtreeRegions }
+};
 
 /* Russian localization — region and boss names */
 const ruNames = {
   regions: {
-    limgrave: 'Замогилье',
+    limgrave: 'Лимгрейв',
     'weeping-peninsula': 'Плачущий полуостров',
-    liurnia: 'Озёрная Лиурния',
-    'altus-plateau': 'Плато Альтус',
-    'caelid-wilds': 'Звёздные пустоши',
-    'gelmir-volcano-manor': 'Гора Гельмир и Вулканово поместье',
-    leyndell: 'Лейнделл, столица королевства',
-    mountaintops: 'Вершины Великанов и Святое Заснеженное поле'
+    liurnia: 'Лиурния Озёр',
+    'altus-plateau': 'Альтус Плато',
+    'caelid-wilds': 'Дикий край Каэлид',
+    'gelmir-volcano-manor': 'Гора Гельмир и Поместье Вулкан',
+    leyndell: 'Лейндел, Столица',
+    mountaintops: 'Вершины Великанов и Святое Заснеженное поле',
+    'farum-azula': 'Фарум Азула',
+    'leyndell-ashen-capital': 'Лейндел, Пепельная Столица'
   },
   bosses: {
     'lim-01': 'Солдат Годрика',
-    'lim-02': 'Предводители полулюдей',
-    'lim-03': 'Цербер кладбища Древа Эрд',
-    'lim-04': 'Зверочеловек из Фарум-Азулы',
-    'lim-05': 'Тролль-камнекоп',
-    'lim-06': 'Дуэлянт, хранитель могил',
-    'lim-07': 'Нериюс, Окровавленный палец',
-    'lim-08': 'Лоскутик',
-    'lim-09': 'Страж-голем',
+    'lim-02': 'Вожди полулюдей',
+    'lim-03': 'Сторож погребального древа',
+    'lim-04': 'Зверочеловек Фарум Азулы',
+    'lim-05': 'Тролль-камнерой',
+    'lim-06': 'Дуэлянт — хранитель могил',
+    'lim-07': 'Кровавый Палец Нериюс',
+    'lim-08': 'Пэтчес',
+    'lim-09': 'Голем-страж',
     'lim-10': 'Убийца из Чёрных ножей',
-    'lim-11': 'Мятежник Хенрик',
-    'lim-12': 'Тыквоголовый безумец',
-    'lim-13': 'Ночной всадник',
-    'lim-14': 'Страж Древа',
-    'lim-15': 'Эгхил, крылатый дракон',
+    'lim-11': 'Раскольник Генрикус',
+    'lim-12': 'Безумный тыквоголовый',
+    'lim-13': 'Ночной всадник (мост на тракте)',
+    'lim-14': 'Древесный страж',
+    'lim-15': 'Летающий дракон Агил',
     'lim-16': 'Лодочник Тибия',
     'lim-17': 'Анастасия, пожирательница Погасших',
     'lim-18': 'Рыцарь-ищейка Дарривил',
-    'lim-19': 'Рыцарь Горнила',
-    'lim-20': 'Охотник за колокольными сферами',
-    'lim-21': 'Птица смерти',
-    'lim-22': 'Старый рыцарь Истван',
-    'lim-23': 'Изъязвлённый древесный дух',
-    'lim-24': 'Изъязвлённый древесный дух',
-    'lim-25': 'Рыцарь Горнила',
-    'lim-26': 'Приращенный отпрыск',
-    'lim-27': 'Маргит, Ужасное Знамение',
-    'lim-28': 'Годрик Сторукий',
+    'lim-19': 'Рыцарь Тигля (Штормхилл)',
+    'lim-20': 'Охотник за печатями торговца (хижина Мастера войны)',
+    'lim-21': 'Птица смерти (к востоку от хижины Мастера войны)',
+    'lim-22': 'Старый рыцарь Иштван',
+    'lim-23': 'Изъязвлённый древесный дух (Могила героя Окраинного народа)',
+    'lim-24': 'Изъязвлённый древесный дух (замок Штормвилль)',
+    'lim-25': 'Рыцарь Тигля (замок Штормвилль)',
+    'lim-26': 'Приплавленный Отпрыск',
+    'lim-27': 'Маргит, Омен Забвения',
+    'lim-28': 'Годрик Приплавленный',
 
-    'wp-01': 'Цербер кладбища Древа Эрд + Бесы',
-    'wp-02': 'Медведь рун',
-    'wp-03': 'Ночной всадник',
-    'wp-04': 'Птица смерти',
-    'wp-05': 'Тень кладбища',
+    'wp-01': 'Сторож погребального древа и бесы',
+    'wp-02': 'Рунный медведь',
+    'wp-03': 'Ночной всадник (вал замка Морн)',
+    'wp-04': 'Птица смерти (окрестности замка Морн)',
+    'wp-05': 'Кладбищенская тень',
     'wp-06': 'Воплощение Древа Эрд',
-    'wp-07': 'Чешуйчатый бастард',
-    'wp-08': 'Миранда Смертоцвет',
+    'wp-07': 'Чешуйчатый Иначе-рождённый',
+    'wp-08': 'Миранда, порочный цветок',
     'wp-09': 'Древний герой Замора',
-    'wp-10': 'Бастард Леонин',
+    'wp-10': 'Львиный Иначе-рождённый',
 
-    'liu-01': 'Рыцарь чистой гнили',
-    'liu-02': 'Адан, Вор Огня',
-    'liu-03': 'Цербер кладбища Древа Эрд',
-    'liu-04': 'Лодочник Тибия',
-    'liu-05': 'Ночной всадник',
-    'liu-06': 'Профессор Мириам',
-    'liu-07': 'Аристократ божественной кожи',
-    'liu-08': 'Птица смерти',
-    'liu-09': 'Приращенный отпрыск',
-    'liu-10': 'Смараг, дракон блестящих камней',
-    'liu-11': 'Кристалийцы',
-    'liu-12': 'Погребальная птица',
-    'liu-13': 'Кристалиец',
-    'liu-14': 'Охотник за колокольными сферами',
-    'liu-15': 'Воплощение Древа Эрд',
-    'liu-16': 'Тень кладбища / Убийца из Черных Ножей',
-    'liu-17': 'Вик, Гниющийотпечаток',
-    'liu-18': 'Ночной всадник',
-    'liu-19': 'Королевский призрак',
-    'liu-20': 'Болс, Карианский рыцарь',
+    'liu-01': 'Рыцарь Чистой Гнили',
+    'liu-02': 'Адан, похититель огня',
+    'liu-03': 'Сторож погребального древа',
+    'liu-04': 'Лодочник Тибия (восток Лиурнии)',
+    'liu-05': 'Ночной всадник (мост у Врат)',
+    'liu-06': 'Наставница Мириам',
+    'liu-07': 'Дворянин Кожи Бога',
+    'liu-08': 'Птица смерти (Живописный остров)',
+    'liu-09': 'Рак и Приплавленный Отпрыск',
+    'liu-10': 'Дракон блескучего камня Смараг',
+    'liu-11': 'Кристалиане (Хрустальная пещера Академии)',
+    'liu-12': 'Погребальная птица (к северу от Врат)',
+    'liu-13': 'Кристалианин с кольцевым клинком',
+    'liu-14': 'Охотник за печатями торговца (Церковь Обетов)',
+    'liu-15': 'Воплощение Древа Эрд (малое древо на востоке)',
+    'liu-16': 'Кладбищенская тень и убийца из Чёрных ножей',
+    'liu-17': 'Вик, Гноящийся Отпечаток Пальца',
+    'liu-18': 'Ночной всадник (лес у тракта Беллум)',
+    'liu-19': 'Королевский ревенант',
+    'liu-20': 'Больс, рыцарь Кариан',
     'liu-21': 'Эдгар Мститель',
-    'liu-22': 'Воплощение Древа Эрд',
-    'liu-23': 'Улитка-призывательница духов',
-    'liu-24': 'Убийца знамений',
-    'liu-25': 'Драконы',
-    'liu-26': 'Кристалийцы',
-    'liu-27': 'Алый волк',
-    'liu-28': 'Алекто, Главарь Черного Ножа',
-    'liu-29': 'Лоретта, королевский рыцарь',
-    'liu-30': 'Адула, дракон блестящих камней',
-    'liu-31': 'Алый волк',
-    'liu-32': 'Алебастровый повелитель',
-    'liu-33': 'Магмовый змей Макар',
-    'liu-34': 'Наемный убийца',
-    'liu-35': 'Алый волк Радагона',
-    'liu-36': 'Королева Реннала Полнолунная',
+    'liu-22': 'Воплощение Древа Эрд (малое древо на западе)',
+    'liu-23': 'Улитка — призывательница духов',
+    'liu-24': 'Убийца Оменов',
+    'liu-25': 'Драконы x3 (Алтарь лунного света)',
+    'liu-26': 'Кристалиане x4 (Алтарь лунного света)',
+    'liu-27': 'Красный волк Алтаря лунного света',
+    'liu-28': 'Алекто, предводительница Чёрных ножей',
+    'liu-29': 'Королевский рыцарь Лоретта',
+    'liu-30': 'Дракон блескучего камня Адула',
+    'liu-31': 'Красный волк (за поместьем Кария)',
+    'liu-32': 'Алебастровый лорд',
+    'liu-33': 'Магматический змей Макар',
+    'liu-34': 'Убийца-наездник ворона',
+    'liu-35': 'Красный волк Радагона',
+    'liu-36': 'Реналла, королева полной луны',
 
-    'alt-01': 'Древний дракон Лансеакс',
-    'alt-02': 'Воин-бастард / Парфюмерша Триша',
-    'alt-03': 'Годфрой Сторукий',
-    'alt-04': 'Ночной всадник',
-    'alt-05': 'Королева полулюдей',
-    'alt-06': 'Лодочник Тибия',
-    'alt-07': 'Некромант Гаррис / Убийца из Черных ножей',
-    'alt-08': 'Цербер кладбища Древа Эрд',
-    'alt-09': 'Тролль-камнекоп',
-    'alt-10': 'Элеонора, Лиловый Окровавленный палец',
-    'alt-11': 'Малей Марэ, смотритель Сумрачного замка',
-    'alt-12': 'Элемер из Шипов',
-    'alt-13': 'Рилей Бездействующий',
-    'alt-14': 'Кровавый аристократ',
-    'alt-15': 'Червемордый',
-    'alt-16': 'Апостол божественной кожи',
-    'alt-17': 'Кристалийцы',
-    'alt-18': 'Убийца из Черных Ножей',
-    'alt-19': 'Древний герой Замора',
-    'alt-20': 'Убийца знамений / Гигантский цветок Миранды',
-    'alt-21': 'Зверь Падающей звезды',
-    'alt-22': 'Страж древа x2',
+    'alt-01': 'Древний дракон Лансьё',
+    'alt-02': 'Воин Иначе-рождённых и парфюмерша Триша',
+    'alt-03': 'Годфруа Приплавленный',
+    'alt-04': 'Ночной всадник (тракт Альтуса)',
+    'alt-05': 'Королева полулюдей Гилика',
+    'alt-06': 'Лодочник Тибия (руины Виндхэма)',
+    'alt-07': 'Некромант Гаррис и убийца из Чёрных ножей',
+    'alt-08': 'Погребальный страж Древа Эрд',
+    'alt-09': 'Тролль-камнерой (старый туннель Альтуса)',
+    'alt-10': 'Элеонора, Лиловый Кровавый Палец',
+    'alt-11': 'Мали Маре, кастелян Затенённого замка',
+    'alt-12': 'Элемер Тернистый',
+    'alt-13': 'Райли Праздный',
+    'alt-14': 'Кровавый дворянин',
+    'alt-15': 'Червеликий (малое древо)',
+    'alt-16': 'Апостол Кожи Бога (деревня Доминула)',
+    'alt-17': 'Кристалиане x2 (туннель Альтуса)',
+    'alt-18': 'Убийца из Чёрных ножей (Могила святого героя)',
+    'alt-19': 'Древний герой Замора (Могила святого героя)',
+    'alt-20': 'Убийца Оменов и Миранда, порочный цветок',
+    'alt-21': 'Зверь падающей звезды (юг Альтус Плато)',
+    'alt-22': 'Древесные стражи x2 (вход в Лейндел)',
 
-    'cae-01': 'Магмовый змей',
-    'cae-02': 'Воплощения древа Эрд',
-    'cae-03': 'Цербер кладбища Древа Эрд x2',
-    'cae-04': 'Тыквоголовый безумец x2',
-    'cae-05': 'Рыцари Великого кувшина x3',
-    'cae-06': 'Яростный Дуэлянт',
-    'cae-07': 'Гниющий Экзикес',
-    'cae-08': 'Ночной всадник',
-    'cae-09': 'Погребальная птица',
-    'cae-10': 'Командир О’Нил',
+    'cae-01': 'Магматический змей (туннель Гаэль)',
+    'cae-02': 'Воплощение Древа Эрд (малое древо на западе)',
+    'cae-03': 'Погребальные стражи Древа Эрд x2',
+    'cae-04': 'Безумные тыквоголовые x2',
+    'cae-05': 'Рыцари Великого Кувшина x3',
+    'cae-06': 'Обезумевший дуэлянт',
+    'cae-07': 'Разлагающийся Экзайкс',
+    'cae-08': 'Ночной всадник (юг тракта Каэлида)',
+    'cae-09': 'Погребальная птица (южный берег болота Эония)',
+    'cae-10': "Командир О'Нил",
     'cae-11': 'Миллисента',
-    'cae-12': 'Мечница-нокс / Священник-нокс',
-    'cae-13': 'Зверь Падающей звезды',
-    'cae-14': 'Рыцарь чистой гнили x2',
-    'cae-15': 'Боевой маг Гуго',
-    'cae-16': 'Старший дракон Грейолл (?)',
-    'cae-17': 'Кристалийцы x3',
-    'cae-18': 'Апостол божественной кожи',
-    'cae-19': 'Гнилостное воплощение (?)',
-    'cae-20': 'Зверочеловек из Фарум-Азулы x2',
-    'cae-21': 'Ночной всадник',
-    'cae-22': 'Греил, крылатый дракон',
-    'cae-23': 'Родич Черного клинка',
-    'cae-24': 'Гурранк, жрец-зверь',
-    'cae-25': 'Воин-бастард / Рыцарь горнила',
-    'cae-26': 'Радан Бич Звёзд',
+    'cae-12': 'Мечница Нокс и жрец Нокс',
+    'cae-13': 'Зверь падающей звезды (Хрустальный туннель Селии)',
+    'cae-14': 'Рыцари Чистой Гнили x2',
+    'cae-15': 'Боевой маг Хьюг',
+    'cae-16': 'Древний дракон Грейолл',
+    'cae-17': 'Кристалиане x3 (укрытие Селии)',
+    'cae-18': 'Апостол Кожи Бога (Святая башня Каэлида)',
+    'cae-19': 'Гнилостное воплощение',
+    'cae-20': 'Зверолюди Фарум Азулы x2',
+    'cae-21': 'Ночной всадник (мост Возвышения Ленны)',
+    'cae-22': 'Летающий дракон Грейлл',
+    'cae-23': 'Родич Чёрного Клинка',
+    'cae-24': 'Гурранк, звероподобный священник',
+    'cae-25': 'Воин Иначе-рождённых и рыцарь Тигля',
+    'cae-26': 'Радан, Бич Звёзд',
     'cae-27': 'Гнилостный древесный дух',
 
-    'gel-01': 'Приращенный отпрыск',
+    'gel-01': 'Приплавленный Отпрыск (север горы Гельмир)',
     'gel-02': 'Королева полулюдей Марго',
-    'gel-03': 'Изъязвленный древесный дух',
-    'gel-04': 'Родич гнили',
-    'gel-05': 'Алый Волк Чемпиона',
-    'gel-06': 'Взрослый Зверь Падающей звезды',
-    'gel-07': 'Червемордый',
-    'gel-08': 'Прелат огня',
-    'gel-09': 'Магмовый змей',
+    'gel-03': 'Изъязвлённый древесный дух (малое древо)',
+    'gel-04': 'Родичи Гнили x2',
+    'gel-05': 'Красный волк Чемпиона',
+    'gel-06': 'Взрослый зверь падающей звезды',
+    'gel-07': 'Червеликий (Дорога нечестия)',
+    'gel-08': 'Огненный прелат',
+    'gel-09': 'Магматический змей (юг форта Лайед)',
     'gel-10': 'Королева полулюдей Мэгги',
-    'gel-11': 'Дева-похитительница',
-    'gel-12': 'Магмовый змей',
-    'gel-13': 'Аристократ Божественной кожи',
-    'gel-14': 'Рикард, богохульный владыка',
+    'gel-11': 'Девы-похитительницы x2',
+    'gel-12': 'Магматический змей (Поместье Вулкан)',
+    'gel-13': 'Дворянин Кожи Бога (Поместье Вулкан)',
+    'gel-14': 'Рикард, Владыка Богохульства',
     'gel-15': 'Рыцарь Танит',
 
-    'ley-01': 'Изъязвленный древесный дух',
-    'ley-02': 'Доблестные горгульи',
-    'ley-03': 'Маргит, Ужасное Знамение',
-    'ley-04': 'Птица смерти',
-    'ley-05': 'Ониксовый повелитель',
-    'ley-06': 'Безобразный пожиратель гнили',
-    'ley-07': 'Драконий страж древа',
-    'ley-08': 'Дуэлянт, хранитель могил',
-    'ley-09': 'Рыцарь Горнила Ордовис / Рыцарь Горнила',
-    'ley-10': 'Воплощение Древа Эрд',
-    'ley-11': 'Изъязвленный древесный дух',
-    'ley-12': 'Горгулья',
-    'ley-13': 'Варграм Свирепый Волк / Бродячий чародей Вильгельм',
-    'ley-14': 'Годфри, первый повелитель Элдена / Хоара Лукс',
-    'ley-15': 'Убийца из Черных Ножей',
-    'ley-16': 'Морготт, король знамений',
-    'ley-17': 'Ужасные близнецы x2',
+    'ley-01': 'Изъязвлённый древесный дух (запад Лейндела)',
+    'ley-02': 'Горгулья с двумя клинками',
+    'ley-03': 'Маргит, Омен Забвения (запад Лейндела)',
+    'ley-04': 'Птица смерти (север Лейндела)',
+    'ley-05': 'Ониксовый лорд',
+    'ley-06': 'Омерзительный Пожиратель Дерьма',
+    'ley-07': 'Драконий страж Древа',
+    'ley-08': 'Дуэлянт — хранитель могил (боковая гробница Аурицы)',
+    'ley-09': 'Рыцарь Тигля Ордовис и рыцарь Тигля',
+    'ley-10': 'Воплощение Древа Эрд (главная дорога Лейндела)',
+    'ley-11': 'Изъязвлённый древесный дух (церковь Нижней столицы)',
+    'ley-12': 'Горгулья (западный вал столицы)',
+    'ley-13': 'Варграм и Вильгельм',
+    'ley-14': 'Годфри, Первый Элден Лорд',
+    'ley-15': 'Убийца из Чёрных ножей (опочивальня королевы)',
+    'ley-16': 'Морготт, Король Омен',
+    'ley-17': 'Зловещие близнецы x2',
 
     'mtn-01': 'Ночной всадник',
     'mtn-02': 'Родич Чёрного Клинка',
@@ -452,7 +689,19 @@ const ruNames = {
     'mtn-29': 'Гнилостный древесный дух',
     'mtn-30': 'Сестры Миллисенты',
     'mtn-31': 'Гнилостное воплощение',
-    'mtn-32': 'Маления, клинок Микеллы'
+    'mtn-32': 'Маления, клинок Микеллы',
+
+    'far-01': 'Дракон',
+    'far-02': 'Двое из божественной кожи',
+    'far-03': 'Рыцарь Горнила',
+    'far-04': 'Драконий страж древа',
+    'far-05': 'Маликет Черный Клинок',
+
+    'leyac-01': 'Сэр Гидеон Офнир Всеведущий',
+    'leyac-02': 'Годфри Первый Повелитель Эльдена',
+    'leyac-03': 'Хоара Лукс',
+    'leyac-04': 'Радагон из Золотого Порядка',
+    'leyac-05': 'Зверь Эльдена'
   }
 };
 
@@ -470,8 +719,9 @@ const i18n = {
     shown: 'shown',
     defeated: 'bosses defeated',
     cleared: 'cleared',
-    complete: 'complete',
     remaining: 'remaining',
+    gameEldenRing: 'Elden Ring',
+    gameShadowErdtree: 'Shadow of the Erdtree',
     selectAll: 'Select All Bosses',
     deselectAll: 'Deselect All Bosses',
     noneFound: 'Nothing found. Try a different search term.',
@@ -481,7 +731,7 @@ const i18n = {
     themeToggle: 'Toggle dark or light theme'
   },
   ru: {
-    eyebrow: 'Междуземье',
+    eyebrow: 'Трекер Промежуточных Земель',
     title: 'Чек-лист боссов Elden Ring',
     reset: 'Сбросить прогресс',
     searchPlaceholder: 'Поиск босса по имени…',
@@ -492,8 +742,9 @@ const i18n = {
     shown: 'показано',
     defeated: 'боссов повержено',
     cleared: 'пройдено',
-    complete: 'завершено',
     remaining: 'осталось',
+    gameEldenRing: 'Elden Ring',
+    gameShadowErdtree: 'Тень Эрдтри',
     selectAll: 'Выделить всех боссов',
     deselectAll: 'Снять отметки со всех боссов',
     noneFound: 'Ничего не найдено. Попробуйте другой запрос.',
@@ -512,9 +763,13 @@ const state = {
   filter: 'all',
   searchTerm: '',
   completed: new Set(),
-  openRegions: new Set([regions[0].id]),
+  openRegions: {
+    eldenring: new Set([eldenRingRegions[0].id]),
+    shadowerdtree: new Set([shadowErdtreeRegions[0].id])
+  },
   lang: 'en',
-  theme: 'dark'
+  theme: 'dark',
+  activeGame: 'eldenring'
 };
 
 const els = {};
@@ -528,7 +783,6 @@ function cacheDom() {
   els.resetLabel = document.getElementById('reset-label');
   els.completedCount = document.getElementById('completed-count');
   els.totalCount = document.getElementById('total-count');
-  els.percentLabel = document.getElementById('percent-label');
   els.overallBar = document.getElementById('overall-bar');
   els.chartFill = document.getElementById('chart-fill');
   els.chartPercent = document.getElementById('chart-percent');
@@ -539,13 +793,13 @@ function cacheDom() {
   els.regionsTitle = document.getElementById('regions-title');
   els.remainingCount = document.getElementById('remaining-count');
   els.remainingLabel = document.getElementById('remaining-label');
-  els.completeLabel = document.getElementById('complete-label');
   els.statCaption = document.getElementById('stat-caption');
   els.brandEyebrow = document.getElementById('brand-eyebrow');
   els.brandTitle = document.getElementById('brand-title');
   els.footerText = document.getElementById('footer-text');
   els.themeToggle = document.getElementById('theme-toggle');
   els.langButtons = document.querySelectorAll('.lang-btn');
+  els.gameButtons = document.querySelectorAll('.game-switch-btn');
 }
 
 /* ==========================================================================
@@ -612,9 +866,13 @@ function getBossName(boss) {
    Data helpers
    ========================================================================== */
 
-function getAllBosses() {
+function getActiveRegions() {
+  return games[state.activeGame].regions;
+}
+
+function getAllBosses(gameId) {
   const list = [];
-  regions.forEach((region) => {
+  games[gameId || state.activeGame].regions.forEach((region) => {
     region.bosses.forEach((boss) => list.push({ ...boss, regionId: region.id, regionName: region.name }));
   });
   return list;
@@ -645,8 +903,9 @@ function matchesSearch(boss) {
 function buildAccordion() {
   els.accordion.innerHTML = '';
   let visibleRegionCount = 0;
+  const openRegions = state.openRegions[state.activeGame];
 
-  regions.forEach((region, regionIndex) => {
+  getActiveRegions().forEach((region, regionIndex) => {
     const { total, done } = getTotals(region.bosses);
     const pct = total ? Math.round((done / total) * 100) : 0;
     const visibleBosses = region.bosses.filter((b) => matchesSearch(b) && matchesFilter(b));
@@ -655,7 +914,7 @@ function buildAccordion() {
     if (hasSearch && visibleBosses.length === 0) return;
     visibleRegionCount += 1;
 
-    const isOpen = hasSearch ? true : state.openRegions.has(region.id);
+    const isOpen = hasSearch ? true : openRegions.has(region.id);
     const finished = total > 0 && done === total;
 
     const item = document.createElement('article');
@@ -785,7 +1044,7 @@ function toggleBoss(bossId, rowEl) {
 }
 
 function toggleSelectAll(regionId) {
-  const region = regions.find((r) => r.id === regionId);
+  const region = getActiveRegions().find((r) => r.id === regionId);
   if (!region) return;
 
   const { total, done } = getTotals(region.bosses);
@@ -805,7 +1064,7 @@ function toggleSelectAll(regionId) {
 }
 
 function refreshRegionMeta() {
-  regions.forEach((region) => {
+  getActiveRegions().forEach((region) => {
     const { total, done } = getTotals(region.bosses);
     const pct = total ? Math.round((done / total) * 100) : 0;
     const trigger = document.querySelector(`.accordion-trigger[data-region-id="${region.id}"]`);
@@ -842,15 +1101,16 @@ function refreshRegionMeta() {
 
 function toggleRegion(regionId) {
   if (state.searchTerm.trim()) return;
-  if (state.openRegions.has(regionId)) {
-    state.openRegions.delete(regionId);
+  const openRegions = state.openRegions[state.activeGame];
+  if (openRegions.has(regionId)) {
+    openRegions.delete(regionId);
   } else {
-    state.openRegions.add(regionId);
+    openRegions.add(regionId);
   }
   const trigger = document.querySelector(`.accordion-trigger[data-region-id="${regionId}"]`);
   const panel = document.getElementById('panel-' + regionId);
   if (trigger && panel) {
-    const isOpen = state.openRegions.has(regionId);
+    const isOpen = openRegions.has(regionId);
     trigger.setAttribute('aria-expanded', String(isOpen));
     panel.classList.toggle('is-open', isOpen);
   }
@@ -891,7 +1151,6 @@ function updateProgress() {
 
   els.completedCount.textContent = done;
   els.totalCount.textContent = total;
-  els.percentLabel.textContent = pct + '%';
   els.remainingCount.textContent = total - done;
   els.overallBar.style.width = pct + '%';
   updateChart(pct);
@@ -923,6 +1182,24 @@ function toggleTheme() {
 }
 
 /* ==========================================================================
+   Game switch — Elden Ring / Shadow of the Erdtree
+   ========================================================================== */
+
+function applyGame(gameId) {
+  state.activeGame = gameId;
+
+  els.gameButtons.forEach((btn) => {
+    const active = btn.dataset.game === gameId;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-selected', String(active));
+  });
+
+  savePreference(GAME_KEY, gameId);
+  buildAccordion();
+  updateProgress();
+}
+
+/* ==========================================================================
    Language system
    ========================================================================== */
 
@@ -943,12 +1220,16 @@ function applyLanguage(lang) {
   els.searchInput.setAttribute('placeholder', t('searchPlaceholder'));
   els.chartCaption.textContent = t('cleared');
   els.statCaption.textContent = t('defeated');
-  els.completeLabel.textContent = t('complete');
   els.remainingLabel.textContent = t('remaining');
   els.regionsTitle.textContent = t('regionsTitle');
   els.regionsShownLabel.textContent = t('shown');
   els.footerText.textContent = t('footer');
   els.themeToggle.setAttribute('aria-label', t('themeToggle'));
+
+  els.gameButtons.forEach((btn) => {
+    const key = btn.dataset.game === 'eldenring' ? 'gameEldenRing' : 'gameShadowErdtree';
+    btn.textContent = t(key);
+  });
 
   els.filterButtons.forEach((btn) => {
     const key = btn.dataset.filter;
@@ -976,6 +1257,9 @@ function attachEvents() {
   els.langButtons.forEach((btn) => {
     btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
   });
+  els.gameButtons.forEach((btn) => {
+    btn.addEventListener('click', () => applyGame(btn.dataset.game));
+  });
 }
 
 function init() {
@@ -984,9 +1268,11 @@ function init() {
 
   const savedTheme = loadPreference(THEME_KEY, 'dark', ['dark', 'light']);
   const savedLang = loadPreference(LANG_KEY, 'en', ['en', 'ru']);
+  const savedGame = loadPreference(GAME_KEY, 'eldenring', ['eldenring', 'shadowerdtree']);
 
   attachEvents();
   applyTheme(savedTheme);
+  applyGame(savedGame);
   applyLanguage(savedLang);
   requestAnimationFrame(() => document.body.classList.add('is-ready'));
 }

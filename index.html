@@ -39,6 +39,11 @@
 
     <main class="layout">
 
+      <div class="game-switch" role="tablist" aria-label="Game">
+        <button type="button" class="game-switch-btn active" data-game="eldenring" role="tab" aria-selected="true">Elden Ring</button>
+        <button type="button" class="game-switch-btn" data-game="shadowerdtree" role="tab" aria-selected="false">Shadow of the Erdtree</button>
+      </div>
+
       <section class="overview-card" aria-label="Overall progress">
         <div class="overview-chart">
           <svg class="chart" viewBox="0 0 130 130" width="130" height="130" role="img" aria-label="Overall completion chart">
@@ -62,7 +67,6 @@
           </div>
 
           <div class="stat-chips">
-            <span class="chip chip-percent"><span id="percent-label">0%</span> <span id="complete-label">complete</span></span>
             <span class="chip chip-muted"><span id="remaining-count">0</span> <span id="remaining-label">remaining</span></span>
           </div>
         </div>

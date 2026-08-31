@@ -349,6 +349,52 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
 }
 
 /* ==========================================================================
+   Game switch — Elden Ring / Shadow of the Erdtree
+   ========================================================================== */
+
+.game-switch {
+  display: flex;
+  gap: 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  padding: 5px;
+  box-shadow: var(--shadow-1);
+  transition: var(--theme-transition);
+}
+
+.game-switch-btn {
+  flex: 1;
+  background: transparent;
+  border: none;
+  border-radius: calc(var(--radius-lg) - 5px);
+  padding: 12px 14px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+
+.game-switch-btn:hover { color: var(--text-primary); }
+
+.game-switch-btn:focus-visible {
+  outline: 2px solid var(--cta);
+  outline-offset: 2px;
+}
+
+.game-switch-btn.active {
+  background: var(--cta);
+  color: var(--on-cta);
+  box-shadow: var(--shadow-1);
+}
+
+@media (max-width: 480px) {
+  .game-switch-btn { padding: 11px 8px; font-size: 13.5px; }
+}
+
+/* ==========================================================================
    Overview card — chart + stats
    ========================================================================== */
 
@@ -479,11 +525,6 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
   padding: 5px 12px;
   border-radius: 999px;
   transition: var(--theme-transition);
-}
-
-.chip-percent {
-  background: var(--surface-3);
-  color: var(--text-primary);
 }
 
 .chip-muted {
