@@ -869,7 +869,7 @@ const i18n = {
     cleared: 'пройдено',
     remaining: 'осталось',
     gameEldenRing: 'Elden Ring',
-    gameShadowErdtree: 'Тень Эрдтри',
+    gameShadowErdtree: 'Shadows of the Erdtree',
     selectAll: 'Выделить всех боссов',
     deselectAll: 'Снять отметки со всех боссов',
     noneFound: 'Ничего не найдено. Попробуйте другой запрос.',
