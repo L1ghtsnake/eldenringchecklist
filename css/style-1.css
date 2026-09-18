@@ -249,17 +249,9 @@ body.is-ready .page {
 .burger-menu {
   position: relative;
   display: flex;
-  align-items: center;
-  gap: 10px;
 }
 
-/* Specificity matches `.icon-btn` (a single class, 0-1-0) further down
-   this file — since that rule sets `display: inline-flex` and comes
-   later in source order, it was silently winning the cascade tie and
-   keeping the burger button visible at every width. Bumping this to a
-   two-class selector (0-2-0) makes it win regardless of source order,
-   the same fix pattern used for `.icon-btn[hidden]` etc. elsewhere. */
-.icon-btn.burger-btn { display: none; }
+.burger-btn { display: none; }
 
 /* Hidden by default off the mobile breakpoint below; made visible again
    there once `.icon-btn-label` needs to actually show. */
@@ -1172,26 +1164,14 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
   flex-shrink: 0;
 }
 
-/* Fixed `height` + flex-centered text rather than padding-derived
-   height: padding-based sizing put the actual rendered height at the
-   mercy of each font's line-height metrics (Cinzel and Spectral SC
-   differ), which is exactly what made `.category-filter-btn` next to
-   it impossible to reliably match via aspect-ratio/stretch tricks.
-   With both this and the square button below pinned to the same 44px,
-   there's nothing left to compute or drift out of sync. */
 .filter-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 44px;
   background: var(--surface-1);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 0 16px;
+  padding: 10px 16px;
   cursor: pointer;
   color: var(--text-secondary);
   font-weight: 500;
-  flex-shrink: 0;
   transition: background var(--dur-fast) var(--ease-soft),
               border-color var(--dur-fast) var(--ease-soft),
               color var(--dur-fast) var(--ease-soft),
@@ -1214,25 +1194,13 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
 
 /* ---- Category filter (dropdown) ---- */
 
-/* Both `aspect-ratio` attempts (on the button, then on this wrapper)
-   fought with flexbox's `align-self: stretch` — width and height get
-   resolved in different passes of the flex algorithm, so one of the
-   two dimensions kept losing the sync and either overflowed past its
-   reserved slot or shrank back to `min-width`. Fixed 44x44 (matching
-   `.filter-btn`'s own fixed height above) sidesteps that entirely:
-   nothing here is computed from anything else, so there's nothing
-   left to fall out of sync. */
 .category-filter {
   position: relative;
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
 }
 
 .category-filter-btn {
-  width: 100%;
-  height: 100%;
-  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-sm);
   background: var(--surface-1);
 }
@@ -1282,63 +1250,12 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
   color: var(--text-primary);
 }
 
-/* Custom checkbox, matching the site's own `.boss-checkbox-visual`
-   pattern — the native checkbox (styled only via `accent-color`) was
-   nearly invisible against the dark theme and gave almost no visual
-   difference between checked/unchecked. The real input stays in the
-   DOM (opacity 0, still keyboard/click-accessible); a sibling span is
-   what's actually painted. */
-.category-checkbox-wrap {
-  position: relative;
-  width: 18px;
-  height: 18px;
+.category-option input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
   flex-shrink: 0;
-}
-
-.category-checkbox {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  margin: 0;
+  accent-color: var(--cta);
   cursor: pointer;
-  z-index: 1;
-}
-
-.category-checkbox-visual {
-  position: absolute;
-  inset: 0;
-  border-radius: 6px;
-  border: 2px solid var(--border);
-  background: var(--surface-1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: transparent;
-  transition: background var(--dur-fast) var(--ease-soft),
-              border-color var(--dur-fast) var(--ease-soft),
-              color var(--dur-fast) var(--ease-soft),
-              transform var(--dur-fast) var(--ease-soft);
-}
-
-.category-checkbox:hover ~ .category-checkbox-visual {
-  border-color: var(--cta);
-}
-
-.category-checkbox:focus-visible ~ .category-checkbox-visual {
-  outline: 2px solid var(--cta);
-  outline-offset: 2px;
-}
-
-.category-checkbox:checked ~ .category-checkbox-visual {
-  background: var(--cta);
-  border-color: var(--cta);
-  color: var(--on-cta);
-  animation: checkPop var(--dur-base) var(--ease);
-}
-
-.category-checkbox:checked:hover ~ .category-checkbox-visual {
-  background: var(--cta-hover);
-  border-color: var(--cta-hover);
 }
 
 @media (max-width: 640px) {
@@ -1851,7 +1768,7 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
   .select-all-btn { flex: 1; justify-content: center; }
 
   /* Language / theme / account collapse into the burger menu. */
-  .icon-btn.burger-btn { display: inline-flex; }
+  .burger-btn { display: inline-flex; }
 
   .header-controls {
     display: none;

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>Категории боссов — служебный инструмент</title>
+<style>
+  body { font-family: -apple-system, Arial, sans-serif; background: #14141a; color: #e8e6e0; padding: 24px; max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 20px; }
+  h2 { font-size: 16px; margin-top: 28px; border-bottom: 1px solid #333; padding-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+  th, td { text-align: left; padding: 4px 8px; border-bottom: 1px solid #2a2a30; }
+  th { color: #9a9690; font-weight: 600; }
+  .ok { color: #6fcf72; }
+  .warn { color: #e0a030; }
+  .err { color: #e05a5a; font-weight: 600; }
+  .pill { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 11px; margin-right: 4px; }
+  .pill-story { background: #4a3a7a; }
+  .pill-hard { background: #7a3a3a; }
+  .pill-quest { background: #3a5a7a; }
+  .pill-optional { background: #3a5a3a; }
+  button { background: #7a3a3a; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-size: 14px; cursor: pointer; margin-top: 12px; }
+  button:disabled { background: #444; cursor: not-allowed; opacity: 0.6; }
+  button:hover:not(:disabled) { background: #963; }
+  #status { margin-top: 16px; padding: 10px; border-radius: 6px; background: #1e1e24; white-space: pre-wrap; }
+  code { background: #1e1e24; padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<h1>Служебная страница: проставление категорий боссам (Elden Ring)</h1>
+<p>Эта страница читает <code>gameData/eldenring</code>, показывает предпросмотр изменений (ничего не пишет),
+и только по нажатию кнопки записывает поле <code>categories</code> в каждый затронутый босс.
+Требует временных правил Firestore, разрешающих запись в <code>gameData</code> (см. чат).</p>
+
+<h2>1. Предпросмотр (только чтение)</h2>
+<div id="preview">Загрузка данных из Firestore…</div>
+
+<h2>2. Запись в Firestore</h2>
+<button id="writeBtn" disabled>Загрузка…</button>
+<div id="status"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="scripts/firebase.js"></script>
+<script>
+'use strict';
+
+// id -> [categories], built from the boss lists the user provided in chat.
+const CATEGORIES = {"alt-01": ["optional"], "alt-02": ["optional"], "alt-03": ["optional"], "alt-04": ["optional"], "alt-05": ["optional"], "alt-06": ["optional"], "alt-07": ["optional"], "alt-08": ["optional"], "alt-09": ["optional"], "alt-10": ["optional"], "alt-11": ["optional"], "alt-12": ["hard", "optional"], "alt-13": ["quest", "optional"], "alt-14": ["optional"], "alt-15": ["optional"], "alt-16": ["hard", "optional"], "alt-17": ["optional"], "alt-18": ["optional"], "alt-19": ["optional"], "alt-20": ["optional"], "alt-21": ["optional"], "alt-22": ["hard", "optional"], "cae-01": ["optional"], "cae-02": ["optional"], "cae-03": ["optional"], "cae-04": ["optional"], "cae-05": ["hard", "optional"], "cae-06": ["optional"], "cae-07": ["optional"], "cae-08": ["optional"], "cae-09": ["hard", "optional"], "cae-10": ["optional"], "cae-11": ["quest", "optional"], "cae-12": ["optional"], "cae-13": ["hard", "optional"], "cae-14": ["optional"], "cae-15": ["optional"], "cae-16": ["optional"], "cae-17": ["optional"], "cae-18": ["hard", "optional"], "cae-19": ["optional"], "cae-20": ["optional"], "cae-21": ["optional"], "cae-22": ["optional"], "cae-23": ["hard", "optional"], "cae-24": ["hard", "optional"], "cae-25": ["optional"], "cae-26": ["story"], "cae-27": ["optional"], "far-01": ["optional"], "far-02": ["story"], "far-03": ["hard", "optional"], "far-04": ["story"], "far-05": ["story"], "gel-01": ["optional"], "gel-02": ["optional"], "gel-03": ["optional"], "gel-04": ["optional"], "gel-05": ["optional"], "gel-06": ["hard", "optional"], "gel-07": ["optional"], "gel-08": ["optional"], "gel-09": ["optional"], "gel-10": ["optional"], "gel-11": ["optional"], "gel-12": ["optional"], "gel-13": ["hard", "optional"], "gel-14": ["story", "hard", "quest", "optional"], "gel-15": ["quest", "optional"], "ley-01": ["optional"], "ley-02": ["optional"], "ley-03": ["optional"], "ley-04": ["optional"], "ley-05": ["optional"], "ley-06": ["quest", "optional"], "ley-07": ["story"], "ley-08": ["optional"], "ley-09": ["hard", "optional"], "ley-10": ["optional"], "ley-11": ["optional"], "ley-12": ["optional"], "ley-13": ["quest", "optional"], "ley-14": ["story"], "ley-15": ["optional"], "ley-16": ["story"], "ley-17": ["optional"], "leyac-01": ["story"], "leyac-02": ["story"], "leyac-03": ["story"], "leyac-04": ["story"], "leyac-05": ["story"], "lim-01": ["optional"], "lim-02": ["optional"], "lim-03": ["optional"], "lim-04": ["optional"], "lim-05": ["optional"], "lim-06": ["optional"], "lim-07": ["optional"], "lim-08": ["optional"], "lim-09": ["optional"], "lim-10": ["optional"], "lim-11": ["optional"], "lim-12": ["optional"], "lim-13": ["optional"], "lim-14": ["optional"], "lim-15": ["optional"], "lim-16": ["optional"], "lim-17": ["optional"], "lim-18": ["optional"], "lim-19": ["hard", "optional"], "lim-20": ["hard", "optional"], "lim-21": ["optional"], "lim-22": ["quest", "optional"], "lim-23": ["hard", "optional"], "lim-24": ["hard", "optional"], "lim-25": ["hard", "optional"], "lim-26": ["hard", "optional"], "lim-27": ["story"], "lim-28": ["story"], "liu-01": ["optional"], "liu-02": ["optional"], "liu-03": ["optional"], "liu-04": ["optional"], "liu-05": ["optional"], "liu-06": ["optional"], "liu-07": ["hard", "optional"], "liu-08": ["optional"], "liu-09": ["optional"], "liu-10": ["optional"], "liu-11": ["optional"], "liu-12": ["hard", "optional"], "liu-13": ["optional"], "liu-14": ["hard", "optional"], "liu-15": ["optional"], "liu-16": ["optional"], "liu-17": ["optional"], "liu-18": ["optional"], "liu-19": ["hard", "optional"], "liu-20": ["optional"], "liu-21": ["optional"], "liu-22": ["optional"], "liu-23": ["optional"], "liu-24": ["optional"], "liu-25": ["optional"], "liu-26": ["optional"], "liu-27": ["optional"], "liu-28": ["hard", "optional"], "liu-29": ["hard", "optional"], "liu-30": ["optional"], "liu-31": ["optional"], "liu-32": ["optional"], "liu-33": ["hard", "optional"], "liu-34": ["optional"], "liu-35": ["story"], "liu-36": ["story"], "mtn-01": ["optional"], "mtn-02": ["hard", "optional"], "mtn-03": ["optional"], "mtn-04": ["optional"], "mtn-05": ["optional"], "mtn-06": ["optional"], "mtn-07": ["hard", "optional"], "mtn-08": ["optional"], "mtn-09": ["optional"], "mtn-10": ["optional"], "mtn-11": ["optional"], "mtn-12": ["optional"], "mtn-13": ["hard", "optional"], "mtn-14": ["optional"], "mtn-15": ["story"], "mtn-16": ["optional"], "mtn-17": ["optional"], "mtn-18": ["optional"], "mtn-19": ["hard", "optional"], "mtn-20": ["optional"], "mtn-21": ["optional"], "mtn-22": ["optional"], "mtn-23": ["optional"], "mtn-24": ["optional"], "mtn-25": ["hard", "optional"], "mtn-26": ["optional"], "mtn-27": ["hard", "optional"], "mtn-28": ["optional"], "mtn-29": ["optional"], "mtn-30": ["quest", "optional"], "mtn-31": ["optional"], "mtn-32": ["hard", "optional"], "wp-01": ["optional"], "wp-02": ["optional"], "wp-03": ["optional"], "wp-04": ["optional"], "wp-05": ["optional"], "wp-06": ["optional"], "wp-07": ["optional"], "wp-08": ["optional"], "wp-09": ["optional"], "wp-10": ["hard", "optional"]};
+
+const DOC_REF = () => db.collection('gameData').doc('eldenring');
+
+function pill(cat) {
+  return `<span class="pill pill-${cat}">${cat}</span>`;
+}
+
+let fetchedData = null; // raw doc.data()
+let plannedBossCount = 0;
+
+async function loadAndPreview() {
+  const previewEl = document.getElementById('preview');
+  const writeBtn = document.getElementById('writeBtn');
+  try {
+    const snap = await DOC_REF().get();
+    if (!snap.exists) {
+      previewEl.innerHTML = '<p class="err">Документ gameData/eldenring не найден.</p>';
+      return;
+    }
+    fetchedData = snap.data();
+    const regions = fetchedData.regions || [];
+
+    // index all boss ids actually present in the doc
+    const presentIds = new Set();
+    regions.forEach(r => (r.bosses || []).forEach(b => presentIds.add(b.id)));
+
+    const wantedIds = Object.keys(CATEGORIES);
+    const missing = wantedIds.filter(id => !presentIds.has(id));
+
+    let rows = '';
+    let count = 0;
+    regions.forEach(region => {
+      (region.bosses || []).forEach(boss => {
+        const cats = CATEGORIES[boss.id];
+        if (!cats) return;
+        count++;
+        const already = boss.categories ? boss.categories.join(', ') : '—';
+        rows += `<tr>
+          <td><code>${boss.id}</code></td>
+          <td>${boss.name}</td>
+          <td>${region.name || region.id}</td>
+          <td>${already}</td>
+          <td>${cats.map(pill).join('')}</td>
+        </tr>`;
+      });
+    });
+    plannedBossCount = count;
+
+    let html = `<p class="ok">Документ прочитан успешно. Боссов в документе: ${presentIds.size}. Боссов, которым будут проставлены категории: ${count} из ${wantedIds.length} запланированных.</p>`;
+    if (missing.length) {
+      html += `<p class="err">Внимание: ${missing.length} id из плана не найдены в документе (ничего страшного не случится, они просто будут пропущены): ${missing.join(', ')}</p>`;
+    }
+    html += `<table><thead><tr><th>ID</th><th>Название (EN)</th><th>Регион</th><th>Уже есть</th><th>Будет проставлено</th></tr></thead><tbody>${rows}</tbody></table>`;
+    previewEl.innerHTML = html;
+
+    writeBtn.disabled = false;
+    writeBtn.textContent = `Записать категории для ${count} боссов в Firestore`;
+  } catch (err) {
+    console.error(err);
+    previewEl.innerHTML = `<p class="err">Ошибка чтения: ${err.message}. Проверьте, что временные правила Firestore для gameData уже включены.</p>`;
+  }
+}
+
+async function writeCategories() {
+  const statusEl = document.getElementById('status');
+  const writeBtn = document.getElementById('writeBtn');
+  if (!fetchedData) return;
+  writeBtn.disabled = true;
+  statusEl.textContent = 'Записываю…';
+  try {
+    // deep clone and mutate
+    const updated = JSON.parse(JSON.stringify(fetchedData));
+    let applied = 0;
+    (updated.regions || []).forEach(region => {
+      (region.bosses || []).forEach(boss => {
+        const cats = CATEGORIES[boss.id];
+        if (cats) {
+          boss.categories = cats;
+          applied++;
+        }
+      });
+    });
+    await DOC_REF().set(updated);
+    statusEl.innerHTML = `<span class="ok">Готово! Категории записаны для ${applied} боссов.</span>\nТеперь верните боевые правила Firestore (запрет записи в gameData) — см. чат.`;
+  } catch (err) {
+    console.error(err);
+    statusEl.innerHTML = `<span class="err">Ошибка записи: ${err.message}</span>`;
+    writeBtn.disabled = false;
+  }
+}
+
+document.getElementById('writeBtn').addEventListener('click', () => {
+  if (confirm(`Записать categories для ${plannedBossCount} боссов в Firestore? Это перезапишет весь документ gameData/eldenring.`)) {
+    writeCategories();
+  }
+});
+
+loadAndPreview();
+</script>
+</body>
+</html>
