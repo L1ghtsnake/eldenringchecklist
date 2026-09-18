@@ -4,831 +4,18 @@ const STORAGE_KEY = 'eldenRingBossChecklist';
 const THEME_KEY = 'eldenRingBossChecklistTheme';
 const LANG_KEY = 'eldenRingBossChecklistLang';
 const GAME_KEY = 'eldenRingBossChecklistGame';
+const CATEGORY_FILTER_KEY = 'eldenRingBossChecklistCategories';
 
-/* ==========================================================================
-   Data — English source names (ids are stable, used for storage & lookup)
-   ========================================================================== */
+/* Boss categories for the category filter. Bosses aren't tagged with these
+   yet (that mapping comes later), so matchesCategoryFilter() treats any
+   boss without a `categories` array as always visible — the filter is
+   wired up and ready, it just has nothing to narrow down until the data
+   carries category tags. */
+const BOSS_CATEGORIES = ['story', 'hard', 'quest', 'optional'];
 
-const eldenRingRegions = [
-  {
-    id: 'limgrave',
-    name: 'Limgrave',
-    bosses: [
-      { id: 'lim-01', name: 'Soldier of Godrick' },
-      { id: 'lim-02', name: 'Demi-Human Chiefs' },
-      { id: 'lim-03', name: 'Burial Tree Watchdog' },
-      { id: 'lim-04', name: 'Beastman of Farum Azula' },
-      { id: 'lim-05', name: 'Stonedigger Troll' },
-      { id: 'lim-06', name: 'Grave Warden Duelist' },
-      { id: 'lim-07', name: 'Bloody Finger Nerijus' },
-      { id: 'lim-08', name: 'Patches' },
-      { id: 'lim-09', name: 'Guardian Golem' },
-      { id: 'lim-10', name: 'Black Knife Assassin' },
-      { id: 'lim-11', name: 'Recusant Henricus' },
-      { id: 'lim-12', name: 'Mad Pumpkin Head' },
-      { id: 'lim-13', name: "Night's Cavalry (Highway Bridge)" },
-      { id: 'lim-14', name: 'Tree Sentinel' },
-      { id: 'lim-15', name: 'Flying Dragon Agheel' },
-      { id: 'lim-16', name: 'Tibia Mariner' },
-      { id: 'lim-17', name: 'Anastasia, Tarnished-Eater' },
-      { id: 'lim-18', name: 'Bloodhound Knight Darriwil' },
-      { id: 'lim-19', name: 'Crucible Knight (Stormhill)' },
-      { id: 'lim-20', name: "Bell Bearing Hunter (Warmaster's Shack)" },
-      { id: 'lim-21', name: "Deathbird (Warmaster's Shack East)" },
-      { id: 'lim-22', name: 'Old Knight Istvan' },
-      { id: 'lim-23', name: "Ulcerated Tree Spirit (Fringefolk Hero's Grave)" },
-      { id: 'lim-24', name: 'Ulcerated Tree Spirit (Stormveil Castle)' },
-      { id: 'lim-25', name: 'Crucible Knight (Stormveil Castle)' },
-      { id: 'lim-26', name: 'Grafted Scion' },
-      { id: 'lim-27', name: 'Margit, the Fell Omen' },
-      { id: 'lim-28', name: 'Godrick the Grafted' }
-    ]
-  },
-  {
-    id: 'weeping-peninsula',
-    name: 'Weeping Peninsula',
-    bosses: [
-      { id: 'wp-01', name: 'Burial Tree Watchdog and Imps' },
-      { id: 'wp-02', name: 'Runebear' },
-      { id: 'wp-03', name: "Night's Cavalry (Castle Morne Rampart)" },
-      { id: 'wp-04', name: 'Deathbird (Castle Morne Outskirts)' },
-      { id: 'wp-05', name: 'Cemetery Shade' },
-      { id: 'wp-06', name: 'Erdtree Avatar' },
-      { id: 'wp-07', name: 'Scaly Misbegotten' },
-      { id: 'wp-08', name: 'Miranda the Blighted Bloom' },
-      { id: 'wp-09', name: 'Ancient Hero of Zamor' },
-      { id: 'wp-10', name: 'Leonine Misbegotten' }
-    ]
-  },
-  {
-    id: 'liurnia',
-    name: 'Liurnia of the Lakes',
-    bosses: [
-      { id: 'liu-01', name: 'Cleanrot Knight' },
-      { id: 'liu-02', name: 'Adan, Thief of Fire' },
-      { id: 'liu-03', name: 'Burial Tree Watchdog' },
-      { id: 'liu-04', name: 'Tibia Mariner (East Liurnia)' },
-      { id: 'liu-05', name: "Night's Cavalry (Gate Town Bridge)" },
-      { id: 'liu-06', name: 'Preceptor Miriam' },
-      { id: 'liu-07', name: 'Godskin Noble' },
-      { id: 'liu-08', name: 'Deathbird (Scenic Isle)' },
-      { id: 'liu-09', name: 'Crayfish and Grafted Scion' },
-      { id: 'liu-10', name: 'Glintstone Dragon Smarag' },
-      { id: 'liu-11', name: 'Crystalians (Academy Crystal Cave)' },
-      { id: 'liu-12', name: 'Death Rite Bird (Gate Town North)' },
-      { id: 'liu-13', name: 'Ring Blade Crystalian' },
-      { id: 'liu-14', name: 'Bell Bearing Hunter (Church of Vows)' },
-      { id: 'liu-15', name: 'Erdtree Avatar (East Minor Erdtree)' },
-      { id: 'liu-16', name: 'Cemetery Shade and Black Knife Assassin' },
-      { id: 'liu-17', name: 'Festering Fingerprint Vyke' },
-      { id: 'liu-18', name: "Night's Cavalry (Bellum Highway Forest)" },
-      { id: 'liu-19', name: 'Royal Revenant' },
-      { id: 'liu-20', name: 'Bols, Carian Knight' },
-      { id: 'liu-21', name: 'Edgar the Revenger' },
-      { id: 'liu-22', name: 'Erdtree Avatar (West Minor Erdtree)' },
-      { id: 'liu-23', name: 'Spirit-Caller Snail' },
-      { id: 'liu-24', name: 'Omenkiller' },
-      { id: 'liu-25', name: 'Dragons x3 (Moonlight Altar)' },
-      { id: 'liu-26', name: 'Crystalians x4 (Moonlight Altar)' },
-      { id: 'liu-27', name: 'Red Wolf of the Moonlight Altar' },
-      { id: 'liu-28', name: 'Alecto, Black Knife Ringleader' },
-      { id: 'liu-29', name: 'Royal Knight Loretta' },
-      { id: 'liu-30', name: 'Glintstone Dragon Adula' },
-      { id: 'liu-31', name: 'Red Wolf (Behind Caria Manor)' },
-      { id: 'liu-32', name: 'Alabaster Lord' },
-      { id: 'liu-33', name: 'Magma Wyrm Makar' },
-      { id: 'liu-34', name: 'Ravenmount Assassin' },
-      { id: 'liu-35', name: 'Red Wolf of Radagon' },
-      { id: 'liu-36', name: 'Rennala, Queen of the Full Moon' }
-    ]
-  },
-  {
-    id: 'altus-plateau',
-    name: 'Altus Plateau',
-    bosses: [
-      { id: 'alt-01', name: 'Ancient Dragon Lansseax' },
-      { id: 'alt-02', name: 'Misbegotten Warrior and Perfumer Tricia' },
-      { id: 'alt-03', name: 'Godefroy the Grafted' },
-      { id: 'alt-04', name: "Night's Cavalry (Altus Highway)" },
-      { id: 'alt-05', name: 'Demi-Human Queen Gilika' },
-      { id: 'alt-06', name: 'Tibia Mariner (Wyndham Ruins)' },
-      { id: 'alt-07', name: 'Necromancer Garris and Black Knife Assassin' },
-      { id: 'alt-08', name: 'Erdtree Burial Watchdog' },
-      { id: 'alt-09', name: 'Stonedigger Troll (Old Altus Tunnel)' },
-      { id: 'alt-10', name: 'Eleonora, Violet Bloody Finger' },
-      { id: 'alt-11', name: 'Maleigh Marais, Shaded Castle Castellan' },
-      { id: 'alt-12', name: 'Elemer of the Briar' },
-      { id: 'alt-13', name: 'Rileigh the Idle' },
-      { id: 'alt-14', name: 'Sanguine Noble' },
-      { id: 'alt-15', name: 'Wormface (Minor Erdtree)' },
-      { id: 'alt-16', name: 'Godskin Apostle (Dominula Windmill Village)' },
-      { id: 'alt-17', name: 'Crystalians x2 (Altus Tunnel)' },
-      { id: 'alt-18', name: "Black Knife Assassin (Sainted Hero's Grave)" },
-      { id: 'alt-19', name: "Ancient Hero of Zamor (Sainted Hero's Grave)" },
-      { id: 'alt-20', name: 'Omenkiller and Miranda the Blighted Bloom' },
-      { id: 'alt-21', name: 'Fallingstar Beast (South Altus Plateau)' },
-      { id: 'alt-22', name: 'Tree Sentinel x2 (Leyndell Entrance)' }
-    ]
-  },
-  {
-    id: 'caelid-wilds',
-    name: 'Caelid Wilds',
-    bosses: [
-      { id: 'cae-01', name: 'Magma Wyrm (Gael Tunnel)' },
-      { id: 'cae-02', name: 'Erdtree Avatar (West Minor Erdtree)' },
-      { id: 'cae-03', name: 'Erdtree Burial Watchdog x2' },
-      { id: 'cae-04', name: 'Mad Pumpkin Head x2' },
-      { id: 'cae-05', name: 'Knights of the Great Jar x3' },
-      { id: 'cae-06', name: 'Frenzied Duelist' },
-      { id: 'cae-07', name: 'Decaying Ekzykes' },
-      { id: 'cae-08', name: "Night's Cavalry (Caelid Highway South)" },
-      { id: 'cae-09', name: 'Death Rite Bird (Southern Aeonia Swamp Bank)' },
-      { id: 'cae-10', name: "Commander O'Neil" },
-      { id: 'cae-11', name: 'Millicent' },
-      { id: 'cae-12', name: 'Nox Swordstress and Nox Priest' },
-      { id: 'cae-13', name: 'Fallingstar Beast (Sellia Crystal Tunnel)' },
-      { id: 'cae-14', name: 'Cleanrot Knight x2' },
-      { id: 'cae-15', name: 'Battlemage Hugues' },
-      { id: 'cae-16', name: 'Elder Dragon Greyoll' },
-      { id: 'cae-17', name: 'Crystalians x3 (Sellia Hideaway)' },
-      { id: 'cae-18', name: 'Godskin Apostle (Divine Tower of Caelid)' },
-      { id: 'cae-19', name: 'Putrid Avatar' },
-      { id: 'cae-20', name: 'Beastman of Farum Azula x2' },
-      { id: 'cae-21', name: "Night's Cavalry (Lenne's Rise Bridge)" },
-      { id: 'cae-22', name: 'Flying Dragon Greyll' },
-      { id: 'cae-23', name: 'Black Blade Kindred' },
-      { id: 'cae-24', name: 'Gurranq, Beast Clergyman' },
-      { id: 'cae-25', name: 'Misbegotten Warrior and Crucible Knight' },
-      { id: 'cae-26', name: 'Starscourge Radahn' },
-      { id: 'cae-27', name: 'Putrid Tree Spirit' }
-    ]
-  },
-  {
-    id: 'gelmir-volcano-manor',
-    name: 'Mt. Gelmir and Volcano Manor',
-    bosses: [
-      { id: 'gel-01', name: 'Grafted Scion (North Mt. Gelmir)' },
-      { id: 'gel-02', name: 'Demi-Human Queen Margot' },
-      { id: 'gel-03', name: 'Ulcerated Tree Spirit (Minor Erdtree)' },
-      { id: 'gel-04', name: 'Kindred of Rot x2' },
-      { id: 'gel-05', name: 'Red Wolf of the Champion' },
-      { id: 'gel-06', name: 'Full-Grown Fallingstar Beast' },
-      { id: 'gel-07', name: 'Wormface (Road of Iniquity)' },
-      { id: 'gel-08', name: 'Fire Prelate' },
-      { id: 'gel-09', name: 'Magma Wyrm (South of Fort Laiedd)' },
-      { id: 'gel-10', name: 'Demi-Human Queen Maggie' },
-      { id: 'gel-11', name: 'Abductor Virgin x2' },
-      { id: 'gel-12', name: 'Magma Wyrm (Volcano Manor)' },
-      { id: 'gel-13', name: 'Godskin Noble (Volcano Manor)' },
-      { id: 'gel-14', name: 'Rykard, Lord of Blasphemy' },
-      { id: 'gel-15', name: "Tanith's Knight" }
-    ]
-  },
-  {
-    id: 'leyndell',
-    name: 'Leyndell, the Capital',
-    bosses: [
-      { id: 'ley-01', name: 'Ulcerated Tree Spirit (Leyndell West)' },
-      { id: 'ley-02', name: 'Twinblade Gargoyle' },
-      { id: 'ley-03', name: 'Margit, the Fell Omen (Leyndell West)' },
-      { id: 'ley-04', name: 'Deathbird (Leyndell North)' },
-      { id: 'ley-05', name: 'Onyx Lord' },
-      { id: 'ley-06', name: 'The Loathsome Dung Eater' },
-      { id: 'ley-07', name: 'Draconic Tree Sentinel' },
-      { id: 'ley-08', name: 'Grave Warden Duelist (Auriza Side Tomb)' },
-      { id: 'ley-09', name: 'Crucible Knight Ordovis and Crucible Knight' },
-      { id: 'ley-10', name: 'Erdtree Avatar (Leyndell Main Road)' },
-      { id: 'ley-11', name: 'Ulcerated Tree Spirit (Lower Capital Church)' },
-      { id: 'ley-12', name: 'Gargoyle (West Capital Rampart)' },
-      { id: 'ley-13', name: 'Vargram and Wilhelm' },
-      { id: 'ley-14', name: 'Godfrey, First Elden Lord' },
-      { id: 'ley-15', name: "Black Knife Assassin (Queen's Bedchamber)" },
-      { id: 'ley-16', name: 'Morgott, the Omen King' },
-      { id: 'ley-17', name: 'Fell Twins x2' }
-    ]
-  },
-  {
-    id: 'mountaintops',
-    name: 'Mountaintops of the Giants and Consecrated Snowfield',
-    bosses: [
-      { id: 'mtn-01', name: "Night's Cavalry" },
-      { id: 'mtn-02', name: 'Black Blade Kindred' },
-      { id: 'mtn-03', name: 'Ancient Hero of Zamor' },
-      { id: 'mtn-04', name: 'Ulcerated Tree Spirit' },
-      { id: 'mtn-05', name: 'Erdtree Avatar' },
-      { id: 'mtn-06', name: 'Juno Hoslow, Knight of Blood' },
-      { id: 'mtn-07', name: 'Death Rite Bird' },
-      { id: 'mtn-08', name: 'Tibia Mariner' },
-      { id: 'mtn-09', name: 'Commander Niall' },
-      { id: 'mtn-10', name: 'Vyke, Knight of the Round Table' },
-      { id: 'mtn-11', name: 'Guardian of Arganti' },
-      { id: 'mtn-12', name: 'Borealis the Freezing Fog' },
-      { id: 'mtn-13', name: 'Spirit-Caller Snail and Cleanrot Aristocrat' },
-      { id: 'mtn-14', name: 'Okina, Bloody Finger' },
-      { id: 'mtn-15', name: 'Fire Giant' },
-      { id: 'mtn-16', name: 'False Tear Crystalian' },
-      { id: 'mtn-17', name: 'Putrid Grave Warden Duelist' },
-      { id: 'mtn-18', name: "Night's Cavalry x2" },
-      { id: 'mtn-19', name: 'Astel, Naturalborn of the Void' },
-      { id: 'mtn-20', name: 'Bloody Aristocrat' },
-      { id: 'mtn-21', name: 'Anastasia, Tarnished-Eater' },
-      { id: 'mtn-22', name: 'Great Wyrm Theodorix' },
-      { id: 'mtn-23', name: 'Bastard Cross-Legged Knight' },
-      { id: 'mtn-24', name: 'Putrid Avatar' },
-      { id: 'mtn-25', name: 'Death Rite Bird' },
-      { id: 'mtn-26', name: 'Black Knife Assassin' },
-      { id: 'mtn-27', name: 'Loretta, Knight of the Haligtree' },
-      { id: 'mtn-28', name: 'Putrid Tree Spirit' },
-      { id: 'mtn-29', name: 'Putrid Tree Spirit' },
-      { id: 'mtn-30', name: 'Sisters of Millicent' },
-      { id: 'mtn-31', name: 'Putrid Avatar' },
-      { id: 'mtn-32', name: 'Malenia, Blade of Miquella' }
-    ]
-  },
-  {
-    id: 'farum-azula',
-    name: 'Farum Azula',
-    bosses: [
-      { id: 'far-01', name: 'Dragon' },
-      { id: 'far-02', name: 'Godskin Duo' },
-      { id: 'far-03', name: 'Crucible Knight' },
-      { id: 'far-04', name: 'Draconic Tree Sentinel' },
-      { id: 'far-05', name: 'Maliketh, The Black Blade' }
-    ]
-  },
-  {
-    id: 'leyndell-ashen-capital',
-    name: 'Leyndell, Ashen Capital',
-    bosses: [
-      { id: 'leyac-01', name: 'Sir Gideon Ofnir, the All-Knowing' },
-      { id: 'leyac-02', name: 'Godfrey, First Elden Lord' },
-      { id: 'leyac-03', name: 'Hoarah Loux' },
-      { id: 'leyac-04', name: 'Radagon of the Golden Order' },
-      { id: 'leyac-05', name: 'Elden Beast' }
-    ]
-  }
-];
 
-/* Shadow of the Erdtree — kept as a fully separate region set so the two
-   games never mix, while reusing the exact same {id, name, bosses} shape. */
-const shadowErdtreeRegions = [
-  {
-    id: 'gravesite-plain',
-    name: 'Gravesite Plain',
-    bosses: [
-      { id: 'gp-01', name: 'Logur the Beast Claw' },
-      { id: 'gp-02', name: 'Blackgaol Knight' },
-      { id: 'gp-03', name: 'Furnace Golem' },
-      { id: 'gp-04', name: 'Ghostflame Dragon' },
-      { id: 'gp-05', name: 'Demi-Human Swordmaster Onze' },
-      { id: 'gp-06', name: 'Ancient Dragon-Man' },
-      { id: 'gp-07', name: 'Magma Wyrm' },
-      { id: 'gp-08', name: 'Ancient Dragon-Man' },
-      { id: 'gp-09', name: 'Death Knight' },
-      { id: 'gp-10', name: 'Ulcerated Tree Spirit' },
-      { id: 'gp-11', name: 'Chief Bloodfiend' },
-      { id: 'gp-12', name: 'Furnace Golem' },
-      { id: 'gp-13', name: 'Moore' }
-    ]
-  },
-  {
-    id: 'belurat-tower-settlement',
-    name: 'Belurat, Tower Settlement',
-    bosses: [
-      { id: 'bts-01', name: 'Ulcerated Tree Spirit' },
-      { id: 'bts-02', name: 'Fire Knight Queelign' },
-      { id: 'bts-03', name: 'Divine Beast Dancing Lion' }
-    ]
-  },
-  {
-    id: 'cerulean-coast',
-    name: 'Cerulean Coast',
-    bosses: [
-      { id: 'cc-01', name: 'Demi-Human Queen Marigga' },
-      { id: 'cc-02', name: 'Ghostflame Dragon' },
-      { id: 'cc-03', name: 'Dancer of Ranah' }
-    ]
-  },
-  {
-    id: 'castle-ensis',
-    name: 'Castle Ensis',
-    bosses: [
-      { id: 'ce-01', name: 'Troll Knight' },
-      { id: 'ce-02', name: 'Moonrithyll, Carian Knight' },
-      { id: 'ce-03', name: 'Rellana, Twin Moon Knight' }
-    ]
-  },
-  {
-    id: 'scadu-altus',
-    name: 'Scadu Altus',
-    bosses: [
-      { id: 'sa-01', name: 'Troll Knight Apparition' },
-      { id: 'sa-02', name: 'Black Knight Garrew' },
-      { id: 'sa-03', name: 'Fire Knight Queelign' },
-      { id: 'sa-04', name: 'Furnace Golem' },
-      { id: 'sa-05', name: 'Black Knight' },
-      { id: 'sa-06', name: 'Ralva the Great Red Bear' },
-      { id: 'sa-07', name: 'Dryleaf Dane' },
-      { id: 'sa-08', name: 'Ghostflame Dragon' },
-      { id: 'sa-09', name: 'Black Knight Edredd' },
-      { id: 'sa-10', name: 'Greater Potentate' },
-      { id: 'sa-11', name: 'Greater Potentate' },
-      { id: 'sa-12', name: 'Curseblade Labirith' },
-      { id: 'sa-13', name: 'Furnace Golem' },
-      { id: 'sa-14', name: 'Swordhand of Night Anna' }
-    ]
-  },
-  {
-    id: 'foot-of-the-jagged-peak',
-    name: 'Foot of the Jagged Peak',
-    bosses: [
-      { id: 'fjp-01', name: 'Jagged Peak Drake' },
-      { id: 'fjp-02', name: 'Jagged Peak Drake & Lesser Dragon' }
-    ]
-  },
-  {
-    id: 'charos-hidden-grave',
-    name: "Charo's Hidden Grave",
-    bosses: [
-      { id: 'chg-01', name: 'Tibia Mariner' },
-      { id: 'chg-02', name: 'Death Rite Bird' },
-      { id: 'chg-03', name: 'Hippopotamus' },
-      { id: 'chg-04', name: 'Furnace Golem' },
-      { id: 'chg-05', name: 'Lamenter' }
-    ]
-  },
-  {
-    id: 'jagged-peak',
-    name: 'Jagged Peak',
-    bosses: [
-      { id: 'jp-01', name: 'Ancient Dragon Senessax' },
-      { id: 'jp-02', name: 'Bayle the Dread' }
-    ]
-  },
-  {
-    id: 'rauh-base',
-    name: 'Rauh Base',
-    bosses: [
-      { id: 'rb-01', name: 'Red Bear' },
-      { id: 'rb-02', name: 'Rugalea the Great Red Bear' },
-      { id: 'rb-03', name: 'Death Knight' }
-    ]
-  },
-  {
-    id: 'stone-coffin-fissure',
-    name: 'Stone Coffin Fissure',
-    bosses: [
-      { id: 'scf-01', name: 'Misbegotten Crusader' },
-      { id: 'scf-02', name: 'Putrescent Knight' },
-      { id: 'scf-03', name: 'Thiollier' }
-    ]
-  },
-  {
-    id: 'shadow-keep',
-    name: 'Shadow Keep',
-    bosses: [
-      { id: 'sk-01', name: 'Golden Hippopotamus' },
-      { id: 'sk-02', name: 'Assist Leda/Hornsent' },
-      { id: 'sk-03', name: 'Ulcerated Tree Spirit' },
-      { id: 'sk-04', name: 'Ulcerated Tree Spirit' },
-      { id: 'sk-05', name: 'Wego, Fire Knight Elder' },
-      { id: 'sk-06', name: 'Assist Leda/Ansbach' },
-      { id: 'sk-07', name: 'Kood, Fire Knight Captain' },
-      { id: 'sk-08', name: 'Messmer the Impaler' },
-      { id: 'sk-09', name: 'Salza, Fire Knight Sage' }
-    ]
-  },
-  {
-    id: 'scadutree-base',
-    name: 'Scadutree Base',
-    bosses: [
-      { id: 'stb-01', name: 'Scadutree Avatar' }
-    ]
-  },
-  {
-    id: 'scaduview',
-    name: 'Scaduview',
-    bosses: [
-      { id: 'sv-01', name: 'Commander Gaius' }
-    ]
-  },
-  {
-    id: 'hinterland',
-    name: 'Hinterland',
-    bosses: [
-      { id: 'hl-01', name: 'Tree Sentinel Duo' },
-      { id: 'hl-02', name: 'Fallingstar Beast' }
-    ]
-  },
-  {
-    id: 'ymirs-quest',
-    name: "Ymir's Quest",
-    bosses: [
-      { id: 'yq-01', name: 'Metyr, Mother of Fingers' },
-      { id: 'yq-02', name: 'Jolán & Count Ymir' }
-    ]
-  },
-  {
-    id: 'ancient-ruins-of-rauh',
-    name: 'Ancient Ruins of Rauh',
-    bosses: [
-      { id: 'aror-01', name: 'Crucible Knight Devonia' },
-      { id: 'aror-02', name: 'Hippopotamus' },
-      { id: 'aror-03', name: 'Furnace Golem' },
-      { id: 'aror-04', name: 'Divine Beast Dancing Lion' },
-      { id: 'aror-05', name: 'Romina, Saint of the Bud' }
-    ]
-  },
-  {
-    id: 'recluses-river',
-    name: "Recluses' River",
-    bosses: [
-      { id: 'rr-01', name: 'Furnace Golem' },
-      { id: 'rr-02', name: 'Furnace Golem' },
-      { id: 'rr-03', name: 'Rakshasa' },
-      { id: 'rr-04', name: 'Hippopotamus' },
-      { id: 'rr-05', name: 'Hippopotamus' },
-      { id: 'rr-06', name: 'Jori, Elder Inquisitor' }
-    ]
-  },
-  {
-    id: 'abyssal-woods',
-    name: 'Abyssal Woods',
-    bosses: [
-      { id: 'aw-01', name: 'Madding Hand' },
-      { id: 'aw-02', name: 'Aging Untouchables' },
-      { id: 'aw-03', name: 'Midra, Lord of Frenzied Flame' }
-    ]
-  },
-  {
-    id: 'enir-ilim',
-    name: 'Enir-Ilim',
-    bosses: [
-      { id: 'ei-01', name: 'Divine Beast Warrior of Lightning' },
-      { id: 'ei-02', name: 'Divine Beast Warrior of Frost' },
-      { id: 'ei-03', name: 'Divine Beast Warrior of Wind' },
-      { id: 'ei-04', name: 'Divine Beast Warrior of Wind' },
-      { id: 'ei-05', name: 'Leda, Dane & Allies' },
-      { id: 'ei-06', name: 'Promised Consort Radahn' }
-    ]
-  }
-];
-
-/* Internal-only code names (never shown in the UI — see i18n gameEldenRing /
-   gameShadowErdtree for the user-facing labels). */
-const games = {
-  eldenring: { id: 'eldenring', regions: eldenRingRegions },
-  shadowerdtree: { id: 'shadowerdtree', regions: shadowErdtreeRegions }
-};
-
-/* Russian localization — region and boss names */
-const ruNames = {
-  regions: {
-    limgrave: 'Замогилье',
-    'weeping-peninsula': 'Плачущий полуостров',
-    liurnia: 'Озёрная Лиурния',
-    'altus-plateau': 'Плато Альтус',
-    'caelid-wilds': 'Звёздные пустоши',
-    'gelmir-volcano-manor': 'Гора Гельмир и Вулканово Поместье',
-    leyndell: 'Лейнделл, столица королества',
-    mountaintops: 'Вершины Великанов и Святое Заснеженное поле',
-    'farum-azula': 'Фарум Азула',
-    'leyndell-ashen-capital': 'Лейнделл, столица пепла',
-    
-    'gravesite-plain': 'Равнина Надгробья',
-    'belurat-tower-settlement': 'Белурат, Поселение у Башни',
-    'cerulean-coast': 'Лазурное побережье',
-    'castle-ensis': 'Замок Энсис',
-    'scadu-altus': 'Скаду Альтус',
-    'foot-of-the-jagged-peak': 'Подножие Зазубренного пика',
-    'charos-hidden-grave': 'Потаённая могила Чаро',
-    'jagged-peak': 'Зазубренный пик',
-    'rauh-base': 'Подножие Рау',
-    'stone-coffin-fissure': 'Расщелина Каменного гроба',
-    'shadow-keep': 'Теневой замок',
-    'scadutree-base': 'Подножие Древа Упадка',
-    'scaduview': 'Обзор Скаду',
-    hinterland: 'Внутренние земли',
-    'ymirs-quest': 'Задание Имира',
-    'ancient-ruins-of-rauh': 'Древние руины Рау',
-    'recluses-river': 'Река Затворников',
-    'abyssal-woods': 'Лес Бездны',
-    'enir-ilim': 'Энир-Илим'
-  },
-  bosses: {
-    'lim-01': 'Солдат Годрика',
-    'lim-02': 'Предводитель полулюдей',
-    'lim-03': 'Цербер кладбища Древа Эрд',
-    'lim-04': 'Зверочеловек из Фарум-Азулы',
-    'lim-05': 'Тролль-камнекоп',
-    'lim-06': 'Дуэлянт, хранитель могил',
-    'lim-07': 'Нериюс, Окровавленный палец',
-    'lim-08': 'Лоскутик',
-    'lim-09': 'Страж-голем',
-    'lim-10': 'Убийца из Чёрных ножей',
-    'lim-11': 'Мятежник Хенрик',
-    'lim-12': 'Тыквоголовый безумец',
-    'lim-13': 'Ночной всадник',
-    'lim-14': 'Страж Древа',
-    'lim-15': 'Эгхил, крылатый дракон',
-    'lim-16': 'Лодочник Тибия',
-    'lim-17': 'Анастасия, пожирательница Погасших',
-    'lim-18': 'Рыцарь-ищейка Дарривил',
-    'lim-19': 'Рыцарь Горнила',
-    'lim-20': 'Охотник за колокольными сферами',
-    'lim-21': 'Птица смерти',
-    'lim-22': 'Старый рыцарь Истван',
-    'lim-23': 'Изъязвлённый древесный дух',
-    'lim-24': 'Изъязвлённый древесный дух',
-    'lim-25': 'Рыцарь Горнила',
-    'lim-26': 'Приращенный отпрыск',
-    'lim-27': 'Маргит, Ужасное Знамение',
-    'lim-28': 'Годрик Сторукий',
-
-    'wp-01': 'Цербер кладбища Древа Эрд и бесы',
-    'wp-02': 'Медведь рун',
-    'wp-03': 'Ночной всадник',
-    'wp-04': 'Птица смерти',
-    'wp-05': 'Тень кладбища',
-    'wp-06': 'Воплощение Древа Эрд',
-    'wp-07': 'Чешуйчатый бастард',
-    'wp-08': 'Миранда Смертоцвет',
-    'wp-09': 'Древний герой Замора',
-    'wp-10': 'Бастард Леонин',
-
-    'liu-01': 'Рыцарь чистой гнили',
-    'liu-02': 'Адан, вор огня',
-    'liu-03': 'Цербер кладбища Древа',
-    'liu-04': 'Лодочник Тибия',
-    'liu-05': 'Ночной всадник',
-    'liu-06': 'Профессор Мириам',
-    'liu-07': 'Аристократ божественной кожи',
-    'liu-08': 'Птица смерти',
-    'liu-09': 'Приращенный отпрыск',
-    'liu-10': 'Смараг, дракон блестящих камней',
-    'liu-11': 'Кристалийцы',
-    'liu-12': 'Погребальная птица',
-    'liu-13': 'Кристалийцы',
-    'liu-14': 'Охотник за колокольными сферами',
-    'liu-15': 'Воплощение Древа Эрд',
-    'liu-16': 'Тень кладбища и убийца из Чёрных ножей',
-    'liu-17': 'Вик Гниющий Отпечаток',
-    'liu-18': 'Ночной всадник',
-    'liu-19': 'Королевский призрак',
-    'liu-20': 'Болс, карианский рыцарь',
-    'liu-21': 'Эдгар Мститель',
-    'liu-22': 'Воплощение Древа Эрд',
-    'liu-23': 'Улитка-призывательница духов',
-    'liu-24': 'Убийца знамений',
-    'liu-25': 'Драконы)',
-    'liu-26': 'Кристалийцы)',
-    'liu-27': 'Алый Волк',
-    'liu-28': 'Алекто, главарь Чёрных ножей',
-    'liu-29': 'Лоретта, королевский рыцарь',
-    'liu-30': 'Адула, дракон блестящих камней',
-    'liu-31': 'Алый волк',
-    'liu-32': 'Алебастровый повелитель',
-    'liu-33': 'Магмовый змей Макар',
-    'liu-34': 'Убийца из Вороновой горы, Окровавленный палец',
-    'liu-35': 'Алый волк Радагона',
-    'liu-36': 'Королева Реннала Полнолунная',
-
-    'alt-01': 'Древний дракон Лансьё',
-    'alt-02': 'Воин Иначе-рождённых и парфюмерша Триша',
-    'alt-03': 'Годфруа Приплавленный',
-    'alt-04': 'Ночной всадник (тракт Альтуса)',
-    'alt-05': 'Королева полулюдей Гилика',
-    'alt-06': 'Лодочник Тибия (руины Виндхэма)',
-    'alt-07': 'Некромант Гаррис и убийца из Чёрных ножей',
-    'alt-08': 'Погребальный страж Древа Эрд',
-    'alt-09': 'Тролль-камнерой (старый туннель Альтуса)',
-    'alt-10': 'Элеонора, Лиловый Кровавый Палец',
-    'alt-11': 'Мали Маре, кастелян Затенённого замка',
-    'alt-12': 'Элемер Тернистый',
-    'alt-13': 'Райли Праздный',
-    'alt-14': 'Кровавый дворянин',
-    'alt-15': 'Червеликий (малое древо)',
-    'alt-16': 'Апостол Кожи Бога (деревня Доминула)',
-    'alt-17': 'Кристалиане x2 (туннель Альтуса)',
-    'alt-18': 'Убийца из Чёрных ножей (Могила святого героя)',
-    'alt-19': 'Древний герой Замора (Могила святого героя)',
-    'alt-20': 'Убийца Оменов и Миранда, порочный цветок',
-    'alt-21': 'Зверь падающей звезды (юг Альтус Плато)',
-    'alt-22': 'Древесные стражи x2 (вход в Лейндел)',
-
-    'cae-01': 'Магмовый Змей',
-    'cae-02': 'Воплощение Древа Эрд',
-    'cae-03': 'Церберы кладбища Древа Эрд',
-    'cae-04': 'Тыквоголовый безумцы',
-    'cae-05': 'Рыцари Великого Кувшина',
-    'cae-06': 'Яростный дуэлянт',
-    'cae-07': 'Гниющий Экзикес',
-    'cae-08': 'Ночной всадник',
-    'cae-09': 'Погребальная птица',
-    'cae-10': "Командир О'Нил",
-    'cae-11': 'Миллисента',
-    'cae-12': 'Мечница Нокс и жрец Нокс',
-    'cae-13': 'Зверь Падающей звезды)',
-    'cae-14': 'Рыцари чистой гнили',
-    'cae-15': 'Гуго, боевой маг',
-    'cae-16': 'Грейолл, Великая драконица',
-    'cae-17': 'Кристалийцы',
-    'cae-18': 'Апостол божественной кожи',
-    'cae-19': 'Гнилостное воплощение',
-    'cae-20': 'Зверолюди из Фарум-Азулы',
-    'cae-21': 'Ночной всадник',
-    'cae-22': 'Греил, крылатый дракон',
-    'cae-23': 'Родич Чёрного Клинка',
-    'cae-24': 'Гурранк, жрец-зверь',
-    'cae-25': 'Воин-бастард и Рыцарь Горнила',
-    'cae-26': 'Радан Бич Звёзд',
-    'cae-27': 'Гнилостный древесный дух',
-
-    'gel-01': 'Приращенный отпрыск ',
-    'gel-02': 'Королева полулюдей Марго',
-    'gel-03': 'Изъязвлённый древесный дух',
-    'gel-04': 'Родич Гнили',
-    'gel-05': 'Алый волк чемпиона',
-    'gel-06': 'Взрослый зверь Падающей звезды ',
-    'gel-07': 'Червемордый',
-    'gel-08': 'Прелат огня',
-    'gel-09': 'Магмовый змей',
-    'gel-10': 'Королева полулюдей Мэгги',
-    'gel-11': 'Дева-похитительница',
-    'gel-12': 'Магмовый змей',
-    'gel-13': 'Аристократ божественной кожи',
-    'gel-14': 'Рикард, богохульный владыка',
-    'gel-15': 'Рыцарь Танит',
-
-    'ley-01': 'Изъязвлённый древесный дух ',
-    'ley-02': 'Доблестные Горгульи',
-    'ley-03': 'Маргит, Ужасное Знамение',
-    'ley-04': 'Птица смерти',
-    'ley-05': 'Ониксовый повелитель',
-    'ley-06': 'Поедатель Отбросов',
-    'ley-07': 'Драконий Страж Древа',
-    'ley-08': 'Дуэлянт, хранитель могил',
-    'ley-09': 'Рыцари Горнила',
-    'ley-10': 'Воплощение Древа Эрд',
-    'ley-11': 'Изъязвлённый древесный дух',
-    'ley-12': 'Горгулья',
-    'ley-13': 'Варграм Свирепый Волк и Странствующий чародей Вильгельм',
-    'ley-14': 'Годфри, первый повелитель Элдена',
-    'ley-15': 'Убийца из Чёрных ножей',
-    'ley-16': 'Морготт, король знамений',
-    'ley-17': 'Ужасные Близнецы',
-
-    'mtn-01': 'Ночной всадник',
-    'mtn-02': 'Родич Чёрного Клинка',
-    'mtn-03': 'Древний герой Замора',
-    'mtn-04': 'Изъязвлённый древесный дух',
-    'mtn-05': 'Воплощение Древа Эрд',
-    'mtn-06': 'Джуно Хослоу, рыцарь крови',
-    'mtn-07': 'Погребальная птица',
-    'mtn-08': 'Лодочник Тибия',
-    'mtn-09': 'Командир Найлл',
-    'mtn-10': 'Вик, рыцарь Круглого стола',
-    'mtn-11': 'Главный страж Арганти',
-    'mtn-12': 'Борелис Леденящий Туман',
-    'mtn-13': 'Улитка-призывательница духов и Аристократ божественной кожи',
-    'mtn-14': 'Окина, Окровавленный палец',
-    'mtn-15': 'Огненный великан',
-    'mtn-16': 'Ложная Слеза',
-    'mtn-17': 'Гнилостный дуэлянт, хранитель могил',
-    'mtn-18': 'Ночной всадник x2',
-    'mtn-19': 'Астель, Звёзды Тьмы',
-    'mtn-20': 'Кровавый аристократ',
-    'mtn-21': 'Анастасия, пожирательница Погасших',
-    'mtn-22': 'Великий змей Теодорикс',
-    'mtn-23': 'Крестоносец-бастард',
-    'mtn-24': 'Гнилостное воплощение',
-    'mtn-25': 'Погребальная птица',
-    'mtn-26': 'Убийца из Чёрных ножей',
-    'mtn-27': 'Лоретта, рыцарь Святого Древа',
-    'mtn-28': 'Гнилостный древесный дух',
-    'mtn-29': 'Гнилостный древесный дух',
-    'mtn-30': 'Сестры Миллисенты',
-    'mtn-31': 'Гнилостное воплощение',
-    'mtn-32': 'Маления, клинок Микеллы',
-
-    'far-01': 'Дракон',
-    'far-02': 'Двое из божественной кожи',
-    'far-03': 'Рыцарь Горнила',
-    'far-04': 'Драконий страж древа',
-    'far-05': 'Маликет Черный Клинок',
-
-    'leyac-01': 'Сэр Гидеон Офнир Всеведущий',
-    'leyac-02': 'Годфри Первый Повелитель Эльдена',
-    'leyac-03': 'Хоара Лукс',
-    'leyac-04': 'Радагон из Золотого Порядка',
-    'leyac-05': 'Зверь Эльдена',
-
-    'gp-01': 'Логур Когтя Зверя',
-    'gp-02': 'Рыцарь Одиночной тюрьмы',
-    'gp-03': 'Великан печи',
-    'gp-04': 'Дракон смерти',
-    'gp-05': 'Мечник-получеловек Онзе',
-    'gp-06': 'Древний человек-дракон',
-    'gp-07': 'Магмовый змей',
-    'gp-08': 'Древний человек-дракон',
-    'gp-09': 'Рыцарь Смерти',
-    'gp-10': 'Изъязвлённый древесный дух',
-    'gp-11': 'Вождь кровопускателей',
-    'gp-12': 'Великан печи',
-    'gp-13': 'Мур',
-
-    'bts-01': 'Изъязвлённый древесный дух',
-    'bts-02': 'Огненный рыцарь Квилайн',
-    'bts-03': 'Священный танцующий лев',
-
-    'cc-01': 'Королева полулюдей Маригга',
-    'cc-02': 'Дракон смерти',
-    'cc-03': 'Танцовщица Ранаха',
-
-    'ce-01': 'Рыцарь-тролль',
-    'ce-02': 'Карианский рыцарь Мунритиль',
-    'ce-03': 'Реллана, Рыцарь Двойной Луны',
-
-    'sa-01': 'Рыцарь-тролль',
-    'sa-02': 'Черный рыцарь Гэрью',
-    'sa-03': 'Огненный рыцарь Квилайн',
-    'sa-04': 'Великан печи',
-    'sa-05': 'Черный рыцарь',
-    'sa-06': 'Великий красный медведь Ральва',
-    'sa-07': 'Дейн Сухой Лист',
-    'sa-08': 'Дракон смерти',
-    'sa-09': 'Черный рыцарь Эдред',
-    'sa-10': 'Величайший гончар',
-    'sa-11': 'Величайший гончар',
-    'sa-12': 'Лабирит, проклятый клинок',
-    'sa-13': 'Великан печи',
-    'sa-14': 'Ночная мечница Анна',
-
-    'fjp-01': 'Дракон зубатой горы',
-    'fjp-02': 'Дракон зубатой горы и малый дракон',
-
-    'chg-01': 'Лодочник Тибия',
-    'chg-02': 'Погребальная птица',
-    'chg-03': 'Гиппопотам',
-    'chg-04': 'Великан печи',
-    'chg-05': 'Плакальщик',
-
-    'jp-01': 'Древний дракон Сенессакс',
-    'jp-02': 'Бейл Ужасный',
-
-    'rb-01': 'Красный медведь',
-    'rb-02': 'Великий красный медведь Ругали',
-    'rb-03': 'Рыцарь смерти',
-
-    'scf-01': 'Крестоносец-бастард',
-    'scf-02': 'Гниющий рыцарь',
-    'scf-03': 'Тиолье',
-
-    'sk-01': 'Золотой гиппопотам',
-    'sk-02': 'Игольщица Леда или Роговест',
-    'sk-03': 'Изъязвлённый древесный дух',
-    'sk-04': 'Изъязвлённый древесный дух',
-    'sk-05': 'Вего, Огненный рыцарь-старейшина',
-    'sk-06': 'Игольщица Леда или Господин Ансбах',
-    'sk-07': 'Куд, Капитан огненных рыцарей',
-    'sk-08': 'Мессмер Колосажатель',
-    'sk-09': 'Огненный рыцарь Салза',
-
-    'stb-01': 'Воплощение Древа Упадка',
-
-    'sv-01': 'Командующий Гай',
-
-    'hl-01': 'Стражи Древа',
-    'hl-02': 'Зверь Падающей звезды',
-
-    'yq-01': 'Метир, Матерь Пальцев',
-    'yq-02': 'Граф Имир и Ночная мечница Йолана',
-
-    'aror-01': 'Рыцарь Горнила Девония',
-    'aror-02': 'Гиппопотам',
-    'aror-03': 'Великан печи',
-    'aror-04': 'Священный танцующий лев',
-    'aror-05': 'Ромина, Святая Цветочных Бутонов',
-
-    'rr-01': 'Великан печи',
-    'rr-02': 'Великан печи',
-    'rr-03': 'Ракшаса',
-    'rr-04': 'Гиппопотам',
-    'rr-05': 'Гиппопотам',
-    'rr-06': 'Главный инквизитор Йори',
-
-    'aw-01': 'Длань безумия',
-    'aw-02': 'Стареющие Неприкасаемые',
-    'aw-03': 'Мидра, Владыка Яростного Пламени',
-
-    'ei-01': 'Воин священного зверя (молния)',
-    'ei-02': 'Воин священного зверя (мороз)',
-    'ei-03': 'Воин священного зверя (шторм)',
-    'ei-04': 'Воин священного зверя (шторм)',
-    'ei-05': 'Игольщица Леда, Дейн и союзники',
-    'ei-06': 'Будущий консорт Радан'
-  }
-};
+let games = {};
+let ruNames = { regions: {}, bosses: {} };
 
 /* UI string dictionary */
 const i18n = {
@@ -853,7 +40,39 @@ const i18n = {
     noMatch: 'No bosses match this filter.',
     footer: 'Progress is saved automatically in this browser.',
     resetConfirm: 'Reset all boss progress? This cannot be undone.',
-    themeToggle: 'Toggle dark or light theme'
+    themeToggle: 'Toggle dark or light theme',
+    login: 'Log in',
+    signup: 'Sign up',
+    logout: 'Log out',
+    emailLabel: 'Email',
+    passwordLabel: 'Password',
+    loginSubmit: 'Log in',
+    signupSubmit: 'Create account',
+    authErrorGeneric: 'Something went wrong. Please try again.',
+    authErrorInvalidEmail: 'Please enter a valid email address.',
+    authErrorUserNotFound: 'No account found with this email.',
+    authErrorWrongPassword: 'Incorrect password.',
+    authErrorEmailInUse: 'An account with this email already exists.',
+    authErrorWeakPassword: 'Password should be at least 6 characters.',
+    authNoAccount: "Don't have an account?",
+    authHaveAccount: 'Already have an account?',
+    authSuccessLogin: 'Logged in successfully',
+    authSuccessSignup: 'Account created successfully',
+    account: 'Account',
+    categoryFilterLabel: 'Filter by category',
+    categoryStory: 'Story bosses',
+    categoryHard: 'Hard bosses',
+    categoryQuest: 'Quest bosses',
+    categoryOptional: 'Optional bosses',
+    languageLabel: 'Language',
+    nicknameLabel: 'Nickname',
+    authErrorNicknameRequired: 'Please enter a nickname.',
+    memberSince: 'Member since',
+    avatarEditLabel: 'Change avatar',
+    avatarErrorInvalid: 'Please choose an image file.',
+    avatarErrorGeneric: 'Could not update the avatar. Please try again.',
+    authSubtitleLogin: 'Welcome back — pick up where you left off.',
+    authSubtitleSignup: 'Create an account to save your progress anywhere.'
   },
   ru: {
     eyebrow: 'Междуземье',
@@ -876,7 +95,39 @@ const i18n = {
     noMatch: 'Нет боссов, подходящих под фильтр.',
     footer: 'Прогресс сохраняется автоматически в этом браузере.',
     resetConfirm: 'Сбросить весь прогресс по боссам? Это действие необратимо.',
-    themeToggle: 'Переключить тёмную или светлую тему'
+    themeToggle: 'Переключить тёмную или светлую тему',
+    login: 'Войти',
+    signup: 'Регистрация',
+    logout: 'Выйти',
+    emailLabel: 'Почта',
+    passwordLabel: 'Пароль',
+    loginSubmit: 'Войти',
+    signupSubmit: 'Создать аккаунт',
+    authErrorGeneric: 'Что-то пошло не так. Попробуйте ещё раз.',
+    authErrorInvalidEmail: 'Введите корректный адрес почты.',
+    authErrorUserNotFound: 'Аккаунт с такой почтой не найден.',
+    authErrorWrongPassword: 'Неверный пароль.',
+    authErrorEmailInUse: 'Аккаунт с такой почтой уже существует.',
+    authErrorWeakPassword: 'Пароль должен содержать не менее 6 символов.',
+    authNoAccount: 'Нет аккаунта?',
+    authHaveAccount: 'Уже есть аккаунт?',
+    authSuccessLogin: 'Вы успешно вошли в аккаунт',
+    authSuccessSignup: 'Аккаунт успешно создан',
+    account: 'Аккаунт',
+    categoryFilterLabel: 'Фильтр по категориям',
+    categoryStory: 'Сюжетные боссы',
+    categoryHard: 'Сложные боссы',
+    categoryQuest: 'Квестовые боссы',
+    categoryOptional: 'Необязательные боссы',
+    languageLabel: 'Язык',
+    nicknameLabel: 'Никнейм',
+    authErrorNicknameRequired: 'Пожалуйста, введите никнейм.',
+    memberSince: 'Регистрация:',
+    avatarEditLabel: 'Изменить аватар',
+    avatarErrorInvalid: 'Пожалуйста, выберите файл изображения.',
+    avatarErrorGeneric: 'Не удалось обновить аватар. Попробуйте ещё раз.',
+    authSubtitleLogin: 'С возвращением — продолжайте с того места, где остановились.',
+    authSubtitleSignup: 'Создайте аккаунт, чтобы сохранять прогресс на любом устройстве.'
   }
 };
 
@@ -889,13 +140,18 @@ const state = {
   searchTerm: '',
   completed: new Set(),
   openRegions: {
-    eldenring: new Set([eldenRingRegions[0].id]),
-    shadowerdtree: new Set([shadowErdtreeRegions[0].id])
+    eldenring: new Set(),
+    shadowerdtree: new Set()
   },
   lang: 'en',
   theme: 'dark',
-  activeGame: 'eldenring'
+  activeGame: 'eldenring',
+  categoryFilters: new Set(BOSS_CATEGORIES)
 };
+
+let authMode = 'login';
+let currentUser = null;
+let currentUserProfile = null;
 
 const els = {};
 
@@ -906,6 +162,48 @@ function cacheDom() {
   els.filterButtons = document.querySelectorAll('.filter-btn');
   els.resetBtn = document.getElementById('reset-btn');
   els.resetLabel = document.getElementById('reset-label');
+  els.loginBtn = document.getElementById('login-btn');
+  els.accountBtn = document.getElementById('account-btn');
+  els.accountBtnAvatar = document.getElementById('account-btn-avatar');
+  els.accountBtnIcon = document.getElementById('account-btn-icon');
+  els.logoutBtn = document.getElementById('logout-btn');
+  els.authModal = document.getElementById('auth-modal');
+  els.authModalClose = document.getElementById('auth-modal-close');
+  els.authModalIcon = document.getElementById('auth-modal-icon');
+  els.authModalTitle = document.getElementById('auth-modal-title');
+  els.authModalSubtitle = document.getElementById('auth-modal-subtitle');
+  els.authModalCard = els.authModal ? els.authModal.querySelector('.modal-card') : null;
+  els.authForm = document.getElementById('auth-form');
+  els.authNicknameField = document.getElementById('auth-nickname-field');
+  els.authNicknameInput = document.getElementById('auth-nickname');
+  els.authNicknameLabel = document.getElementById('auth-nickname-label');
+  els.authEmailInput = document.getElementById('auth-email');
+  els.authPasswordInput = document.getElementById('auth-password');
+  els.authEmailLabel = document.getElementById('auth-email-label');
+  els.authPasswordLabel = document.getElementById('auth-password-label');
+  els.authError = document.getElementById('auth-error');
+  els.authSubmit = document.getElementById('auth-submit');
+  els.authSwitchText = document.getElementById('auth-switch-text');
+  els.authSwitchBtn = document.getElementById('auth-switch-btn');
+  els.authToast = document.getElementById('auth-toast');
+  els.authToastText = document.getElementById('auth-toast-text');
+  els.accountModal = document.getElementById('account-modal');
+  els.accountModalClose = document.getElementById('account-modal-close');
+  els.accountModalNickname = document.getElementById('account-modal-nickname');
+  els.accountModalEmail = document.getElementById('account-modal-email');
+  els.accountModalDate = document.getElementById('account-modal-date');
+  els.accountAvatarImg = document.getElementById('account-avatar-img');
+  els.accountAvatarFallback = document.getElementById('account-avatar-fallback');
+  els.accountAvatarEditBtn = document.getElementById('account-avatar-edit');
+  els.accountAvatarInput = document.getElementById('account-avatar-input');
+  els.accountAvatarError = document.getElementById('account-avatar-error');
+  els.categoryFilterBtn = document.getElementById('category-filter-btn');
+  els.categoryFilterPanel = document.getElementById('category-filter-panel');
+  els.categoryCheckboxes = document.querySelectorAll('.category-checkbox');
+  els.catLabelStory = document.getElementById('cat-label-story');
+  els.catLabelHard = document.getElementById('cat-label-hard');
+  els.catLabelQuest = document.getElementById('cat-label-quest');
+  els.catLabelOptional = document.getElementById('cat-label-optional');
   els.completedCount = document.getElementById('completed-count');
   els.totalCount = document.getElementById('total-count');
   els.overallBar = document.getElementById('overall-bar');
@@ -923,8 +221,571 @@ function cacheDom() {
   els.brandTitle = document.getElementById('brand-title');
   els.footerText = document.getElementById('footer-text');
   els.themeToggle = document.getElementById('theme-toggle');
-  els.langButtons = document.querySelectorAll('.lang-btn');
+  els.langFilterBtn = document.getElementById('lang-filter-btn');
+  els.langFilterPanel = document.getElementById('lang-filter-panel');
+  els.langOptions = document.querySelectorAll('.lang-option');
   els.gameButtons = document.querySelectorAll('.game-switch-btn');
+}
+
+/* ==========================================================================
+   Remote data — boss & region names + Russian translations live in Firestore
+   ========================================================================== */
+
+async function fetchGameData() {
+  const [eldenSnap, shadowSnap, translationsSnap] = await Promise.all([
+    db.collection('gameData').doc('eldenring').get(),
+    db.collection('gameData').doc('shadowerdtree').get(),
+    db.collection('gameData').doc('translations').get()
+  ]);
+
+  if (!eldenSnap.exists || !shadowSnap.exists) {
+    throw new Error('Boss data not found in Firestore — run seed.html once to upload it.');
+  }
+
+  const translations = translationsSnap.exists ? translationsSnap.data() : {};
+
+  return {
+    eldenRingRegions: eldenSnap.data().regions,
+    shadowErdtreeRegions: shadowSnap.data().regions,
+    ruNames: {
+      regions: translations.regions || {},
+      bosses: translations.bosses || {}
+    }
+  };
+}
+
+/* ==========================================================================
+   Authentication — email/password sign in & sign up via Firebase Auth
+   ========================================================================== */
+
+function refreshAuthModalText() {
+  if (els.authModalTitle) els.authModalTitle.textContent = authMode === 'login' ? t('login') : t('signup');
+  if (els.authModalSubtitle) els.authModalSubtitle.textContent = authMode === 'login' ? t('authSubtitleLogin') : t('authSubtitleSignup');
+  if (els.authNicknameLabel) els.authNicknameLabel.textContent = t('nicknameLabel');
+  if (els.authEmailLabel) els.authEmailLabel.textContent = t('emailLabel');
+  if (els.authPasswordLabel) els.authPasswordLabel.textContent = t('passwordLabel');
+  if (els.authSubmit) els.authSubmit.textContent = authMode === 'login' ? t('loginSubmit') : t('signupSubmit');
+  if (els.authSwitchText) els.authSwitchText.textContent = authMode === 'login' ? t('authNoAccount') : t('authHaveAccount');
+  if (els.authSwitchBtn) els.authSwitchBtn.textContent = authMode === 'login' ? t('signup') : t('login');
+  if (els.loginBtn) els.loginBtn.setAttribute('aria-label', t('login'));
+  if (els.accountBtn) els.accountBtn.setAttribute('aria-label', t('account'));
+  if (els.accountAvatarEditBtn) {
+    els.accountAvatarEditBtn.setAttribute('aria-label', t('avatarEditLabel'));
+    els.accountAvatarEditBtn.setAttribute('title', t('avatarEditLabel'));
+  }
+  if (els.logoutBtn) {
+    const logoutLabel = els.logoutBtn.querySelector('#logout-label');
+    if (logoutLabel) logoutLabel.textContent = t('logout');
+  }
+}
+
+function refreshCategoryFilterText() {
+  if (els.categoryFilterBtn) els.categoryFilterBtn.setAttribute('aria-label', t('categoryFilterLabel'));
+  if (els.catLabelStory) els.catLabelStory.textContent = t('categoryStory');
+  if (els.catLabelHard) els.catLabelHard.textContent = t('categoryHard');
+  if (els.catLabelQuest) els.catLabelQuest.textContent = t('categoryQuest');
+  if (els.catLabelOptional) els.catLabelOptional.textContent = t('categoryOptional');
+}
+
+function refreshLangFilterText() {
+  if (els.langFilterBtn) {
+    els.langFilterBtn.setAttribute('aria-label', t('languageLabel'));
+    els.langFilterBtn.setAttribute('title', t('languageLabel'));
+  }
+}
+
+function showAuthError(message) {
+  if (!els.authError) return;
+  els.authError.textContent = message;
+  els.authError.hidden = false;
+}
+
+function hideAuthError() {
+  if (!els.authError) return;
+  els.authError.hidden = true;
+  els.authError.textContent = '';
+}
+
+let authToastTimer = null;
+
+function showAuthToast(message) {
+  if (!els.authToast || !els.authToastText) return;
+  if (authToastTimer) {
+    window.clearTimeout(authToastTimer);
+    authToastTimer = null;
+  }
+  els.authToastText.textContent = message;
+  els.authToast.hidden = false;
+  requestAnimationFrame(() => els.authToast.classList.add('is-visible'));
+  authToastTimer = window.setTimeout(() => {
+    els.authToast.classList.remove('is-visible');
+    window.setTimeout(() => {
+      els.authToast.hidden = true;
+    }, 320);
+  }, 2600);
+}
+
+/* Login/signup icon swap for setAuthTab() below. Deliberately two
+   different pictures (door vs. person-plus) rather than one static icon,
+   so the two modes look different at a glance and not just reworded. */
+const AUTH_ICONS = {
+  login: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>',
+  signup: '<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM19 8v6M22 11h-6"/></svg>'
+};
+
+/* Sets which mode the modal is in ('login' or 'signup') without any
+   segmented tab control — but the two modes still look visibly different
+   (icon, accent border, button gradient, subtitle), not just reworded
+   labels, so switching between them doesn't feel identical. */
+function setAuthTab(mode) {
+  authMode = mode;
+  if (els.authModal) els.authModal.dataset.mode = mode;
+  if (els.authModalIcon) {
+    els.authModalIcon.innerHTML = AUTH_ICONS[mode];
+    els.authModalIcon.classList.toggle('auth-modal-icon--login', mode === 'login');
+    els.authModalIcon.classList.toggle('auth-modal-icon--signup', mode === 'signup');
+  }
+  if (els.authPasswordInput) {
+    els.authPasswordInput.setAttribute('autocomplete', mode === 'login' ? 'current-password' : 'new-password');
+  }
+  if (els.authNicknameField) els.authNicknameField.hidden = mode !== 'signup';
+  if (els.authNicknameInput) {
+    if (mode === 'signup') {
+      els.authNicknameInput.setAttribute('required', 'required');
+    } else {
+      els.authNicknameInput.removeAttribute('required');
+    }
+  }
+  hideAuthError();
+  refreshAuthModalText();
+}
+
+function openAuthModal(mode) {
+  if (!els.authModal) return;
+  setAuthTab(mode);
+  if (els.authForm) els.authForm.reset();
+  hideAuthError();
+  els.authModal.hidden = false;
+  window.setTimeout(() => {
+    if (els.authEmailInput) els.authEmailInput.focus();
+  }, 0);
+}
+
+function closeAuthModal() {
+  if (!els.authModal) return;
+  els.authModal.hidden = true;
+}
+
+function friendlyAuthError(err) {
+  const map = {
+    'auth/invalid-email': 'authErrorInvalidEmail',
+    'auth/user-not-found': 'authErrorUserNotFound',
+    'auth/wrong-password': 'authErrorWrongPassword',
+    'auth/invalid-credential': 'authErrorWrongPassword',
+    'auth/email-already-in-use': 'authErrorEmailInUse',
+    'auth/weak-password': 'authErrorWeakPassword'
+  };
+  const key = err && map[err.code];
+  return key ? t(key) : t('authErrorGeneric');
+}
+
+/* Records that a user exists / signed in — nickname + email + timestamps
+   only. Firebase Auth already stores the password itself (hashed, never
+   in plain text) so it is never written here too; duplicating it in
+   Firestore would just be a second, weaker copy of a secret that a
+   misconfigured rule or a leaked read could expose. Non-fatal: the user
+   stays signed in even if this write fails (e.g. Firestore rules for
+   "users" haven't been opened up yet). */
+async function recordUserAccount(user, isNewAccount, nickname) {
+  if (!user) return;
+  try {
+    const now = firebase.firestore.FieldValue.serverTimestamp();
+    const payload = { email: user.email, lastLoginAt: now };
+    if (isNewAccount) {
+      payload.createdAt = now;
+      if (nickname) payload.nickname = nickname;
+    }
+    await db.collection('users').doc(user.uid).set(payload, { merge: true });
+  } catch (err) {
+    console.error('Failed to record user account in Firestore:', err);
+  }
+}
+
+/* Reads the extra profile fields that live only in Firestore, not on the
+   Firebase Auth user object — currently just the avatar image. Nickname
+   and account-creation date come straight off the Auth user instead
+   (displayName / metadata.creationTime), so they're always in sync even
+   if this read fails. */
+async function fetchUserProfile(uid) {
+  try {
+    const snap = await db.collection('users').doc(uid).get();
+    return snap.exists ? snap.data() : null;
+  } catch (err) {
+    console.error('Failed to load user profile from Firestore:', err);
+    return null;
+  }
+}
+
+/* Sets the inline `display` directly in addition to the `hidden`
+   attribute — belt-and-suspenders so the image/fallback pair can never
+   both render at once, regardless of any CSS specificity edge case. */
+function renderAvatarInto(imgEl, iconEl, dataUrl) {
+  if (!imgEl || !iconEl) return;
+  if (dataUrl) {
+    imgEl.src = dataUrl;
+    imgEl.hidden = false;
+    imgEl.style.display = '';
+    iconEl.hidden = true;
+    iconEl.style.display = 'none';
+  } else {
+    imgEl.hidden = true;
+    imgEl.style.display = 'none';
+    imgEl.removeAttribute('src');
+    iconEl.hidden = false;
+    iconEl.style.display = '';
+  }
+}
+
+function formatAccountDate(dateInput) {
+  if (!dateInput) return '';
+  const date = new Date(dateInput);
+  if (Number.isNaN(date.getTime())) return '';
+  try {
+    return new Intl.DateTimeFormat(state.lang === 'ru' ? 'ru-RU' : 'en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }).format(date);
+  } catch (err) {
+    return '';
+  }
+}
+
+function renderAccountModal(user, profile) {
+  if (!user) return;
+  const nickname = user.displayName || (profile && profile.nickname) || user.email || '';
+  if (els.accountModalNickname) els.accountModalNickname.textContent = nickname;
+  if (els.accountModalEmail) els.accountModalEmail.textContent = user.email || '';
+  if (els.accountModalDate) {
+    const formatted = formatAccountDate(user.metadata && user.metadata.creationTime);
+    els.accountModalDate.textContent = formatted ? `${t('memberSince')} ${formatted}` : '';
+  }
+  renderAvatarInto(els.accountAvatarImg, els.accountAvatarFallback, profile && profile.avatarDataUrl);
+}
+
+/* Client-side resize/compress before storing an avatar as a data URL in
+   Firestore. Deliberately not using Firebase Storage — new Firebase
+   projects need the paid Blaze plan for Storage, and a small compressed
+   JPEG easily fits as a plain Firestore field. */
+const AVATAR_MAX_DIMENSION = 256;
+const AVATAR_JPEG_QUALITY = 0.82;
+
+function readAndResizeImage(file, maxDimension) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('read-failed'));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('decode-failed'));
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        if (width > height) {
+          if (width > maxDimension) {
+            height = Math.round(height * (maxDimension / width));
+            width = maxDimension;
+          }
+        } else if (height > maxDimension) {
+          width = Math.round(width * (maxDimension / height));
+          height = maxDimension;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', AVATAR_JPEG_QUALITY));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function showAccountAvatarError(message) {
+  if (!els.accountAvatarError) return;
+  els.accountAvatarError.textContent = message;
+  els.accountAvatarError.hidden = false;
+}
+
+function hideAccountAvatarError() {
+  if (!els.accountAvatarError) return;
+  els.accountAvatarError.hidden = true;
+  els.accountAvatarError.textContent = '';
+}
+
+async function handleAvatarChange(event) {
+  const file = event.target.files && event.target.files[0];
+  event.target.value = '';
+  if (!file || !currentUser) return;
+
+  if (!file.type || !file.type.startsWith('image/')) {
+    showAccountAvatarError(t('avatarErrorInvalid'));
+    return;
+  }
+
+  hideAccountAvatarError();
+  try {
+    const dataUrl = await readAndResizeImage(file, AVATAR_MAX_DIMENSION);
+    currentUserProfile = Object.assign({}, currentUserProfile, { avatarDataUrl: dataUrl });
+    renderAvatarInto(els.accountAvatarImg, els.accountAvatarFallback, dataUrl);
+    renderAvatarInto(els.accountBtnAvatar, els.accountBtnIcon, dataUrl);
+    await db.collection('users').doc(currentUser.uid).set({ avatarDataUrl: dataUrl }, { merge: true });
+  } catch (err) {
+    console.error('Failed to update avatar:', err);
+    showAccountAvatarError(t('avatarErrorGeneric'));
+  }
+}
+
+async function handleAuthSubmit(event) {
+  event.preventDefault();
+  hideAuthError();
+
+  const email = els.authEmailInput.value.trim();
+  const password = els.authPasswordInput.value;
+  const isSignup = authMode === 'signup';
+  const nickname = els.authNicknameInput ? els.authNicknameInput.value.trim() : '';
+
+  if (isSignup && !nickname) {
+    showAuthError(t('authErrorNicknameRequired'));
+    return;
+  }
+
+  if (els.authSubmit) els.authSubmit.disabled = true;
+  try {
+    const credential = isSignup
+      ? await auth.createUserWithEmailAndPassword(email, password)
+      : await auth.signInWithEmailAndPassword(email, password);
+
+    if (isSignup) {
+      await credential.user.updateProfile({ displayName: nickname });
+    }
+
+    await recordUserAccount(credential.user, isSignup, isSignup ? nickname : undefined);
+    await updateAuthUI(credential.user);
+    closeAuthModal();
+    showAuthToast(isSignup ? t('authSuccessSignup') : t('authSuccessLogin'));
+  } catch (err) {
+    console.error('Auth error:', err);
+    showAuthError(friendlyAuthError(err));
+  } finally {
+    if (els.authSubmit) els.authSubmit.disabled = false;
+  }
+}
+
+function openAccountModal() {
+  if (!els.accountModal) return;
+  if (currentUser) renderAccountModal(currentUser, currentUserProfile);
+  els.accountModal.hidden = false;
+}
+
+function closeAccountModal() {
+  if (!els.accountModal) return;
+  els.accountModal.hidden = true;
+}
+
+async function updateAuthUI(user) {
+  currentUser = user;
+  const loggedIn = !!user;
+  if (els.loginBtn) els.loginBtn.hidden = loggedIn;
+  if (els.accountBtn) els.accountBtn.hidden = !loggedIn;
+
+  if (loggedIn) {
+    closeAuthModal();
+    currentUserProfile = await fetchUserProfile(user.uid);
+    renderAvatarInto(els.accountBtnAvatar, els.accountBtnIcon, currentUserProfile && currentUserProfile.avatarDataUrl);
+    renderAccountModal(user, currentUserProfile);
+  } else {
+    currentUserProfile = null;
+    closeAccountModal();
+    renderAvatarInto(els.accountBtnAvatar, els.accountBtnIcon, null);
+  }
+}
+
+/* ==========================================================================
+   Category filter — dropdown of boss categories (story/hard/quest/optional).
+   Bosses aren't tagged with categories yet, so this only narrows the list
+   once that data exists; see matchesCategoryFilter() below.
+   ========================================================================== */
+
+function loadCategoryFilters() {
+  try {
+    const raw = localStorage.getItem(CATEGORY_FILTER_KEY);
+    if (!raw) return new Set(BOSS_CATEGORIES);
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return new Set(BOSS_CATEGORIES);
+    const valid = parsed.filter((c) => BOSS_CATEGORIES.includes(c));
+    return valid.length ? new Set(valid) : new Set(BOSS_CATEGORIES);
+  } catch (err) {
+    return new Set(BOSS_CATEGORIES);
+  }
+}
+
+function saveCategoryFilters() {
+  try {
+    localStorage.setItem(CATEGORY_FILTER_KEY, JSON.stringify(Array.from(state.categoryFilters)));
+  } catch (err) {
+    /* storage unavailable */
+  }
+}
+
+function matchesCategoryFilter(boss) {
+  if (!Array.isArray(boss.categories) || boss.categories.length === 0) return true;
+  return boss.categories.some((category) => state.categoryFilters.has(category));
+}
+
+function refreshCategoryFilterButtonState() {
+  if (!els.categoryFilterBtn) return;
+  const allSelected = state.categoryFilters.size === BOSS_CATEGORIES.length;
+  els.categoryFilterBtn.classList.toggle('has-active-filter', !allSelected);
+}
+
+function openCategoryPanel() {
+  if (!els.categoryFilterPanel) return;
+  els.categoryFilterPanel.hidden = false;
+  if (els.categoryFilterBtn) els.categoryFilterBtn.setAttribute('aria-expanded', 'true');
+}
+
+function closeCategoryPanel() {
+  if (!els.categoryFilterPanel) return;
+  els.categoryFilterPanel.hidden = true;
+  if (els.categoryFilterBtn) els.categoryFilterBtn.setAttribute('aria-expanded', 'false');
+}
+
+function toggleCategoryPanel() {
+  if (!els.categoryFilterPanel) return;
+  if (els.categoryFilterPanel.hidden) openCategoryPanel();
+  else closeCategoryPanel();
+}
+
+function attachAuthEvents() {
+  if (els.loginBtn) els.loginBtn.addEventListener('click', () => openAuthModal('login'));
+  if (els.accountBtn) els.accountBtn.addEventListener('click', openAccountModal);
+  if (els.logoutBtn) {
+    els.logoutBtn.addEventListener('click', () => {
+      auth.signOut();
+      closeAccountModal();
+    });
+  }
+  if (els.accountAvatarEditBtn && els.accountAvatarInput) {
+    els.accountAvatarEditBtn.addEventListener('click', () => els.accountAvatarInput.click());
+  }
+  if (els.accountAvatarInput) els.accountAvatarInput.addEventListener('change', handleAvatarChange);
+  if (els.authModalClose) els.authModalClose.addEventListener('click', closeAuthModal);
+  if (els.authModal) {
+    els.authModal.addEventListener('click', (event) => {
+      if (event.target === els.authModal) closeAuthModal();
+    });
+  }
+  if (els.accountModalClose) els.accountModalClose.addEventListener('click', closeAccountModal);
+  if (els.accountModal) {
+    els.accountModal.addEventListener('click', (event) => {
+      if (event.target === els.accountModal) closeAccountModal();
+    });
+  }
+  if (els.authSwitchBtn) {
+    els.authSwitchBtn.addEventListener('click', () => {
+      setAuthTab(authMode === 'login' ? 'signup' : 'login');
+      if (els.authForm) els.authForm.reset();
+      if (els.authEmailInput) els.authEmailInput.focus();
+      if (els.authModalCard) {
+        els.authModalCard.classList.remove('mode-switch-anim');
+        void els.authModalCard.offsetWidth;
+        els.authModalCard.classList.add('mode-switch-anim');
+      }
+    });
+  }
+  if (els.authForm) els.authForm.addEventListener('submit', handleAuthSubmit);
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    if (els.authModal && !els.authModal.hidden) closeAuthModal();
+    if (els.accountModal && !els.accountModal.hidden) closeAccountModal();
+    if (els.categoryFilterPanel && !els.categoryFilterPanel.hidden) closeCategoryPanel();
+    if (els.langFilterPanel && !els.langFilterPanel.hidden) closeLangPanel();
+  });
+}
+
+/* ==========================================================================
+   Language filter — globe icon dropdown, mirrors the category filter's
+   open/close/outside-click pattern.
+   ========================================================================== */
+
+function openLangPanel() {
+  if (!els.langFilterPanel) return;
+  els.langFilterPanel.hidden = false;
+  if (els.langFilterBtn) els.langFilterBtn.setAttribute('aria-expanded', 'true');
+}
+
+function closeLangPanel() {
+  if (!els.langFilterPanel) return;
+  els.langFilterPanel.hidden = true;
+  if (els.langFilterBtn) els.langFilterBtn.setAttribute('aria-expanded', 'false');
+}
+
+function toggleLangPanel() {
+  if (!els.langFilterPanel) return;
+  if (els.langFilterPanel.hidden) openLangPanel();
+  else closeLangPanel();
+}
+
+function attachLangFilterEvents() {
+  if (els.langFilterBtn) {
+    els.langFilterBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      toggleLangPanel();
+    });
+  }
+  if (els.langOptions) {
+    els.langOptions.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        applyLanguage(btn.dataset.lang);
+        closeLangPanel();
+      });
+    });
+  }
+  document.addEventListener('click', (event) => {
+    if (!els.langFilterPanel || els.langFilterPanel.hidden) return;
+    const container = document.getElementById('lang-filter');
+    if (container && !container.contains(event.target)) closeLangPanel();
+  });
+}
+
+function attachCategoryFilterEvents() {
+  if (els.categoryFilterBtn) {
+    els.categoryFilterBtn.addEventListener('click', (event) => {
+      event.stopPropagation();
+      toggleCategoryPanel();
+    });
+  }
+  if (els.categoryCheckboxes) {
+    els.categoryCheckboxes.forEach((checkbox) => {
+      checkbox.addEventListener('change', () => {
+        if (checkbox.checked) {
+          state.categoryFilters.add(checkbox.value);
+        } else {
+          state.categoryFilters.delete(checkbox.value);
+        }
+        saveCategoryFilters();
+        refreshCategoryFilterButtonState();
+        buildAccordion();
+      });
+    });
+  }
+  document.addEventListener('click', (event) => {
+    if (!els.categoryFilterPanel || els.categoryFilterPanel.hidden) return;
+    const container = document.getElementById('category-filter');
+    if (container && !container.contains(event.target)) closeCategoryPanel();
+  });
 }
 
 /* ==========================================================================
@@ -1033,7 +894,7 @@ function buildAccordion() {
   getActiveRegions().forEach((region, regionIndex) => {
     const { total, done } = getTotals(region.bosses);
     const pct = total ? Math.round((done / total) * 100) : 0;
-    const visibleBosses = region.bosses.filter((b) => matchesSearch(b) && matchesFilter(b));
+    const visibleBosses = region.bosses.filter((b) => matchesSearch(b) && matchesFilter(b) && matchesCategoryFilter(b));
     const hasSearch = state.searchTerm.trim().length > 0;
 
     if (hasSearch && visibleBosses.length === 0) return;
@@ -1080,7 +941,7 @@ function buildAccordion() {
     `;
 
     const list = item.querySelector('.boss-list');
-    const bossesToRender = hasSearch ? visibleBosses : region.bosses.filter((b) => matchesFilter(b));
+    const bossesToRender = hasSearch ? visibleBosses : region.bosses.filter((b) => matchesFilter(b) && matchesCategoryFilter(b));
 
     if (bossesToRender.length === 0) {
       const empty = document.createElement('li');
@@ -1332,11 +1193,14 @@ function applyLanguage(lang) {
   state.lang = lang;
   els.html.setAttribute('lang', lang);
 
-  els.langButtons.forEach((btn) => {
-    const active = btn.dataset.lang === lang;
-    btn.classList.toggle('active', active);
-    btn.setAttribute('aria-pressed', String(active));
-  });
+  if (els.langOptions) {
+    els.langOptions.forEach((btn) => {
+      const active = btn.dataset.lang === lang;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-checked', String(active));
+    });
+  }
+  refreshLangFilterText();
 
   els.brandEyebrow.textContent = t('eyebrow');
   els.brandTitle.textContent = t('title');
@@ -1363,6 +1227,10 @@ function applyLanguage(lang) {
     if (key === 'completed') btn.textContent = t('filterCompleted');
   });
 
+  refreshAuthModalText();
+  refreshCategoryFilterText();
+  if (currentUser) renderAccountModal(currentUser, currentUserProfile);
+
   savePreference(LANG_KEY, lang);
   buildAccordion();
   updateProgress();
@@ -1379,16 +1247,46 @@ function attachEvents() {
   });
   els.resetBtn.addEventListener('click', resetProgress);
   els.themeToggle.addEventListener('click', toggleTheme);
-  els.langButtons.forEach((btn) => {
-    btn.addEventListener('click', () => applyLanguage(btn.dataset.lang));
-  });
   els.gameButtons.forEach((btn) => {
     btn.addEventListener('click', () => applyGame(btn.dataset.game));
   });
+  attachCategoryFilterEvents();
+  attachLangFilterEvents();
 }
 
-function init() {
+async function init() {
   cacheDom();
+  auth.onAuthStateChanged(updateAuthUI);
+  attachAuthEvents();
+  refreshAuthModalText();
+
+  state.categoryFilters = loadCategoryFilters();
+  if (els.categoryCheckboxes) {
+    els.categoryCheckboxes.forEach((checkbox) => {
+      checkbox.checked = state.categoryFilters.has(checkbox.value);
+    });
+  }
+  refreshCategoryFilterButtonState();
+  refreshCategoryFilterText();
+  refreshLangFilterText();
+
+  try {
+    const data = await fetchGameData();
+    games = {
+      eldenring: { id: 'eldenring', regions: data.eldenRingRegions },
+      shadowerdtree: { id: 'shadowerdtree', regions: data.shadowErdtreeRegions }
+    };
+    ruNames = data.ruNames;
+    state.openRegions.eldenring.add(data.eldenRingRegions[0].id);
+    state.openRegions.shadowerdtree.add(data.shadowErdtreeRegions[0].id);
+  } catch (err) {
+    console.error('Failed to load boss data from Firebase:', err);
+    if (els.accordion) {
+      els.accordion.innerHTML = '<p class="no-results">Could not load boss data from the database. Check your connection and reload the page.</p>';
+    }
+    return;
+  }
+
   state.completed = loadProgress();
 
   const savedTheme = loadPreference(THEME_KEY, 'dark', ['dark', 'light']);

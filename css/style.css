@@ -2,6 +2,24 @@
    Elden Ring Boss Checklist — matte dark / light theme system
    ========================================================================== */
 
+/* ---- Local fonts — per-language, never mixed ---- */
+
+@font-face {
+  font-family: 'Cinzel';
+  src: url('../fonts/Cinzel-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Spectral SC';
+  src: url('../fonts/SpectralSC-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ---- Dark theme (default) ---- */
 html[data-theme='dark'] {
   --bg: #161617;
@@ -122,6 +140,18 @@ html, body {
   width: 100%;
 }
 
+/* Language-specific typefaces — keyed off the `lang` attribute the app
+   already sets on <html> when switching language, so English always
+   renders in Cinzel and Russian always renders in Spectral SC, with no
+   overlap between the two on either language. */
+html[lang='en'], html[lang='en'] body {
+  font-family: 'Cinzel', Georgia, 'Times New Roman', serif;
+}
+
+html[lang='ru'], html[lang='ru'] body {
+  font-family: 'Spectral SC', Georgia, 'Times New Roman', serif;
+}
+
 button, input {
   font-family: inherit;
   font-size: 16px;
@@ -210,41 +240,77 @@ body.is-ready .page {
   flex-wrap: wrap;
 }
 
-/* ---- Language toggle ---- */
+/* ---- Language filter (globe icon dropdown) ---- */
 
-.lang-toggle {
+.lang-filter {
+  position: relative;
+}
+
+.lang-filter-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 60;
   display: flex;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: 3px;
+  flex-direction: column;
   gap: 2px;
+  min-width: 160px;
+  max-width: calc(100vw - 48px);
+  background: var(--surface-1);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-2);
+  padding: 8px;
+  animation: itemIn var(--dur-fast) var(--ease-soft);
   transition: var(--theme-transition);
 }
 
-.lang-btn {
+.lang-filter-panel[hidden] { display: none; }
+
+.lang-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
   background: transparent;
   border: none;
-  border-radius: 7px;
-  padding: 7px 12px;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 500;
   color: var(--text-secondary);
   cursor: pointer;
+  text-align: left;
   transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
 }
 
-.lang-btn:hover { color: var(--text-primary); }
+.lang-option:hover {
+  background: var(--surface-3);
+  color: var(--text-primary);
+}
 
-.lang-btn:focus-visible {
+.lang-option:focus-visible {
   outline: 2px solid var(--cta);
   outline-offset: 2px;
 }
 
-.lang-btn.active {
-  background: var(--cta);
-  color: var(--on-cta);
+.lang-option.active {
+  color: var(--cta);
+  font-weight: 700;
+}
+
+.lang-check {
+  flex-shrink: 0;
+  color: var(--cta);
+  opacity: 0;
+  transition: opacity var(--dur-fast) var(--ease-soft);
+}
+
+.lang-option.active .lang-check { opacity: 1; }
+
+@media (max-width: 640px) {
+  .lang-filter-panel { left: 0; right: auto; }
 }
 
 /* ---- Theme toggle switch ---- */
@@ -336,6 +402,494 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
 .reset-btn:focus-visible {
   outline: 2px solid var(--danger);
   outline-offset: 2px;
+}
+
+/* ---- Reset section (bottom of page) ---- */
+
+.danger-zone {
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+  margin-top: 4px;
+  border-top: 1px solid var(--border-soft);
+  transition: border-color var(--dur-slow) var(--ease-soft);
+}
+
+/* ---- Header divider ---- */
+
+.header-divider {
+  width: 1px;
+  height: 22px;
+  background: var(--border);
+  flex-shrink: 0;
+  transition: background var(--dur-slow) var(--ease-soft);
+}
+
+@media (max-width: 480px) {
+  .header-divider { display: none; }
+}
+
+/* ---- Auth controls (header) — compact icon buttons, deliberately smaller
+   and simpler than the rest of the site's buttons ---- */
+
+.auth-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: 999px;
+  cursor: pointer;
+  padding: 0;
+  transition: background var(--dur-fast) var(--ease-soft),
+              border-color var(--dur-fast) var(--ease-soft),
+              color var(--dur-fast) var(--ease-soft),
+              transform 120ms var(--ease-soft);
+}
+
+/* `.icon-btn { display: inline-flex }` above has the same specificity as
+   the browser's built-in `[hidden] { display: none }` rule, and author
+   styles win ties over user-agent defaults — so without this, toggling
+   the `hidden` attribute via JS (login/signup/account buttons) silently
+   did nothing and the button stayed visible. */
+.icon-btn[hidden] { display: none; }
+
+.icon-btn:hover {
+  background: var(--surface-3);
+  color: var(--text-primary);
+  border-color: var(--secondary);
+}
+
+.icon-btn:active { transform: scale(0.93); }
+
+.icon-btn:focus-visible {
+  outline: 2px solid var(--cta);
+  outline-offset: 2px;
+}
+
+.icon-btn--primary {
+  background: var(--cta);
+  border-color: var(--cta);
+  color: var(--on-cta);
+}
+
+.icon-btn--primary:hover {
+  background: var(--cta-hover);
+  border-color: var(--cta-hover);
+  color: var(--on-cta);
+}
+
+/* Deliberately left plain — same transparent/outlined look as the base
+   .icon-btn (login door icon) so the two buttons read as one consistent
+   pair rather than one looking "special"/highlighted next to the other.
+   Kept as a class hook for the avatar image sizing below. */
+.icon-btn--account:hover {
+  background: var(--surface-3);
+  color: var(--cta);
+  border-color: var(--secondary);
+}
+
+/* Slightly bigger variant — used for the login/account buttons now that
+   the header holds fewer, more prominent auth controls. */
+.icon-btn--lg {
+  width: 40px;
+  height: 40px;
+}
+
+.account-btn-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* Same cascade-origin issue as `.icon-btn[hidden]` above: an explicit
+   author rule is needed for the `hidden` attribute to actually hide
+   these two elements when toggled via JS. (Belt-and-suspenders: the JS
+   also sets inline `display` directly now — see renderAvatarInto.) */
+.account-btn-avatar[hidden],
+#account-btn-icon[hidden] { display: none; }
+
+.account-nickname {
+  margin: 2px 0 2px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.account-modal-email {
+  margin: 0 0 3px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.account-modal-date {
+  margin: 0 0 22px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* ---- Account modal avatar ---- */
+
+.modal-card--account { padding-top: 26px; }
+
+.account-avatar-wrap {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 16px;
+}
+
+/* Both live at the exact same absolute box, so even in the split-second
+   before JS decides which one to show, they sit on top of each other
+   instead of stacking in normal flow and spilling into the text below. */
+.account-avatar-img,
+.account-avatar-fallback {
+  position: absolute;
+  inset: 0;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+}
+
+.account-avatar-img {
+  object-fit: cover;
+  border: 2px solid var(--border-soft);
+}
+
+.account-avatar-img[hidden],
+.account-avatar-fallback[hidden] { display: none; }
+
+.account-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-3);
+  color: var(--cta);
+  border: 2px solid var(--border-soft);
+  box-sizing: border-box;
+}
+
+.account-avatar-edit {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--cta);
+  color: var(--on-cta);
+  border: 2px solid var(--surface-1);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-soft), transform 120ms var(--ease-soft);
+}
+
+.account-avatar-edit:hover { background: var(--cta-hover); }
+.account-avatar-edit:active { transform: scale(0.92); }
+
+.account-avatar-edit:focus-visible {
+  outline: 2px solid var(--cta);
+  outline-offset: 2px;
+}
+
+/* ---- Auth modal ---- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+}
+
+.modal-overlay[hidden] { display: none; }
+
+.modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+  padding: 30px 24px 26px;
+  text-align: center;
+  animation: itemIn var(--dur-base) var(--ease-soft);
+  transition: var(--theme-transition), border-color var(--dur-base) var(--ease-soft), box-shadow var(--dur-base) var(--ease-soft);
+}
+
+/* Sign-up gets a warmer accent border so the two modes read as visually
+   distinct at a glance, not just a swapped title/button label. */
+#auth-modal[data-mode='signup'] .modal-card {
+  border-color: var(--cta);
+  box-shadow: var(--shadow-2), 0 0 0 1px var(--cta);
+}
+
+@keyframes modeSwitchPulse {
+  0% { transform: scale(0.97); opacity: 0.85; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.modal-card.mode-switch-anim { animation: modeSwitchPulse 240ms var(--ease-soft); }
+
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+
+.modal-close:hover {
+  background: var(--surface-3);
+  color: var(--text-primary);
+}
+
+.modal-close:focus-visible {
+  outline: 2px solid var(--cta);
+  outline-offset: 2px;
+}
+
+.auth-modal-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background var(--dur-base) var(--ease-soft), color var(--dur-base) var(--ease-soft);
+}
+
+.auth-modal-icon--login {
+  background: var(--surface-3);
+  color: var(--cta);
+}
+
+.auth-modal-icon--signup {
+  background: linear-gradient(135deg, var(--cta) 0%, var(--secondary) 100%);
+  color: var(--on-cta);
+}
+
+.auth-modal-title {
+  margin: 0 0 4px;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.auth-modal-subtitle {
+  margin: 0 0 20px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+#auth-modal[data-mode='signup'] .auth-submit {
+  background: linear-gradient(135deg, var(--cta) 0%, var(--secondary) 100%);
+}
+
+#auth-modal[data-mode='signup'] .auth-submit:hover {
+  background: linear-gradient(135deg, var(--cta-hover) 0%, var(--secondary) 100%);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-align: left;
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+/* Same recurring cascade issue as `.icon-btn[hidden]` elsewhere in this
+   file: `.auth-field { display: flex }` ties in specificity with the
+   browser's default `[hidden] { display: none }`, and author styles win
+   ties over user-agent defaults — so hiding the nickname field for the
+   login mode via JS (`els.authNicknameField.hidden = ...`) silently did
+   nothing without this explicit override. */
+.auth-field[hidden] { display: none; }
+
+.auth-field input {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  color: var(--text-primary);
+  font-weight: 400;
+  outline: none;
+  transition: var(--theme-transition), box-shadow var(--dur-fast) var(--ease-soft);
+}
+
+.auth-field input:focus {
+  border-color: var(--cta);
+  box-shadow: 0 0 0 3px var(--focus-soft);
+}
+
+.auth-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--danger-soft);
+  border: 1px solid var(--danger-border);
+  color: var(--danger-strong);
+  font-size: 13px;
+  text-align: left;
+}
+
+.auth-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  background: var(--cta);
+  border: none;
+  color: var(--on-cta);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-soft),
+              border-color var(--dur-fast) var(--ease-soft),
+              color var(--dur-fast) var(--ease-soft),
+              transform 120ms var(--ease-soft);
+}
+
+.auth-submit:hover { background: var(--cta-hover); }
+.auth-submit:active { transform: scale(0.98); }
+.auth-submit:disabled { opacity: 0.6; cursor: default; }
+
+.auth-submit:focus-visible {
+  outline: 2px solid var(--cta);
+  outline-offset: 2px;
+}
+
+.auth-submit--danger {
+  background: var(--danger-soft);
+  border: 1px solid var(--danger-border);
+  color: var(--danger);
+}
+
+.auth-submit--danger:hover {
+  background: var(--danger-soft);
+  border-color: var(--danger);
+  color: var(--danger-strong);
+}
+
+.auth-submit--danger:focus-visible { outline-color: var(--danger); }
+
+.auth-switch {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 18px 0 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.auth-switch-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--cta);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+
+.auth-switch-btn:hover { color: var(--cta-hover); }
+
+.auth-switch-btn:focus-visible {
+  outline: 2px solid var(--cta);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+/* ---- Success toast ---- */
+
+.toast {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--surface-1);
+  border: 1px solid var(--success);
+  color: var(--success-strong);
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-2);
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -14px);
+  transition: opacity var(--dur-base) var(--ease-soft), transform var(--dur-base) var(--ease);
+}
+
+.toast[hidden] { display: none; }
+
+.toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+
+.toast-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--success);
+  color: var(--on-success);
+  flex-shrink: 0;
 }
 
 /* ==========================================================================
@@ -610,6 +1164,82 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
   background: var(--cta);
   border-color: var(--cta);
   color: var(--on-cta);
+}
+
+/* ---- Category filter (dropdown) ---- */
+
+.category-filter {
+  position: relative;
+}
+
+.category-filter-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-1);
+}
+
+.category-filter-btn.has-active-filter {
+  border-color: var(--cta);
+  color: var(--cta);
+  background: var(--surface-3);
+}
+
+.category-filter-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 200px;
+  max-width: calc(100vw - 48px);
+  background: var(--surface-1);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-2);
+  padding: 8px;
+  animation: itemIn var(--dur-fast) var(--ease-soft);
+  transition: var(--theme-transition);
+}
+
+.category-filter-panel[hidden] { display: none; }
+
+.category-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+
+.category-option:hover {
+  background: var(--surface-3);
+  color: var(--text-primary);
+}
+
+.category-option input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  accent-color: var(--cta);
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .category-filter-panel { right: auto; left: 0; }
+}
+
+@media (max-width: 420px) {
+  .filters { flex-wrap: wrap; }
+  .category-filter { flex: 1 0 auto; }
+  .category-filter-btn { width: 100%; border-radius: var(--radius-sm); }
 }
 
 /* ==========================================================================
