@@ -20,86 +20,86 @@
   font-display: swap;
 }
 
-/* ---- Dark theme (default) ---- */
+/* ---- Dark theme (default) — Lands Between night palette ---- */
 html[data-theme='dark'] {
-  --bg: #161617;
-  --surface-1: #202022;
-  --surface-2: #242426;
-  --surface-3: #2c2c2f;
-  --border: #38383b;
-  --border-soft: #2e2e31;
+  --bg: #17140f;
+  --surface-1: #1b170f;
+  --surface-2: #221c12;
+  --surface-3: #2a2216;
+  --border: #453c29;
+  --border-soft: #2c2517;
 
-  --text-primary: #e0e0e2;
-  --text-secondary: #b4b5ba;
-  --text-muted: #808388;
+  --text-primary: #c6a85d;
+  --text-secondary: #d2c7ae;
+  --text-muted: #9d9380;
 
-  --cta: #a2a3a8;
-  --cta-hover: #88898e;
-  --secondary: #c2c3c7;
-  --secondary-hover: #a8a9ad;
+  --cta: #c6a85d;
+  --cta-hover: #ceb474;
+  --secondary: #d2c7ae;
+  --secondary-hover: #b9af99;
 
-  --progress-fill: #8e9096;
-  --inactive-text: #74757a;
-  --strike: #a2a3a8;
-  --strike-soft: rgba(162, 163, 168, 0.14);
-  --focus-soft: rgba(162, 163, 168, 0.24);
+  --progress-fill: #c6a85d;
+  --inactive-text: #74623c;
+  --strike: #9d9380;
+  --strike-soft: rgba(157, 147, 128, 0.16);
+  --focus-soft: rgba(198, 168, 93, 0.28);
 
-  --success: #7fb494;
-  --success-strong: #9bc9ac;
-  --success-soft: rgba(127, 180, 148, 0.16);
-  --success-glow: rgba(127, 180, 148, 0.22);
-  --on-success: #142019;
+  --success: #8a9a5f;
+  --success-strong: #9aa875;
+  --success-soft: rgba(138, 154, 95, 0.16);
+  --success-glow: rgba(138, 154, 95, 0.22);
+  --on-success: #14180f;
 
-  --danger: #bd7770;
-  --danger-strong: #d2938c;
-  --danger-soft: rgba(189, 119, 112, 0.14);
-  --danger-border: rgba(189, 119, 112, 0.55);
+  --danger: #b6543f;
+  --danger-strong: #c2604a;
+  --danger-soft: rgba(182, 84, 63, 0.14);
+  --danger-border: rgba(182, 84, 63, 0.55);
   --on-danger: #1c1211;
 
-  --on-cta: #161617;
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --shadow-2: 0 10px 28px rgba(0, 0, 0, 0.4);
+  --on-cta: #17140f;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-2: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-/* ---- Light theme ---- */
+/* ---- Light theme — sunlit parchment palette ---- */
 html[data-theme='light'] {
-  --bg: #f4f4f5;
-  --surface-1: #eceff1;
-  --surface-2: #e4e4e7;
-  --surface-3: #d8d8dc;
-  --border: #c7c7cc;
-  --border-soft: #d3d3d7;
+  --bg: #d2c7ae;
+  --surface-1: #c5bba4;
+  --surface-2: #b9af99;
+  --surface-3: #aca38f;
+  --border: #a49b88;
+  --border-soft: #b3aa95;
 
-  --text-primary: #18181b;
-  --text-secondary: #45454a;
-  --text-muted: #71717a;
+  --text-primary: #241d13;
+  --text-secondary: #3c3121;
+  --text-muted: #5c5138;
 
-  --cta: #27272a;
-  --cta-hover: #3f3f46;
-  --secondary: #71717a;
-  --secondary-hover: #52525b;
+  --cta: #74623c;
+  --cta-hover: #5f5030;
+  --secondary: #393126;
+  --secondary-hover: #241d13;
 
-  --progress-fill: #52525b;
-  --inactive-text: #a1a1aa;
-  --strike: #27272a;
-  --strike-soft: rgba(39, 39, 42, 0.08);
-  --focus-soft: rgba(39, 39, 42, 0.18);
+  --progress-fill: #74623c;
+  --inactive-text: #9d9380;
+  --strike: #74623c;
+  --strike-soft: rgba(116, 98, 60, 0.14);
+  --focus-soft: rgba(116, 98, 60, 0.22);
 
-  --success: #3f7d5c;
-  --success-strong: #2f6247;
-  --success-soft: rgba(63, 125, 92, 0.1);
-  --success-glow: rgba(63, 125, 92, 0.14);
-  --on-success: #f4f4f5;
+  --success: #4b6b3c;
+  --success-strong: #3c552f;
+  --success-soft: rgba(75, 107, 60, 0.12);
+  --success-glow: rgba(75, 107, 60, 0.16);
+  --on-success: #f5ecd8;
 
-  --danger: #a1453c;
-  --danger-strong: #7f342c;
-  --danger-soft: rgba(161, 69, 60, 0.08);
-  --danger-border: rgba(161, 69, 60, 0.45);
-  --on-danger: #f4f4f5;
+  --danger: #8a3b2c;
+  --danger-strong: #6f2f23;
+  --danger-soft: rgba(138, 59, 44, 0.12);
+  --danger-border: rgba(138, 59, 44, 0.4);
+  --on-danger: #f5ecd8;
 
-  --on-cta: #f4f4f5;
-  --shadow-1: 0 1px 2px rgba(24, 24, 27, 0.06);
-  --shadow-2: 0 10px 28px rgba(24, 24, 27, 0.1);
+  --on-cta: #f5ecd8;
+  --shadow-1: 0 1px 2px rgba(36, 29, 19, 0.12);
+  --shadow-2: 0 10px 28px rgba(36, 29, 19, 0.18);
 }
 
 :root {
@@ -136,7 +136,12 @@ html, body {
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   transition: var(--theme-transition);
-  overflow-x: hidden;
+  /* `clip` (not `hidden`) — `hidden` forces the other axis to compute
+     as `auto`, turning body into its own scroll container distinct
+     from the viewport, which silently breaks `position: sticky` on
+     any descendant (used by the landing page's header). `clip` still
+     stops horizontal overflow without creating that scroll box. */
+  overflow-x: clip;
   width: 100%;
 }
 
@@ -203,24 +208,46 @@ body.is-ready .page {
   display: flex;
   align-items: center;
   gap: 14px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--radius-md);
+  transition: opacity var(--dur-fast) var(--ease-soft);
 }
 
-.brand-mark {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+a.brand:hover,
+a.brand:focus-visible {
+  opacity: 0.82;
+}
+
+a.brand:focus-visible {
+  outline: 2px solid var(--focus-soft);
+  outline-offset: 4px;
+}
+
+.brand-logo {
+  height: 30px;
+  width: auto;
   flex-shrink: 0;
-  background: var(--cta);
-  transition: var(--theme-transition);
+  object-fit: contain;
+  filter: drop-shadow(0 0 8px rgba(198, 168, 93, 0.22));
+}
+
+.brand-text {
+  display: flex;
+  align-items: center;
+  min-width: 0;
 }
 
 .brand-eyebrow {
-  margin: 0 0 2px;
+  margin: 2px 0 0;
+  padding-left: 14px;
+  border-left: 1px solid var(--border-soft);
   font-size: 12px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--secondary);
   font-weight: 600;
+  white-space: nowrap;
   transition: var(--theme-transition);
 }
 
@@ -270,6 +297,66 @@ body.is-ready .page {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+/* ---- Burger dropdown — grouped sections ("Preferences" / "Account").
+   `display: contents` on desktop keeps every child (the label, the
+   lang-filter, the auth controls) flowing directly into `.header-controls`
+   exactly as before the grouping wrappers were added — desktop layout is
+   completely unaffected. Only inside the mobile breakpoint below does
+   `.menu-section` become a real flex column, at which point its label
+   becomes visible too. */
+.menu-section {
+  display: contents;
+}
+
+.menu-section-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  margin: 0;
+}
+
+/* The grouped-list card is a mobile-menu construct — on desktop it stays
+   `display: contents` so its rows flow straight into `.header-controls`/
+   `.auth-controls` exactly as if this wrapper didn't exist. The hairline
+   divider between rows is desktop-invisible outright, since a lone 1px
+   bar has no place in the inline desktop row. */
+.menu-group {
+  display: contents;
+}
+
+.menu-group-divider {
+  display: none;
+}
+
+/* Login button grows a short subtitle once it's stacked in the mobile
+   menu; `display: contents` keeps it invisible-in-layout on desktop so
+   the button stays a plain round icon there. */
+.menu-login-text {
+  display: contents;
+}
+
+.menu-login-sub {
+  display: none;
+}
+
+/* Rich logged-in profile row (avatar + nickname + email) — mobile-menu
+   only. Desktop keeps the compact round `#account-btn` instead; this stays
+   `display: none` outside the mobile breakpoint no matter what the
+   `hidden` attribute says. */
+.account-profile-card {
+  display: none;
+}
+
+/* Direct "Log out" action inside the mobile menu, so logging out doesn't
+   require opening the account modal first. Desktop still only offers
+   logout from inside that modal. */
+.menu-logout-btn {
+  display: none;
 }
 
 .theme-toggle-row {
@@ -1343,6 +1430,50 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
 
 @media (max-width: 640px) {
   .category-filter-panel { right: auto; left: 0; }
+
+  /* `.filters` had no width of its own, so as a `flex-shrink: 0` item it
+     sized itself to its content's full natural width (three buttons +
+     the square filter button) no matter how narrow the screen — on a
+     phone that content is wider than the available row, and since
+     nothing shrank it just overflowed past the card and the page's own
+     `overflow-x: hidden` silently clipped it, cutting the filter button
+     off past the right edge entirely. Giving it the full row width once
+     it wraps below the search field lets its own `flex-wrap: wrap`
+     actually do its job. */
+  .filters {
+    width: 100%;
+  }
+
+  /* The three text buttons share the row equally and can shrink now
+     (`min-width: 0` overrides the flex default that would otherwise
+     block shrinking below content width); the funnel button next to
+     them stays a fixed square via its own `flex-shrink: 0`. Long
+     Russian labels ("Не пройдены") get smaller text and tighter padding
+     so they fit one line instead of wrapping and clipping inside the
+     fixed-height button. */
+  /* `flex: 0 1 auto` (shrink allowed, but sized from content by default)
+     rather than an equal `flex: 1 1 0` share: at normal phone widths the
+     three labels already fit at their natural size, so nothing shrinks
+     or truncates at all. Only once the total genuinely doesn't fit does
+     each button give up space in proportion to its own size, so the one
+     long Russian label ("Не пройдены") absorbs the squeeze instead of
+     every button — including the short ones that didn't need it —
+     getting force-truncated down to a shared width. */
+  .filters .filter-btn {
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 0 12px;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* `justify-content: center` (the base rule) clips an overflowing
+       centered line from BOTH ends with no visible "…" — looks like a
+       rendering glitch rather than a truncation. Left-aligning means any
+       overflow is one-directional, so the ellipsis actually shows up on
+       the rare widths narrow enough to still need it. */
+    justify-content: flex-start;
+  }
 }
 
 /* ==========================================================================
@@ -1843,6 +1974,99 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
   .page { padding: 20px 14px 48px; }
   .overview-card { padding: 20px; gap: 20px; }
   .site-header { gap: 12px; }
+
+  /* Logo/title stay on the left, burger on the right — the natural DOM
+     order already gives this (no `order` override needed). Title trimmed
+     down just enough to leave comfortable room for the burger next to it
+     without wrapping to a second line. */
+  .brand-title { font-size: 19px; }
+
+  /* `.site-header`'s own `flex-wrap: wrap` (needed on wider screens for
+     other layouts) becomes a trap on very narrow phones: once the brand
+     block's natural width plus the burger button no longer fit on one
+     line, the WHOLE burger button wraps onto its own line below-left —
+     and since the dropdown panel is positioned `right: 0` relative to
+     that now-misplaced burger, it renders far off-screen to the left
+     (confirmed by measurement, not just a hunch). Forcing `nowrap` here
+     and letting the brand text truncate instead keeps the burger pinned
+     to the right at every width, so its dropdown never loses its anchor. */
+  .site-header {
+    flex-wrap: nowrap;
+  }
+
+  .brand {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .brand-text {
+    min-width: 0;
+  }
+
+  .brand-title,
+  .brand-eyebrow {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .burger-menu {
+    flex-shrink: 0;
+  }
+
+  /* Burger dropdown sections become real vertical stacks, with the
+     account section pinned to the top regardless of DOM order — it's
+     declared after "Preferences" in the markup (so the desktop cascade
+     above stays untouched) and pulled to the front here with `order`. */
+  .menu-section {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 6px;
+  }
+
+  .menu-section--account { order: -1; }
+
+  .menu-section--prefs { margin-top: 14px; }
+
+  .menu-section-label {
+    position: static;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    white-space: nowrap;
+    display: block;
+    margin: 0 0 0 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ---- Grouped list card — every row inside (login/profile/logout, or
+     language/theme) shares one bordered surface instead of each having
+     its own box, so the menu reads as a single tidy list rather than a
+     scatter of differently-styled pieces. `overflow: hidden` lets the
+     group's own border-radius clip its first/last row's corners even
+     though the rows themselves are square. */
+  .menu-group {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .menu-group-divider {
+    height: 1px;
+    flex-shrink: 0;
+    background: var(--border-soft);
+  }
+
   .trigger-meta { gap: 10px; }
   .region-count { font-size: 12px; }
   .boss-number { min-width: 20px; height: 20px; font-size: 11.5px; border-radius: 6px; }
@@ -1857,6 +2081,8 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
     display: none;
     position: absolute;
     top: calc(100% + 8px);
+    /* Anchored from the right, under the burger button, which sits at
+       the right edge of the header. */
     right: 0;
     flex-direction: column;
     align-items: stretch;
@@ -1892,14 +2118,61 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
     flex-direction: column;
   }
 
+  /* Rows inside a `.menu-group` share the group's own border/background
+     (see `.menu-group` above), so the individual `.icon-btn` box — border,
+     rounded pill shape, transparent fill — is stripped back to a plain
+     flush row here. Square corners are fine: the group's `overflow:
+     hidden` + border-radius already round off the first/last row. */
   .header-controls .icon-btn {
     width: 100%;
     height: 44px;
     justify-content: flex-start;
     gap: 10px;
     padding: 0 12px;
-    border-radius: var(--radius-sm);
+    border: none;
+    border-radius: 0;
+    background: transparent;
   }
+
+  /* Negative offset keeps the focus ring inside the row instead of
+     letting the group's `overflow: hidden` clip it at the group edge. */
+  .header-controls .icon-btn:focus-visible {
+    outline-offset: -2px;
+  }
+
+  /* Login button grows a subtitle once stacked in the menu, so it needs
+     to be taller than the plain single-line icon buttons above — this
+     comes after `.header-controls .icon-btn` so it wins the equal-
+     specificity cascade tie on `height`/`padding`. */
+  .header-controls .menu-login-btn {
+    height: auto;
+    min-height: 54px;
+    padding: 9px 12px;
+    align-items: center;
+  }
+
+  .header-controls .menu-login-text {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    align-items: flex-start;
+    min-width: 0;
+  }
+
+  .header-controls .menu-login-sub {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    white-space: normal;
+    line-height: 1.3;
+  }
+
+  /* The compact round account button is a desktop-only affordance — the
+     mobile menu shows the richer `.account-profile-card` below instead.
+     An ID selector beats `.header-controls .icon-btn` above without
+     needing `!important`. */
+  .header-controls #account-btn { display: none; }
 
   /* Constrained to a small fixed square — without this it would inherit
      100%/100% of the now much wider, row-shaped button and stretch into
@@ -1908,6 +2181,120 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
     width: 22px;
     height: 22px;
     flex-shrink: 0;
+  }
+
+  /* `#profile-card-avatar` reuses the `.account-btn-avatar` class (same
+     100%/100%-fill image), so the 22px rule above — meant for the small
+     `#account-btn` icon — would otherwise shrink it too. Three classes
+     beats two, so this wins regardless of source order. */
+  .header-controls .account-profile-avatar .account-btn-avatar {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ---- Rich logged-in profile row — avatar, nickname, email, and a
+     chevron hinting the whole row opens the account modal. Only ever
+     visible when logged in (`[hidden]` cleared by JS in updateAuthUI).
+     Flush and borderless like the other rows — the `.menu-group` around
+     it supplies the one shared card surface. */
+  .header-controls .account-profile-card:not([hidden]) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 60px;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    text-align: left;
+    color: inherit;
+    font: inherit;
+    transition: background var(--dur-fast) var(--ease-soft);
+  }
+
+  .header-controls .account-profile-card:hover {
+    background: var(--surface-3);
+  }
+
+  .header-controls .account-profile-card:focus-visible {
+    outline: 2px solid var(--cta);
+    outline-offset: -2px;
+  }
+
+  .account-profile-avatar {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-3);
+    color: var(--text-secondary);
+    overflow: hidden;
+  }
+
+  .account-profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .account-profile-name {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .account-profile-email {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .account-profile-chevron {
+    flex-shrink: 0;
+    color: var(--text-muted);
+  }
+
+  /* ---- Direct "log out" action — same flush row shape as the others,
+     just tinted red so it still reads as a distinct, deliberate action
+     rather than blending into the neutral rows above it. */
+  .header-controls .menu-logout-btn:not([hidden]) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 44px;
+    padding: 0 12px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: var(--danger);
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--dur-fast) var(--ease-soft);
+  }
+
+  .header-controls .menu-logout-btn:hover {
+    background: var(--danger-soft);
+  }
+
+  .header-controls .menu-logout-btn:focus-visible {
+    outline: 2px solid var(--danger);
+    outline-offset: -2px;
   }
 
   .header-controls .lang-filter-panel {
@@ -1924,14 +2311,14 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
   .theme-toggle-row {
     justify-content: space-between;
     width: 100%;
-    padding: 10px 10px;
+    min-height: 44px;
+    padding: 8px 12px;
   }
 
-  .header-divider {
-    width: 100%;
-    height: 1px;
-    margin: 4px 0;
-  }
+  /* The vertical bar makes sense in the desktop row; inside the stacked
+     mobile menu the `.menu-section--prefs` top border above does the same
+     separating job without leaving a dangling line under the last item. */
+  .header-divider { display: none; }
 }
 
 @media (max-width: 400px) {

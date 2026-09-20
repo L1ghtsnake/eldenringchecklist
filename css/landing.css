@@ -1,0 +1,635 @@
+/* ==========================================================================
+   Landing page — "Welcome to the Lands Between"
+   Loaded in addition to style.css, which already supplies the color
+   variables, font-faces (Cinzel / Spectral SC), reset and shared
+   components (.brand, .icon-btn, .lang-filter, .theme-toggle, .site-footer).
+   Everything here is landing-page-only layout, hero treatment and motion.
+   ========================================================================== */
+
+body.landing-body {
+  opacity: 0;
+}
+
+body.landing-body.is-ready {
+  opacity: 1;
+  transition: opacity var(--dur-slow) var(--ease-soft);
+}
+
+.landing-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ---- Header ---- */
+
+.landing-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 24px;
+  background: linear-gradient(to bottom, rgba(23, 20, 15, 0.55) 0%, rgba(23, 20, 15, 0.2) 80%, transparent);
+  border-bottom: 1px solid transparent;
+  transition: background var(--dur-base) var(--ease-soft), border-color var(--dur-base) var(--ease-soft), box-shadow var(--dur-base) var(--ease-soft);
+}
+
+.landing-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* Once the hero has scrolled past, the header switches from a
+   transparent gradient sitting on the photo to a solid, slightly
+   elevated bar — the usual "frosted nav" treatment. */
+.landing-header.is-scrolled {
+  background: var(--surface-1);
+  border-bottom-color: var(--border-soft);
+  box-shadow: var(--shadow-1);
+}
+
+.landing-header .brand {
+  min-width: 0;
+}
+
+.landing-header .brand-logo {
+  height: 26px;
+}
+
+.landing-header .brand-eyebrow {
+  font-size: 11px;
+}
+
+.landing-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.landing-controls-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border-soft);
+  margin: 0 6px;
+  flex-shrink: 0;
+}
+
+.landing-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft);
+}
+
+.landing-nav-link:hover,
+.landing-nav-link:focus-visible {
+  color: var(--cta);
+  border-color: var(--cta);
+  background: var(--focus-soft);
+}
+
+.landing-nav-link:focus-visible {
+  outline: 2px solid var(--focus-soft);
+  outline-offset: 2px;
+}
+
+.landing-controls .lang-filter-panel {
+  right: 0;
+  left: auto;
+}
+
+/* Keep the header icon buttons icon-only at every width — the shared
+   mobile stylesheet un-hides `.icon-btn-label` unconditionally below
+   640px (it's meant to appear inside the burger dropdown), which would
+   otherwise print "Language" next to the globe icon here too. */
+.landing-controls .icon-btn-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Un-scrolled, the header sits directly on the dark hero gradient no
+   matter which site theme is active — the hero photo behind it never
+   changes. `.landing-nav-link` and `.icon-btn` have no background of
+   their own here, so their text/border must stay fixed, photo-safe
+   tones instead of the theme variables (which correctly flip to dark
+   ink in light theme, and would be invisible against the still-dark
+   header). Once `.is-scrolled` gives the header a real solid surface,
+   switch back to the normal theme-aware colors. */
+.landing-header .landing-nav-link,
+.landing-header .icon-btn {
+  color: #d8cba9;
+  border-color: rgba(216, 203, 169, 0.34);
+}
+
+.landing-header .landing-nav-link:hover,
+.landing-header .landing-nav-link:focus-visible,
+.landing-header .icon-btn:hover,
+.landing-header .icon-btn:focus-visible {
+  color: #eccf88;
+  border-color: #eccf88;
+  background: rgba(198, 168, 93, 0.16);
+}
+
+.landing-header.is-scrolled .landing-nav-link,
+.landing-header.is-scrolled .icon-btn {
+  color: var(--text-secondary);
+  border-color: var(--border-soft);
+}
+
+.landing-header.is-scrolled .landing-nav-link:hover,
+.landing-header.is-scrolled .landing-nav-link:focus-visible,
+.landing-header.is-scrolled .icon-btn:hover,
+.landing-header.is-scrolled .icon-btn:focus-visible {
+  color: var(--cta);
+  border-color: var(--cta);
+  background: var(--focus-soft);
+}
+
+/* ---- Hero ---- */
+
+.hero {
+  position: relative;
+  min-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  padding: 120px 24px 96px;
+  margin-top: -84px;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: -6% -6%;
+  background-image: url('../img/hero-bg.jpg');
+  background-size: cover;
+  background-position: center 42%;
+  will-change: transform;
+  animation: heroBgIn 2.4s var(--ease-soft) both;
+}
+
+@keyframes heroBgIn {
+  from { opacity: 0; transform: scale(1.06); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 50% at 50% 30%, rgba(23, 20, 15, 0.35), rgba(23, 20, 15, 0.72) 70%),
+    linear-gradient(to bottom, rgba(23, 20, 15, 0.55) 0%, rgba(23, 20, 15, 0.4) 35%, var(--bg) 100%);
+}
+
+.hero-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ember {
+  position: absolute;
+  bottom: -10px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #c6a85d;
+  box-shadow: 0 0 6px 1px rgba(198, 168, 93, 0.8);
+  opacity: 0;
+  animation-name: emberRise;
+  animation-timing-function: ease-in;
+  animation-iteration-count: infinite;
+}
+
+@keyframes emberRise {
+  0% { transform: translate(0, 0); opacity: 0; }
+  8% { opacity: 0.9; }
+  92% { opacity: 0.35; }
+  100% { transform: translate(var(--drift, 20px), -110vh); opacity: 0; }
+}
+
+.ember:nth-child(1) { left: 6%; width: 2px; height: 2px; --drift: 30px; animation-duration: 13s; animation-delay: 0s; }
+.ember:nth-child(2) { left: 16%; --drift: -25px; animation-duration: 16s; animation-delay: 2s; }
+.ember:nth-child(3) { left: 27%; width: 2px; height: 2px; --drift: 18px; animation-duration: 11s; animation-delay: 4.5s; }
+.ember:nth-child(4) { left: 38%; --drift: -34px; animation-duration: 18s; animation-delay: 1s; }
+.ember:nth-child(5) { left: 49%; width: 2px; height: 2px; --drift: 22px; animation-duration: 14s; animation-delay: 6s; }
+.ember:nth-child(6) { left: 58%; --drift: -16px; animation-duration: 12.5s; animation-delay: 3s; }
+.ember:nth-child(7) { left: 68%; width: 2px; height: 2px; --drift: 28px; animation-duration: 17s; animation-delay: 7.5s; }
+.ember:nth-child(8) { left: 77%; --drift: -22px; animation-duration: 15s; animation-delay: 0.5s; }
+.ember:nth-child(9) { left: 85%; width: 2px; height: 2px; --drift: 15px; animation-duration: 13.5s; animation-delay: 5s; }
+.ember:nth-child(10) { left: 92%; --drift: -30px; animation-duration: 19s; animation-delay: 8.5s; }
+.ember:nth-child(11) { left: 22%; width: 2px; height: 2px; --drift: 12px; animation-duration: 20s; animation-delay: 10s; }
+.ember:nth-child(12) { left: 63%; --drift: -12px; animation-duration: 16.5s; animation-delay: 9s; }
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 620px;
+  opacity: 0;
+  transform: translateY(16px);
+  animation: heroContentIn var(--dur-slow) var(--ease-soft) 0.5s forwards;
+}
+
+@keyframes heroContentIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-logo {
+  width: min(380px, 72vw);
+  height: auto;
+  object-fit: contain;
+  margin-bottom: 22px;
+  filter: drop-shadow(0 0 22px rgba(198, 168, 93, 0.35));
+  animation: logoGlow 5s ease-in-out infinite;
+}
+
+@keyframes logoGlow {
+  0%, 100% { filter: drop-shadow(0 0 22px rgba(198, 168, 93, 0.35)); }
+  50% { filter: drop-shadow(0 0 32px rgba(198, 168, 93, 0.55)); }
+}
+
+/* The hero always sits on the same night-sky photo no matter which
+   theme is active, so its text is pinned to fixed warm-light tones
+   here rather than following --text-primary/--secondary — those flip
+   to dark ink in the light theme, which would turn near-invisible on
+   top of a dark photo. Everything below the hero uses the themed
+   variables normally. */
+.hero-eyebrow {
+  margin: 0 0 14px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #cbb989;
+}
+
+.hero-title {
+  margin: 0 0 18px;
+  font-size: clamp(32px, 6vw, 52px);
+  line-height: 1.15;
+  font-weight: 700;
+  color: #ecdcab;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.6);
+}
+
+.hero-subtitle {
+  margin: 0 0 34px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #d8cba9;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.55);
+}
+
+/* A quiet text link, not a filled button — used the one time each
+   section actually needs to point at the checklist, instead of a
+   heavy gold CTA repeated across the page. */
+.inline-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--cta);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+
+.inline-link:hover,
+.inline-link:focus-visible {
+  color: var(--cta-hover);
+  border-bottom-color: currentColor;
+}
+
+.inline-link:focus-visible {
+  outline: 2px solid var(--focus-soft);
+  outline-offset: 3px;
+}
+
+.inline-link svg {
+  flex-shrink: 0;
+  transition: transform var(--dur-fast) var(--ease-soft);
+}
+
+.inline-link:hover svg {
+  transform: translateX(3px);
+}
+
+.hero-scroll-hint {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: #cbb989;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.8;
+  animation: hintBob 2.4s ease-in-out infinite;
+}
+
+@keyframes hintBob {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, 6px); }
+}
+
+/* ---- Ornate divider ---- */
+
+.ornate-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 0 auto 40px;
+  max-width: 360px;
+}
+
+.ornate-divider::before,
+.ornate-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border));
+}
+
+.ornate-divider::after {
+  background: linear-gradient(to left, transparent, var(--border));
+}
+
+.ornate-divider img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  opacity: 0.75;
+}
+
+/* ---- Reveal-on-scroll ---- */
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s var(--ease-soft), transform 0.8s var(--ease-soft);
+}
+
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+[data-reveal-delay="1"] { transition-delay: 0.1s; }
+[data-reveal-delay="2"] { transition-delay: 0.2s; }
+[data-reveal-delay="3"] { transition-delay: 0.3s; }
+[data-reveal-delay="4"] { transition-delay: 0.4s; }
+
+/* ---- Sections ---- */
+
+.landing-section {
+  padding: 76px 0;
+}
+
+.landing-section--alt {
+  background: var(--surface-1);
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.section-head {
+  text-align: center;
+  max-width: 620px;
+  margin: 0 auto 44px;
+}
+
+.section-eyebrow {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cta);
+}
+
+.section-title {
+  margin: 0 0 14px;
+  font-size: clamp(24px, 3.6vw, 32px);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.section-body {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+
+.about-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.about-chip {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border-soft);
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 18px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 26px;
+  border-radius: var(--radius-md);
+  background: var(--surface-1);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-1);
+  transition: transform var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft);
+}
+
+.feature-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--border);
+}
+
+.feature-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  color: var(--cta);
+  flex-shrink: 0;
+}
+
+.feature-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.feature-text {
+  margin: 0;
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+.feature-card .inline-link {
+  margin-top: 2px;
+}
+
+.cta-section {
+  text-align: center;
+  padding: 90px 24px;
+  position: relative;
+}
+
+.cta-section .section-title {
+  font-size: clamp(26px, 4vw, 34px);
+}
+
+.cta-section .section-body {
+  margin: 0 auto 32px;
+}
+
+.landing-footer {
+  padding: 32px 24px 44px;
+  text-align: center;
+}
+
+.landing-footer p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ---- Responsive ---- */
+
+@media (max-width: 720px) {
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    min-height: 88vh;
+    padding: 104px 20px 80px;
+  }
+
+  .landing-section {
+    padding: 56px 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .landing-header {
+    padding: 14px 16px;
+  }
+
+  .landing-header .brand-text {
+    display: none;
+  }
+
+  .landing-nav-link span {
+    display: none;
+  }
+
+  .landing-nav-link {
+    padding: 0 10px;
+  }
+
+  .landing-controls {
+    gap: 3px;
+  }
+
+  .landing-controls-divider {
+    margin: 0 3px;
+  }
+
+  .hero-title {
+    font-size: 28px;
+  }
+
+  .hero-subtitle {
+    font-size: 14.5px;
+  }
+}
+
+/* ---- Reduced motion ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-bg,
+  .hero-content,
+  .hero-logo,
+  .hero-scroll-hint,
+  .ember {
+    animation: none !important;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  body.landing-body {
+    opacity: 1;
+  }
+}

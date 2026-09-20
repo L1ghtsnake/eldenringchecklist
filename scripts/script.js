@@ -20,7 +20,7 @@ let ruNames = { regions: {}, bosses: {} };
 /* UI string dictionary */
 const i18n = {
   en: {
-    eyebrow: 'Lands Between tracker',
+    eyebrow: 'Boss Checklist',
     title: 'Elden Ring Boss Checklist',
     reset: 'Reset progress',
     searchPlaceholder: 'Search a boss by name…',
@@ -72,10 +72,14 @@ const i18n = {
     avatarErrorInvalid: 'Please choose an image file.',
     avatarErrorGeneric: 'Could not update the avatar. Please try again.',
     authSubtitleLogin: 'Welcome back — pick up where you left off.',
-    authSubtitleSignup: 'Create an account to save your progress anywhere.'
+    authSubtitleSignup: 'Create an account to save your progress anywhere.',
+    loginMenuSub: 'Sync your progress across devices',
+    manageAccount: 'Manage account',
+    menuAccountLabel: 'Account',
+    menuPrefsLabel: 'Preferences'
   },
   ru: {
-    eyebrow: 'Междуземье',
+    eyebrow: 'Чек-лист боссов',
     title: 'Чек-лист боссов Elden Ring',
     reset: 'Сбросить прогресс',
     searchPlaceholder: 'Поиск босса по имени…',
@@ -127,7 +131,11 @@ const i18n = {
     avatarErrorInvalid: 'Пожалуйста, выберите файл изображения.',
     avatarErrorGeneric: 'Не удалось обновить аватар. Попробуйте ещё раз.',
     authSubtitleLogin: 'С возвращением — продолжайте с того места, где остановились.',
-    authSubtitleSignup: 'Создайте аккаунт, чтобы сохранять прогресс на любом устройстве.'
+    authSubtitleSignup: 'Создайте аккаунт, чтобы сохранять прогресс на любом устройстве.',
+    loginMenuSub: 'Синхронизируйте прогресс между устройствами',
+    manageAccount: 'Управление аккаунтом',
+    menuAccountLabel: 'Аккаунт',
+    menuPrefsLabel: 'Настройки'
   }
 };
 
@@ -163,9 +171,22 @@ function cacheDom() {
   els.resetBtn = document.getElementById('reset-btn');
   els.resetLabel = document.getElementById('reset-label');
   els.loginBtn = document.getElementById('login-btn');
+  els.loginBtnLabel = document.getElementById('login-btn-label');
+  els.loginBtnSub = document.getElementById('login-btn-sub');
   els.accountBtn = document.getElementById('account-btn');
+  els.accountBtnLabel = document.getElementById('account-btn-label');
   els.accountBtnAvatar = document.getElementById('account-btn-avatar');
   els.accountBtnIcon = document.getElementById('account-btn-icon');
+  els.accountProfileCard = document.getElementById('account-profile-card');
+  els.profileCardAvatar = document.getElementById('profile-card-avatar');
+  els.profileCardIcon = document.getElementById('profile-card-icon');
+  els.profileCardName = document.getElementById('profile-card-name');
+  els.profileCardEmail = document.getElementById('profile-card-email');
+  els.accountGroupDivider = document.getElementById('account-group-divider');
+  els.logoutBtnInline = document.getElementById('logout-btn-inline');
+  els.logoutInlineLabel = document.getElementById('logout-inline-label');
+  els.menuAccountLabel = document.getElementById('menu-account-label');
+  els.menuPrefsLabel = document.getElementById('menu-prefs-label');
   els.logoutBtn = document.getElementById('logout-btn');
   els.authModal = document.getElementById('auth-modal');
   els.authModalClose = document.getElementById('auth-modal-close');
@@ -271,7 +292,18 @@ function refreshAuthModalText() {
   if (els.authSwitchText) els.authSwitchText.textContent = authMode === 'login' ? t('authNoAccount') : t('authHaveAccount');
   if (els.authSwitchBtn) els.authSwitchBtn.textContent = authMode === 'login' ? t('signup') : t('login');
   if (els.loginBtn) els.loginBtn.setAttribute('aria-label', t('login'));
+  if (els.loginBtnLabel) els.loginBtnLabel.textContent = t('login');
+  if (els.loginBtnSub) els.loginBtnSub.textContent = t('loginMenuSub');
   if (els.accountBtn) els.accountBtn.setAttribute('aria-label', t('account'));
+  if (els.accountBtnLabel) els.accountBtnLabel.textContent = t('account');
+  if (els.accountProfileCard) {
+    els.accountProfileCard.setAttribute('aria-label', t('manageAccount'));
+    els.accountProfileCard.setAttribute('title', t('manageAccount'));
+  }
+  if (els.logoutBtnInline) els.logoutBtnInline.setAttribute('aria-label', t('logout'));
+  if (els.logoutInlineLabel) els.logoutInlineLabel.textContent = t('logout');
+  if (els.menuAccountLabel) els.menuAccountLabel.textContent = t('menuAccountLabel');
+  if (els.menuPrefsLabel) els.menuPrefsLabel.textContent = t('menuPrefsLabel');
   if (els.accountAvatarEditBtn) {
     els.accountAvatarEditBtn.setAttribute('aria-label', t('avatarEditLabel'));
     els.accountAvatarEditBtn.setAttribute('title', t('avatarEditLabel'));
@@ -476,6 +508,16 @@ function renderAccountModal(user, profile) {
   renderAvatarInto(els.accountAvatarImg, els.accountAvatarFallback, profile && profile.avatarDataUrl);
 }
 
+/* Populates the rich profile row inside the mobile burger menu — same
+   nickname/email logic as the account modal, just written into the
+   `.account-profile-card` elements instead. */
+function renderAccountProfileCard(user, profile) {
+  if (!user) return;
+  const nickname = user.displayName || (profile && profile.nickname) || user.email || '';
+  if (els.profileCardName) els.profileCardName.textContent = nickname;
+  if (els.profileCardEmail) els.profileCardEmail.textContent = user.email || '';
+}
+
 /* Client-side resize/compress before storing an avatar as a data URL in
    Firestore. Deliberately not using Firebase Storage — new Firebase
    projects need the paid Blaze plan for Storage, and a small compressed
@@ -543,6 +585,7 @@ async function handleAvatarChange(event) {
     currentUserProfile = Object.assign({}, currentUserProfile, { avatarDataUrl: dataUrl });
     renderAvatarInto(els.accountAvatarImg, els.accountAvatarFallback, dataUrl);
     renderAvatarInto(els.accountBtnAvatar, els.accountBtnIcon, dataUrl);
+    renderAvatarInto(els.profileCardAvatar, els.profileCardIcon, dataUrl);
     await db.collection('users').doc(currentUser.uid).set({ avatarDataUrl: dataUrl }, { merge: true });
   } catch (err) {
     console.error('Failed to update avatar:', err);
@@ -602,16 +645,22 @@ async function updateAuthUI(user) {
   const loggedIn = !!user;
   if (els.loginBtn) els.loginBtn.hidden = loggedIn;
   if (els.accountBtn) els.accountBtn.hidden = !loggedIn;
+  if (els.accountProfileCard) els.accountProfileCard.hidden = !loggedIn;
+  if (els.accountGroupDivider) els.accountGroupDivider.hidden = !loggedIn;
+  if (els.logoutBtnInline) els.logoutBtnInline.hidden = !loggedIn;
 
   if (loggedIn) {
     closeAuthModal();
     currentUserProfile = await fetchUserProfile(user.uid);
     renderAvatarInto(els.accountBtnAvatar, els.accountBtnIcon, currentUserProfile && currentUserProfile.avatarDataUrl);
+    renderAvatarInto(els.profileCardAvatar, els.profileCardIcon, currentUserProfile && currentUserProfile.avatarDataUrl);
     renderAccountModal(user, currentUserProfile);
+    renderAccountProfileCard(user, currentUserProfile);
   } else {
     currentUserProfile = null;
     closeAccountModal();
     renderAvatarInto(els.accountBtnAvatar, els.accountBtnIcon, null);
+    renderAvatarInto(els.profileCardAvatar, els.profileCardIcon, null);
   }
 }
 
@@ -682,6 +731,18 @@ function attachAuthEvents() {
     els.accountBtn.addEventListener('click', () => {
       closeBurgerMenu();
       openAccountModal();
+    });
+  }
+  if (els.accountProfileCard) {
+    els.accountProfileCard.addEventListener('click', () => {
+      closeBurgerMenu();
+      openAccountModal();
+    });
+  }
+  if (els.logoutBtnInline) {
+    els.logoutBtnInline.addEventListener('click', () => {
+      auth.signOut();
+      closeBurgerMenu();
     });
   }
   if (els.logoutBtn) {

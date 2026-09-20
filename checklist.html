@@ -4,19 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Elden Ring Boss Checklist</title>
+  <link rel="icon" type="image/png" href="img/favicon.png" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <div class="page">
 
     <header class="site-header">
-      <div class="brand">
-        <span class="brand-mark" aria-hidden="true"></span>
+      <a class="brand" href="index.html" aria-label="Elden Ring Database — home">
+        <img class="brand-logo" src="img/logo-wordmark.webp" alt="Elden Ring" />
         <div class="brand-text">
-          <p class="brand-eyebrow" id="brand-eyebrow">Lands Between tracker</p>
-          <h1 class="brand-title" id="brand-title">Elden Ring Boss Checklist</h1>
+          <p class="brand-eyebrow" id="brand-eyebrow">Boss Checklist</p>
+          <h1 class="brand-title visually-hidden" id="brand-title">Elden Ring Boss Checklist</h1>
         </div>
-      </div>
+      </a>
 
       <div class="burger-menu" id="burger-menu">
       <button type="button" class="icon-btn burger-btn" id="burger-btn" aria-haspopup="true" aria-expanded="false" aria-controls="header-controls" aria-label="Menu" title="Menu">
@@ -24,44 +25,81 @@
       </button>
 
       <div class="header-controls" id="header-controls">
-        <div class="lang-filter" id="lang-filter">
-          <button type="button" class="icon-btn lang-filter-btn" id="lang-filter-btn" aria-haspopup="true" aria-expanded="false" aria-label="Language" title="Language">
-            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-width="2" d="M2.5 12h19M12 2.5a15 15 0 0 1 4 9.5 15 15 0 0 1-4 9.5 15 15 0 0 1-4-9.5 15 15 0 0 1 4-9.5Z"/></svg>
-            <span class="icon-btn-label" id="lang-filter-btn-label">Language</span>
-          </button>
-          <div class="lang-filter-panel" id="lang-filter-panel" role="menu" hidden>
-            <button type="button" class="lang-option active" data-lang="en" role="menuitemradio" aria-checked="true">
-              <span>English</span>
-              <svg class="lang-check" width="12" height="10" viewBox="0 0 13 10" aria-hidden="true"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-            <button type="button" class="lang-option" data-lang="ru" role="menuitemradio" aria-checked="false">
-              <span>Русский</span>
-              <svg class="lang-check" width="12" height="10" viewBox="0 0 13 10" aria-hidden="true"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </button>
-          </div>
-        </div>
+        <div class="menu-section menu-section--prefs">
+          <p class="menu-section-label" id="menu-prefs-label">Preferences</p>
 
-        <div class="theme-toggle-row">
-          <span class="icon-btn-label theme-toggle-label" id="theme-toggle-label">Theme</span>
-          <button id="theme-toggle" type="button" class="theme-toggle" aria-pressed="false" aria-label="Toggle dark or light theme">
-            <svg class="theme-icon theme-icon--sun" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
-            <span class="theme-toggle-thumb" aria-hidden="true"></span>
-            <svg class="theme-icon theme-icon--moon" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5Z"/></svg>
-          </button>
+          <div class="menu-group">
+            <div class="lang-filter" id="lang-filter">
+              <button type="button" class="icon-btn lang-filter-btn" id="lang-filter-btn" aria-haspopup="true" aria-expanded="false" aria-label="Language" title="Language">
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-width="2" d="M2.5 12h19M12 2.5a15 15 0 0 1 4 9.5 15 15 0 0 1-4 9.5 15 15 0 0 1-4-9.5 15 15 0 0 1 4-9.5Z"/></svg>
+                <span class="icon-btn-label" id="lang-filter-btn-label">Language</span>
+              </button>
+              <div class="lang-filter-panel" id="lang-filter-panel" role="menu" hidden>
+                <button type="button" class="lang-option active" data-lang="en" role="menuitemradio" aria-checked="true">
+                  <span>English</span>
+                  <svg class="lang-check" width="12" height="10" viewBox="0 0 13 10" aria-hidden="true"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <button type="button" class="lang-option" data-lang="ru" role="menuitemradio" aria-checked="false">
+                  <span>Русский</span>
+                  <svg class="lang-check" width="12" height="10" viewBox="0 0 13 10" aria-hidden="true"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="menu-group-divider" aria-hidden="true"></div>
+
+            <div class="theme-toggle-row">
+              <span class="icon-btn-label theme-toggle-label" id="theme-toggle-label">Theme</span>
+              <button id="theme-toggle" type="button" class="theme-toggle" aria-pressed="false" aria-label="Toggle dark or light theme">
+                <svg class="theme-icon theme-icon--sun" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+                <span class="theme-toggle-thumb" aria-hidden="true"></span>
+                <svg class="theme-icon theme-icon--moon" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5Z"/></svg>
+              </button>
+            </div>
+          </div>
         </div>
 
         <span class="header-divider" aria-hidden="true"></span>
 
-        <div class="auth-controls" id="auth-controls">
-          <button id="login-btn" type="button" class="icon-btn icon-btn--lg" aria-label="Log in" title="Log in">
-            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
-            <span class="icon-btn-label" id="login-btn-label">Log in</span>
-          </button>
-          <button id="account-btn" type="button" class="icon-btn icon-btn--lg icon-btn--account" aria-label="Account" title="Account" hidden>
-            <img id="account-btn-avatar" class="account-btn-avatar" alt="" hidden />
-            <svg id="account-btn-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 21a8 8 0 1 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
-            <span class="icon-btn-label" id="account-btn-label">Account</span>
-          </button>
+        <div class="menu-section menu-section--account" id="menu-account-section">
+          <p class="menu-section-label" id="menu-account-label">Account</p>
+
+          <div class="auth-controls" id="auth-controls">
+            <div class="menu-group">
+              <button id="login-btn" type="button" class="icon-btn icon-btn--lg menu-login-btn" aria-label="Log in" title="Log in">
+                <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+                <span class="menu-login-text">
+                  <span class="icon-btn-label" id="login-btn-label">Log in</span>
+                  <span class="menu-login-sub" id="login-btn-sub">Sync your progress across devices</span>
+                </span>
+              </button>
+
+              <button id="account-btn" type="button" class="icon-btn icon-btn--lg icon-btn--account" aria-label="Account" title="Account" hidden>
+                <img id="account-btn-avatar" class="account-btn-avatar" alt="" hidden />
+                <svg id="account-btn-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 21a8 8 0 1 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
+                <span class="icon-btn-label" id="account-btn-label">Account</span>
+              </button>
+
+              <button type="button" class="account-profile-card" id="account-profile-card" hidden>
+                <span class="account-profile-avatar" aria-hidden="true">
+                  <img id="profile-card-avatar" class="account-btn-avatar" alt="" hidden />
+                  <svg id="profile-card-icon" width="20" height="20" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 21a8 8 0 1 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
+                </span>
+                <span class="account-profile-info">
+                  <span class="account-profile-name" id="profile-card-name">Nickname</span>
+                  <span class="account-profile-email" id="profile-card-email"></span>
+                </span>
+                <svg class="account-profile-chevron" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></svg>
+              </button>
+
+              <div class="menu-group-divider" id="account-group-divider" aria-hidden="true" hidden></div>
+
+              <button type="button" class="menu-logout-btn" id="logout-btn-inline" hidden>
+                <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                <span id="logout-inline-label">Log out</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
       </div>
@@ -120,19 +158,39 @@
             </button>
             <div class="category-filter-panel" id="category-filter-panel" role="menu" hidden>
               <label class="category-option">
-                <input type="checkbox" class="category-checkbox" value="story" checked />
+                <span class="category-checkbox-wrap">
+                  <input type="checkbox" class="category-checkbox" value="story" checked />
+                  <span class="category-checkbox-visual" aria-hidden="true">
+                    <svg width="11" height="9" viewBox="0 0 13 10"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </span>
                 <span id="cat-label-story">Story bosses</span>
               </label>
               <label class="category-option">
-                <input type="checkbox" class="category-checkbox" value="hard" checked />
+                <span class="category-checkbox-wrap">
+                  <input type="checkbox" class="category-checkbox" value="hard" checked />
+                  <span class="category-checkbox-visual" aria-hidden="true">
+                    <svg width="11" height="9" viewBox="0 0 13 10"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </span>
                 <span id="cat-label-hard">Hard bosses</span>
               </label>
               <label class="category-option">
-                <input type="checkbox" class="category-checkbox" value="quest" checked />
+                <span class="category-checkbox-wrap">
+                  <input type="checkbox" class="category-checkbox" value="quest" checked />
+                  <span class="category-checkbox-visual" aria-hidden="true">
+                    <svg width="11" height="9" viewBox="0 0 13 10"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </span>
                 <span id="cat-label-quest">Quest bosses</span>
               </label>
               <label class="category-option">
-                <input type="checkbox" class="category-checkbox" value="optional" checked />
+                <span class="category-checkbox-wrap">
+                  <input type="checkbox" class="category-checkbox" value="optional" checked />
+                  <span class="category-checkbox-visual" aria-hidden="true">
+                    <svg width="11" height="9" viewBox="0 0 13 10"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </span>
                 <span id="cat-label-optional">Optional bosses</span>
               </label>
             </div>
