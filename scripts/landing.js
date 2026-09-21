@@ -9,12 +9,11 @@
   const i18n = {
     en: {
       docTitle: 'Elden Ring Database — Welcome',
-      brandEyebrow: 'Database',
+      brandEyebrow: 'Home',
       brandTitle: 'Elden Ring Database',
       navChecklist: 'Checklist',
       langLabel: 'Language',
       themeLabel: 'Toggle dark or light theme',
-      heroEyebrow: 'Database',
       heroTitle: 'Welcome to the Lands Between',
       heroSubtitle: 'A companion site for Elden Ring — a place to keep track of the Lands Between as you explore them, starting with every boss across the base game and Shadow of the Erdtree.',
       scrollHint: 'Scroll',
@@ -42,12 +41,11 @@
     },
     ru: {
       docTitle: 'Elden Ring Database — Добро пожаловать',
-      brandEyebrow: 'База данных',
+      brandEyebrow: 'Главная',
       brandTitle: 'Elden Ring Database',
       navChecklist: 'Чек-лист',
       langLabel: 'Язык',
       themeLabel: 'Переключить тёмную или светлую тему',
-      heroEyebrow: 'База данных',
       heroTitle: 'Добро пожаловать в Междуземье',
       heroSubtitle: 'Сайт-спутник для Elden Ring — место, где удобно следить за Междуземьем по мере его исследования. Начинаем с полного чек-листа боссов основной игры и Shadow of the Erdtree.',
       scrollHint: 'Листайте',
@@ -88,7 +86,6 @@
     els.langFilterBtnLabel = document.getElementById('lang-filter-btn-label');
     els.langFilterPanel = document.getElementById('lang-filter-panel');
     els.langOptions = document.querySelectorAll('.lang-option');
-    els.heroEyebrow = document.getElementById('hero-eyebrow');
     els.heroTitle = document.getElementById('hero-title');
     els.heroSubtitle = document.getElementById('hero-subtitle');
     els.scrollHint = document.getElementById('scroll-hint-label');
@@ -159,7 +156,6 @@
     if (els.navChecklistLabel) els.navChecklistLabel.textContent = t(lang, 'navChecklist');
     if (els.themeToggle) els.themeToggle.setAttribute('aria-label', t(lang, 'themeLabel'));
 
-    if (els.heroEyebrow) els.heroEyebrow.textContent = t(lang, 'heroEyebrow');
     if (els.heroTitle) els.heroTitle.textContent = t(lang, 'heroTitle');
     if (els.heroSubtitle) els.heroSubtitle.textContent = t(lang, 'heroSubtitle');
     if (els.scrollHint) els.scrollHint.textContent = t(lang, 'scrollHint');
@@ -188,6 +184,8 @@
     if (els.ctaLink) els.ctaLink.textContent = t(lang, 'ctaLink');
 
     if (els.footerText) els.footerText.textContent = t(lang, 'footer');
+
+    if (window.AuthWidget) window.AuthWidget.setLanguage(lang);
   }
 
   function closeLangPanel() {
@@ -305,6 +303,8 @@
 
   function init() {
     cacheDom();
+
+    if (window.AuthWidget) window.AuthWidget.init('en');
 
     const theme = loadPreference(THEME_KEY, 'dark', ['dark', 'light']);
     applyTheme(theme);

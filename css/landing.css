@@ -58,16 +58,25 @@ body.landing-body.is-ready {
   box-shadow: var(--shadow-1);
 }
 
+/* Never let the flex layout squeeze the brand mark below its own
+   rendered size — its children (the icon/wordmark images) already
+   refuse to shrink (flex-shrink: 0), so without this the browser was
+   compressing `.brand`'s box while still painting the images at full
+   size, which visually overlapped the nav next to it. */
 .landing-header .brand {
-  min-width: 0;
+  flex-shrink: 0;
+}
+
+.landing-header .brand-icon {
+  height: 42px;
 }
 
 .landing-header .brand-logo {
-  height: 26px;
+  height: 27px;
 }
 
 .landing-header .brand-eyebrow {
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .landing-controls {
@@ -75,48 +84,102 @@ body.landing-body.is-ready {
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
+  min-width: 0;
 }
 
 .landing-controls-divider {
   width: 1px;
-  height: 20px;
+  height: 22px;
   background: var(--border-soft);
-  margin: 0 6px;
+  margin: 0 10px;
   flex-shrink: 0;
 }
 
+/* A quiet text link rather than a bordered pill — reads as a proper nav
+   item (uppercase, tracked-out type with an animated underline) instead
+   of competing visually with the round icon buttons beside it. */
 .landing-nav-link {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  height: 36px;
-  padding: 0 14px;
-  border-radius: 999px;
-  border: 1px solid var(--border-soft);
+  height: 40px;
+  padding: 0 4px;
   color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.01em;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   text-decoration: none;
   white-space: nowrap;
-  transition: color var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft), background var(--dur-fast) var(--ease-soft);
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+
+.landing-nav-link::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 10px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform var(--dur-fast) var(--ease-soft);
 }
 
 .landing-nav-link:hover,
 .landing-nav-link:focus-visible {
   color: var(--cta);
-  border-color: var(--cta);
-  background: var(--focus-soft);
+}
+
+.landing-nav-link:hover::after,
+.landing-nav-link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left center;
 }
 
 .landing-nav-link:focus-visible {
   outline: 2px solid var(--focus-soft);
-  outline-offset: 2px;
+  outline-offset: 4px;
 }
 
 .landing-controls .lang-filter-panel {
   right: 0;
   left: auto;
+}
+
+/* Slightly larger touch targets for the language/theme/account controls
+   than the shared defaults — the landing header has fewer, more
+   prominent icons than the app pages, so they can afford the extra size. */
+.landing-controls .icon-btn {
+  width: 40px;
+  height: 40px;
+}
+
+.landing-controls .icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.landing-controls .theme-toggle {
+  width: 62px;
+  height: 32px;
+}
+
+.landing-controls .theme-toggle-thumb {
+  width: 24px;
+  height: 24px;
+  top: 3px;
+  left: 3px;
+}
+
+.landing-controls .theme-icon {
+  width: 16px;
+  height: 16px;
+}
+
+html[data-theme='light'] .landing-controls .theme-toggle-thumb {
+  transform: translateX(31px);
 }
 
 /* Keep the header icon buttons icon-only at every width — the shared
@@ -143,6 +206,9 @@ body.landing-body.is-ready {
 .landing-header .landing-nav-link,
 .landing-header .icon-btn {
   color: #d8cba9;
+}
+
+.landing-header .icon-btn {
   border-color: rgba(216, 203, 169, 0.34);
 }
 
@@ -151,6 +217,10 @@ body.landing-body.is-ready {
 .landing-header .icon-btn:hover,
 .landing-header .icon-btn:focus-visible {
   color: #eccf88;
+}
+
+.landing-header .icon-btn:hover,
+.landing-header .icon-btn:focus-visible {
   border-color: #eccf88;
   background: rgba(198, 168, 93, 0.16);
 }
@@ -158,6 +228,9 @@ body.landing-body.is-ready {
 .landing-header.is-scrolled .landing-nav-link,
 .landing-header.is-scrolled .icon-btn {
   color: var(--text-secondary);
+}
+
+.landing-header.is-scrolled .icon-btn {
   border-color: var(--border-soft);
 }
 
@@ -166,6 +239,10 @@ body.landing-body.is-ready {
 .landing-header.is-scrolled .icon-btn:hover,
 .landing-header.is-scrolled .icon-btn:focus-visible {
   color: var(--cta);
+}
+
+.landing-header.is-scrolled .icon-btn:hover,
+.landing-header.is-scrolled .icon-btn:focus-visible {
   border-color: var(--cta);
   background: var(--focus-soft);
 }
@@ -265,13 +342,23 @@ body.landing-body.is-ready {
   to { opacity: 1; transform: translateY(0); }
 }
 
-.hero-logo {
-  width: min(380px, 72vw);
-  height: auto;
-  object-fit: contain;
-  margin-bottom: 22px;
+/* Just the wordmark, as before — the glow animation lives on the
+   wrapper so it's easy to reintroduce the ring-icon lockup later if
+   needed without touching the animation itself. */
+.hero-logo-lockup {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 38px;
   filter: drop-shadow(0 0 22px rgba(198, 168, 93, 0.35));
   animation: logoGlow 5s ease-in-out infinite;
+}
+
+.hero-wordmark {
+  height: clamp(56px, 11vw, 100px);
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
 }
 
 @keyframes logoGlow {
@@ -285,17 +372,8 @@ body.landing-body.is-ready {
    to dark ink in the light theme, which would turn near-invisible on
    top of a dark photo. Everything below the hero uses the themed
    variables normally. */
-.hero-eyebrow {
-  margin: 0 0 14px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: #cbb989;
-}
-
 .hero-title {
-  margin: 0 0 18px;
+  margin: 0 0 24px;
   font-size: clamp(32px, 6vw, 52px);
   line-height: 1.15;
   font-weight: 700;
@@ -304,7 +382,7 @@ body.landing-body.is-ready {
 }
 
 .hero-subtitle {
-  margin: 0 0 34px;
+  margin: 0 0 38px;
   font-size: 16px;
   line-height: 1.7;
   color: #d8cba9;
@@ -587,12 +665,20 @@ body.landing-body.is-ready {
     display: none;
   }
 
-  .landing-nav-link span {
-    display: none;
+  /* The bigger desktop logo (and bigger nav icons) don't fit next to a
+     text nav link at phone widths — scale everything in the header back
+     down here so nothing overlaps. */
+  .landing-header .brand-icon {
+    height: 28px;
+  }
+
+  .landing-header .brand-logo {
+    height: 18px;
   }
 
   .landing-nav-link {
-    padding: 0 10px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
   }
 
   .landing-controls {
@@ -601,6 +687,37 @@ body.landing-body.is-ready {
 
   .landing-controls-divider {
     margin: 0 3px;
+  }
+
+  .landing-controls .icon-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .landing-controls .icon-btn svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .landing-controls .theme-toggle {
+    width: 52px;
+    height: 27px;
+  }
+
+  .landing-controls .theme-toggle-thumb {
+    width: 20px;
+    height: 20px;
+    top: 3px;
+    left: 3px;
+  }
+
+  .landing-controls .theme-icon {
+    width: 13px;
+    height: 13px;
+  }
+
+  html[data-theme='light'] .landing-controls .theme-toggle-thumb {
+    transform: translateX(26px);
   }
 
   .hero-title {
@@ -612,12 +729,27 @@ body.landing-body.is-ready {
   }
 }
 
+@media (max-width: 360px) {
+  .landing-header .brand-icon {
+    height: 24px;
+  }
+
+  .landing-header .brand-logo {
+    height: 15px;
+  }
+
+  .landing-nav-link {
+    font-size: 10px;
+    letter-spacing: 0.05em;
+  }
+}
+
 /* ---- Reduced motion ---- */
 
 @media (prefers-reduced-motion: reduce) {
   .hero-bg,
   .hero-content,
-  .hero-logo,
+  .hero-logo-lockup,
   .hero-scroll-hint,
   .ember {
     animation: none !important;

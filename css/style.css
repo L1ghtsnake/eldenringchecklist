@@ -224,8 +224,27 @@ a.brand:focus-visible {
   outline-offset: 4px;
 }
 
+/* Logo lockup — the ring emblem icon and the "ELDEN RING" wordmark
+   shown together as two separate images side by side (rather than one
+   flattened graphic), matching the game's own title lockup while
+   staying crisp at any size and easy to resize independently. */
+.brand-logo-lockup {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex-shrink: 0;
+}
+
+.brand-icon {
+  height: 38px;
+  width: auto;
+  flex-shrink: 0;
+  object-fit: contain;
+  filter: drop-shadow(0 0 7px rgba(198, 168, 93, 0.25));
+}
+
 .brand-logo {
-  height: 30px;
+  height: 24px;
   width: auto;
   flex-shrink: 0;
   object-fit: contain;
@@ -658,10 +677,46 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
 }
 
 .account-modal-date {
-  margin: 0 0 22px;
+  margin: 0 0 18px;
   font-size: 12px;
   font-weight: 500;
   color: var(--text-muted);
+}
+
+/* Secondary action, distinct from the primary/danger .auth-submit
+   variants below it — an outlined pill rather than a filled button, so
+   "go to my cabinet" doesn't compete visually with "log out". */
+.account-cabinet-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0 0 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  padding: 11px 16px;
+  font-weight: 700;
+  font-size: 13.5px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-soft),
+              border-color var(--dur-fast) var(--ease-soft),
+              color var(--dur-fast) var(--ease-soft);
+}
+
+.account-cabinet-link:hover,
+.account-cabinet-link:focus-visible {
+  background: var(--surface-3);
+  border-color: var(--cta);
+  color: var(--cta);
+}
+
+.account-cabinet-link:focus-visible {
+  outline: 2px solid var(--focus-soft);
+  outline-offset: 2px;
 }
 
 /* ---- Account modal avatar ---- */

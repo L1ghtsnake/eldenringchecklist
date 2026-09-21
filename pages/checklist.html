@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elden Ring Boss Checklist</title>
+  <link rel="icon" type="image/png" href="../img/favicon.png" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+  <div class="page">
+
+    <header class="site-header">
+      <a class="brand" href="../index.html" aria-label="Elden Ring Database — home">
+        <span class="brand-logo-lockup">
+          <img class="brand-icon" src="../img/logo-icon.webp" alt="" aria-hidden="true" />
+          <img class="brand-logo" src="../img/logo-wordmark.webp" alt="Elden Ring" />
+        </span>
+        <div class="brand-text">
+          <p class="brand-eyebrow" id="brand-eyebrow">Boss Checklist</p>
+          <h1 class="brand-title visually-hidden" id="brand-title">Elden Ring Boss Checklist</h1>
+        </div>
+      </a>
+
+      <div class="burger-menu" id="burger-menu">
+      <button type="button" class="icon-btn burger-btn" id="burger-btn" aria-haspopup="true" aria-expanded="false" aria-controls="header-controls" aria-label="Menu" title="Menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+
+      <div class="header-controls" id="header-controls">
+        <div class="menu-section menu-section--prefs">
+          <p class="menu-section-label" id="menu-prefs-label">Preferences</p>
+
+          <div class="menu-group">
+            <div class="lang-filter" id="lang-filter">
+              <button type="button" class="icon-btn lang-filter-btn" id="lang-filter-btn" aria-haspopup="true" aria-expanded="false" aria-label="Language" title="Language">
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><path fill="none" stroke="currentColor" stroke-width="2" d="M2.5 12h19M12 2.5a15 15 0 0 1 4 9.5 15 15 0 0 1-4 9.5 15 15 0 0 1-4-9.5 15 15 0 0 1 4-9.5Z"/></svg>
+                <span class="icon-btn-label" id="lang-filter-btn-label">Language</span>
+              </button>
+              <div class="lang-filter-panel" id="lang-filter-panel" role="menu" hidden>
+                <button type="button" class="lang-option active" data-lang="en" role="menuitemradio" aria-checked="true">
+                  <span>English</span>
+                  <svg class="lang-check" width="12" height="10" viewBox="0 0 13 10" aria-hidden="true"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <button type="button" class="lang-option" data-lang="ru" role="menuitemradio" aria-checked="false">
+                  <span>Русский</span>
+                  <svg class="lang-check" width="12" height="10" viewBox="0 0 13 10" aria-hidden="true"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="menu-group-divider" aria-hidden="true"></div>
+
+            <div class="theme-toggle-row">
+              <span class="icon-btn-label theme-toggle-label" id="theme-toggle-label">Theme</span>
+              <button id="theme-toggle" type="button" class="theme-toggle" aria-pressed="false" aria-label="Toggle dark or light theme">
+                <svg class="theme-icon theme-icon--sun" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="2"/><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 2.5v2.2M12 19.3v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+                <span class="theme-toggle-thumb" aria-hidden="true"></span>
+                <svg class="theme-icon theme-icon--moon" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5Z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <span class="header-divider" aria-hidden="true"></span>
+
+        <div class="menu-section menu-section--account" id="menu-account-section">
+          <p class="menu-section-label" id="menu-account-label">Account</p>
+
+          <div class="auth-controls" id="auth-controls">
+            <div class="menu-group">
+              <button id="login-btn" type="button" class="icon-btn icon-btn--lg menu-login-btn" aria-label="Log in" title="Log in">
+                <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+                <span class="menu-login-text">
+                  <span class="icon-btn-label" id="login-btn-label">Log in</span>
+                  <span class="menu-login-sub" id="login-btn-sub">Sync your progress across devices</span>
+                </span>
+              </button>
+
+              <button id="account-btn" type="button" class="icon-btn icon-btn--lg icon-btn--account" aria-label="Account" title="Account" hidden>
+                <img id="account-btn-avatar" class="account-btn-avatar" alt="" hidden />
+                <svg id="account-btn-icon" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 21a8 8 0 1 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
+                <span class="icon-btn-label" id="account-btn-label">Account</span>
+              </button>
+
+              <button type="button" class="account-profile-card" id="account-profile-card" hidden>
+                <span class="account-profile-avatar" aria-hidden="true">
+                  <img id="profile-card-avatar" class="account-btn-avatar" alt="" hidden />
+                  <svg id="profile-card-icon" width="20" height="20" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 21a8 8 0 1 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
+                </span>
+                <span class="account-profile-info">
+                  <span class="account-profile-name" id="profile-card-name">Nickname</span>
+                  <span class="account-profile-email" id="profile-card-email"></span>
+                </span>
+                <svg class="account-profile-chevron" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></svg>
+              </button>
+
+              <div class="menu-group-divider" id="account-group-divider" aria-hidden="true" hidden></div>
+
+              <button type="button" class="menu-logout-btn" id="logout-btn-inline" hidden>
+                <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+                <span id="logout-inline-label">Log out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </header>
+
+    <main class="layout">
+
+      <div class="game-switch" role="tablist" aria-label="Game">
+        <button type="button" class="game-switch-btn active" data-game="eldenring" role="tab" aria-selected="true">Elden Ring</button>
+        <button type="button" class="game-switch-btn" data-game="shadowerdtree" role="tab" aria-selected="false">Shadow of the Erdtree</button>
+      </div>
+
+      <section class="overview-card" aria-label="Overall progress">
+        <div class="overview-chart">
+          <svg class="chart" viewBox="0 0 130 130" width="130" height="130" role="img" aria-label="Overall completion chart">
+            <circle class="chart-track" cx="65" cy="65" r="54" />
+            <circle id="chart-fill" class="chart-fill" cx="65" cy="65" r="54" transform="rotate(-90 65 65)" />
+          </svg>
+          <div class="chart-center">
+            <span id="chart-percent" class="chart-percent">0%</span>
+            <span class="chart-caption" id="chart-caption-label">cleared</span>
+          </div>
+        </div>
+
+        <div class="overview-stats">
+          <div class="stat-block">
+            <span class="stat-figure"><span id="completed-count">0</span><span class="stat-slash">/</span><span id="total-count">0</span></span>
+            <span class="stat-caption" id="stat-caption">bosses defeated</span>
+          </div>
+
+          <div class="bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Overall progress bar">
+            <div id="overall-bar" class="bar-fill"></div>
+          </div>
+
+          <div class="stat-chips">
+            <span class="chip chip-muted"><span id="remaining-count">0</span> <span id="remaining-label">remaining</span></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="controls-card" aria-label="Search and filters">
+        <div class="search-field">
+          <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Zm9 2-5.2-5.2"/></svg>
+          <label class="visually-hidden" for="search-input">Search bosses</label>
+          <input id="search-input" type="text" placeholder="Search a boss by name…" autocomplete="off" />
+        </div>
+
+        <div class="filters" role="group" aria-label="Filter bosses">
+          <button type="button" class="filter-btn active" data-filter="all" aria-pressed="true">All</button>
+          <button type="button" class="filter-btn" data-filter="remaining" aria-pressed="false">Remaining</button>
+          <button type="button" class="filter-btn" data-filter="completed" aria-pressed="false">Completed</button>
+
+          <div class="category-filter" id="category-filter">
+            <button type="button" class="icon-btn category-filter-btn" id="category-filter-btn" aria-haspopup="true" aria-expanded="false" aria-label="Filter by category" title="Filter by category">
+              <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><polygon fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+            </button>
+            <div class="category-filter-panel" id="category-filter-panel" role="menu" hidden>
+              <label class="category-option">
+                <span class="category-checkbox-wrap">
+                  <input type="checkbox" class="category-checkbox" value="story" checked />
+                  <span class="category-checkbox-visual" aria-hidden="true">
+                    <svg width="11" height="9" viewBox="0 0 13 10"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </span>
+                <span id="cat-label-story">Story bosses</span>
+              </label>
+              <label class="category-option">
+                <span class="category-checkbox-wrap">
+                  <input type="checkbox" class="category-checkbox" value="hard" checked />
+                  <span class="category-checkbox-visual" aria-hidden="true">
+                    <svg width="11" height="9" viewBox="0 0 13 10"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </span>
+                <span id="cat-label-hard">Hard bosses</span>
+              </label>
+              <label class="category-option">
+                <span class="category-checkbox-wrap">
+                  <input type="checkbox" class="category-checkbox" value="quest" checked />
+                  <span class="category-checkbox-visual" aria-hidden="true">
+                    <svg width="11" height="9" viewBox="0 0 13 10"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </span>
+                <span id="cat-label-quest">Quest bosses</span>
+              </label>
+              <label class="category-option">
+                <span class="category-checkbox-wrap">
+                  <input type="checkbox" class="category-checkbox" value="optional" checked />
+                  <span class="category-checkbox-visual" aria-hidden="true">
+                    <svg width="11" height="9" viewBox="0 0 13 10"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </span>
+                </span>
+                <span id="cat-label-optional">Optional bosses</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="regions-section" aria-label="Regions">
+        <div class="regions-heading">
+          <h2 id="regions-title">Regions</h2>
+          <span class="regions-heading-meta"><span id="regions-found-count">8</span> <span id="regions-shown-label">shown</span></span>
+        </div>
+
+        <div id="accordion" class="accordion"></div>
+
+        <p id="empty-state" class="no-results" hidden>Nothing found. Try a different search term.</p>
+      </section>
+
+      <section class="danger-zone" aria-label="Reset progress">
+        <button id="reset-btn" type="button" class="reset-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>
+          <span id="reset-label">Reset progress</span>
+        </button>
+      </section>
+
+    </main>
+
+    <footer class="site-footer">
+      <p id="footer-text">Progress is saved automatically in this browser.</p>
+    </footer>
+  </div>
+
+  <!-- Modals and toast live outside .page on purpose: .page has a
+       transform-based entrance animation, and a `transform` on any
+       ancestor turns it into the containing block for `position: fixed`
+       descendants — which made these overlays position themselves inside
+       the (very tall) .page box instead of the viewport, and jumping
+       focus into an off-screen input made the page auto-scroll down to
+       reach it. Keeping them as siblings of .page avoids that entirely. -->
+
+  <div class="modal-overlay" id="auth-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+      <button type="button" class="modal-close" id="auth-modal-close" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+
+      <div class="auth-modal-icon auth-modal-icon--login" id="auth-modal-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+      </div>
+
+      <h2 class="auth-modal-title" id="auth-modal-title">Log in</h2>
+      <p class="auth-modal-subtitle" id="auth-modal-subtitle">Welcome back — pick up where you left off.</p>
+
+      <form id="auth-form" class="auth-form" novalidate>
+        <label class="auth-field" id="auth-nickname-field" hidden>
+          <span id="auth-nickname-label">Nickname</span>
+          <input id="auth-nickname" type="text" autocomplete="nickname" maxlength="24" />
+        </label>
+        <label class="auth-field">
+          <span id="auth-email-label">Email</span>
+          <input id="auth-email" type="email" required autocomplete="email" />
+        </label>
+        <label class="auth-field">
+          <span id="auth-password-label">Password</span>
+          <input id="auth-password" type="password" required minlength="6" autocomplete="current-password" />
+        </label>
+
+        <p class="auth-error" id="auth-error" hidden></p>
+
+        <button type="submit" class="auth-submit" id="auth-submit">Log in</button>
+      </form>
+
+      <p class="auth-switch">
+        <span id="auth-switch-text">Don't have an account?</span>
+        <button type="button" class="auth-switch-btn" id="auth-switch-btn">Sign up</button>
+      </p>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="account-modal" hidden>
+    <div class="modal-card modal-card--account" role="dialog" aria-modal="true" aria-labelledby="account-modal-nickname">
+      <button type="button" class="modal-close" id="account-modal-close" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+
+      <div class="account-avatar-wrap">
+        <img id="account-avatar-img" class="account-avatar-img" alt="" hidden />
+        <svg id="account-avatar-fallback" class="account-avatar-fallback" width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 21a8 8 0 1 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
+        <button type="button" class="account-avatar-edit" id="account-avatar-edit" aria-label="Change avatar" title="Change avatar">
+          <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </button>
+        <input type="file" id="account-avatar-input" accept="image/*" hidden />
+      </div>
+
+      <h2 class="account-nickname" id="account-modal-nickname">Nickname</h2>
+      <p class="account-modal-email" id="account-modal-email"></p>
+      <p class="account-modal-date" id="account-modal-date"></p>
+
+      <p class="auth-error" id="account-avatar-error" hidden></p>
+
+      <a class="account-cabinet-link" id="account-cabinet-link" href="profile.html">
+        <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
+        <span id="account-cabinet-link-label">Personal cabinet</span>
+      </a>
+
+      <button type="button" class="auth-submit auth-submit--danger" id="logout-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        <span id="logout-label">Log out</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="toast" id="auth-toast" hidden role="status" aria-live="polite">
+    <span class="toast-icon" aria-hidden="true">
+      <svg width="13" height="10" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>
+    </span>
+    <span id="auth-toast-text"></span>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+  <script src="../scripts/firebase.js"></script>
+  <script src="../scripts/auth.js"></script>
+  <script src="../scripts/script.js"></script>
+</body>
+</html>

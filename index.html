@@ -14,16 +14,18 @@
   <header class="landing-header" id="landing-header">
     <div class="landing-header-inner">
       <a class="brand" href="index.html" aria-label="Elden Ring Database — home">
-        <img class="brand-logo" src="img/logo-wordmark.webp" alt="Elden Ring" />
+        <span class="brand-logo-lockup">
+          <img class="brand-icon" src="img/logo-icon.webp" alt="" aria-hidden="true" />
+          <img class="brand-logo" src="img/logo-wordmark.webp" alt="Elden Ring" />
+        </span>
         <div class="brand-text">
-          <p class="brand-eyebrow" id="brand-eyebrow">Database</p>
+          <p class="brand-eyebrow" id="brand-eyebrow">Home</p>
           <h1 class="brand-title visually-hidden" id="brand-title">Elden Ring Database</h1>
         </div>
       </a>
 
       <nav class="landing-controls" aria-label="Site">
-        <a class="landing-nav-link" href="checklist.html">
-          <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M20 6 9 17l-5-5"/></svg>
+        <a class="landing-nav-link" href="pages/checklist.html">
           <span id="nav-checklist-label">Checklist</span>
         </a>
 
@@ -51,6 +53,19 @@
           <span class="theme-toggle-thumb" aria-hidden="true"></span>
           <svg class="theme-icon theme-icon--moon" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 14.5A8.5 8.5 0 0 1 9.5 4a7 7 0 1 0 10.5 10.5Z"/></svg>
         </button>
+
+        <span class="landing-controls-divider" aria-hidden="true"></span>
+
+        <button id="login-btn" type="button" class="icon-btn" aria-label="Log in" title="Log in">
+          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+          <span class="icon-btn-label" id="login-btn-label">Log in</span>
+        </button>
+
+        <button id="account-btn" type="button" class="icon-btn icon-btn--account" aria-label="Account" title="Account" hidden>
+          <img id="account-btn-avatar" class="account-btn-avatar" alt="" hidden />
+          <svg id="account-btn-icon" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 21a8 8 0 1 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
+          <span class="icon-btn-label" id="account-btn-label">Account</span>
+        </button>
       </nav>
     </div>
   </header>
@@ -65,8 +80,9 @@
     </div>
 
     <div class="hero-content">
-      <img class="hero-logo" src="img/logo-wordmark.webp" alt="Elden Ring" />
-      <p class="hero-eyebrow" id="hero-eyebrow">Database</p>
+      <div class="hero-logo-lockup">
+        <img class="hero-wordmark" src="img/logo-wordmark.webp" alt="Elden Ring" />
+      </div>
       <h2 class="hero-title" id="hero-title">Welcome to the Lands Between</h2>
       <p class="hero-subtitle" id="hero-subtitle">A companion site for Elden Ring — a place to keep track of the Lands Between as you explore them, starting with every boss across the base game and Shadow of the Erdtree.</p>
     </div>
@@ -119,7 +135,7 @@
             </span>
             <h3 class="feature-title" id="f2-title">Boss Checklist</h3>
             <p class="feature-text" id="f2-text">Mark every boss as defeated and watch your progress fill in, region by region.</p>
-            <a class="inline-link" href="checklist.html">
+            <a class="inline-link" href="pages/checklist.html">
               <span id="f2-link-label">Open the checklist</span>
               <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
             </a>
@@ -148,7 +164,7 @@
       <div class="landing-container" data-reveal>
         <h2 class="section-title" id="cta-title">A Growing Project</h2>
         <p class="section-body" id="cta-body">This started as a boss checklist and keeps growing from there — more tools for the Lands Between are on the way.</p>
-        <a class="inline-link" href="checklist.html">
+        <a class="inline-link" href="pages/checklist.html">
           <span id="cta-link-label">See the checklist</span>
           <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
         </a>
@@ -160,6 +176,95 @@
     <p id="landing-footer-text">Made by Elden Ring fans, for fellow Tarnished. Not affiliated with FromSoftware or Bandai Namco.</p>
   </footer>
 
+  <!-- Auth / account modals — siblings of everything above rather than
+       nested inside a scrolling container (see the note in checklist.html
+       for why: a modal nested inside an overflow/scroll box can end up
+       measured against that box instead of the viewport). -->
+
+  <div class="modal-overlay" id="auth-modal" hidden>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+      <button type="button" class="modal-close" id="auth-modal-close" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+
+      <div class="auth-modal-icon auth-modal-icon--login" id="auth-modal-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+      </div>
+
+      <h2 class="auth-modal-title" id="auth-modal-title">Log in</h2>
+      <p class="auth-modal-subtitle" id="auth-modal-subtitle">Welcome back — pick up where you left off.</p>
+
+      <form id="auth-form" class="auth-form" novalidate>
+        <label class="auth-field" id="auth-nickname-field" hidden>
+          <span id="auth-nickname-label">Nickname</span>
+          <input id="auth-nickname" type="text" autocomplete="nickname" maxlength="24" />
+        </label>
+        <label class="auth-field">
+          <span id="auth-email-label">Email</span>
+          <input id="auth-email" type="email" required autocomplete="email" />
+        </label>
+        <label class="auth-field">
+          <span id="auth-password-label">Password</span>
+          <input id="auth-password" type="password" required minlength="6" autocomplete="current-password" />
+        </label>
+
+        <p class="auth-error" id="auth-error" hidden></p>
+
+        <button type="submit" class="auth-submit" id="auth-submit">Log in</button>
+      </form>
+
+      <p class="auth-switch">
+        <span id="auth-switch-text">Don't have an account?</span>
+        <button type="button" class="auth-switch-btn" id="auth-switch-btn">Sign up</button>
+      </p>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="account-modal" hidden>
+    <div class="modal-card modal-card--account" role="dialog" aria-modal="true" aria-labelledby="account-modal-nickname">
+      <button type="button" class="modal-close" id="account-modal-close" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+
+      <div class="account-avatar-wrap">
+        <img id="account-avatar-img" class="account-avatar-img" alt="" hidden />
+        <svg id="account-avatar-fallback" class="account-avatar-fallback" width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 21a8 8 0 1 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
+        <button type="button" class="account-avatar-edit" id="account-avatar-edit" aria-label="Change avatar" title="Change avatar">
+          <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </button>
+        <input type="file" id="account-avatar-input" accept="image/*" hidden />
+      </div>
+
+      <h2 class="account-nickname" id="account-modal-nickname">Nickname</h2>
+      <p class="account-modal-email" id="account-modal-email"></p>
+      <p class="account-modal-date" id="account-modal-date"></p>
+
+      <p class="auth-error" id="account-avatar-error" hidden></p>
+
+      <a class="account-cabinet-link" id="account-cabinet-link" href="pages/profile.html">
+        <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
+        <span id="account-cabinet-link-label">Personal cabinet</span>
+      </a>
+
+      <button type="button" class="auth-submit auth-submit--danger" id="logout-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+        <span id="logout-label">Log out</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="toast" id="auth-toast" hidden role="status" aria-live="polite">
+    <span class="toast-icon" aria-hidden="true">
+      <svg width="13" height="10" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>
+    </span>
+    <span id="auth-toast-text"></span>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+  <script src="scripts/firebase.js"></script>
+  <script src="scripts/auth.js"></script>
   <script src="scripts/landing.js"></script>
 </body>
 </html>
