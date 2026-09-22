@@ -18,13 +18,22 @@
       infoTitle: 'Account information',
       infoEmailLabel: 'Email',
       infoDateLabel: 'Member since',
-      actionsTitle: 'Quick actions',
-      actionChecklist: 'Go to checklist',
-      actionLogout: 'Log out',
-      recentTitle: 'Recent',
+      recentTitle: 'Recent activity',
+      recentSummary: '{done} / {total} bosses defeated',
       recentEmpty: 'Your recent activity will appear here once you start using the site.',
+      recentContinue: 'Continue the checklist',
+      gameElden: 'Elden Ring',
+      gameShadow: 'Shadow of the Erdtree',
+      timeJustNow: 'Just now',
+      timeMinutes: '{n}m ago',
+      timeHours: '{n}h ago',
+      timeDays: '{n}d ago',
       menuAccountLabel: 'Account',
-      menuPrefsLabel: 'Preferences'
+      menuPrefsLabel: 'Preferences',
+      avatarEditLabel: 'Change avatar',
+      nicknameEditLabel: 'Edit nickname',
+      nicknameSave: 'Save',
+      nicknameCancel: 'Cancel'
     },
     ru: {
       docTitle: 'Elden Ring Database — Личный кабинет',
@@ -37,13 +46,22 @@
       infoTitle: 'Информация об аккаунте',
       infoEmailLabel: 'Email',
       infoDateLabel: 'Регистрация',
-      actionsTitle: 'Быстрые действия',
-      actionChecklist: 'Перейти к чек-листу',
-      actionLogout: 'Выйти',
-      recentTitle: 'Недавнее',
+      recentTitle: 'Недавняя активность',
+      recentSummary: '{done} / {total} боссов побеждено',
       recentEmpty: 'Здесь появится ваша недавняя активность, как только вы начнёте пользоваться сайтом.',
+      recentContinue: 'Продолжить чек-лист',
+      gameElden: 'Elden Ring',
+      gameShadow: 'Shadow of the Erdtree',
+      timeJustNow: 'Только что',
+      timeMinutes: '{n} мин. назад',
+      timeHours: '{n} ч. назад',
+      timeDays: '{n} дн. назад',
       menuAccountLabel: 'Аккаунт',
-      menuPrefsLabel: 'Настройки'
+      menuPrefsLabel: 'Настройки',
+      avatarEditLabel: 'Изменить аватар',
+      nicknameEditLabel: 'Изменить никнейм',
+      nicknameSave: 'Сохранить',
+      nicknameCancel: 'Отмена'
     }
   };
 
@@ -77,20 +95,31 @@
     els.content = document.getElementById('profile-content');
     els.heroAvatarImg = document.getElementById('profile-hero-avatar-img');
     els.heroAvatarFallback = document.getElementById('profile-hero-avatar-fallback');
+    els.heroAvatarEditBtn = document.getElementById('profile-hero-avatar-edit');
+    els.heroAvatarInput = document.getElementById('profile-hero-avatar-input');
+    els.heroAvatarError = document.getElementById('profile-hero-avatar-error');
+    els.heroNameRow = document.getElementById('profile-hero-name-row');
     els.heroName = document.getElementById('profile-hero-name');
+    els.heroNameEditBtn = document.getElementById('profile-hero-name-edit');
+    els.heroNameForm = document.getElementById('profile-hero-name-form');
+    els.heroNameInput = document.getElementById('profile-hero-name-input');
+    els.heroNameSaveLabel = document.getElementById('profile-hero-name-save-label');
+    els.heroNameCancelBtn = document.getElementById('profile-hero-name-cancel');
+    els.heroNameCancelLabel = document.getElementById('profile-hero-name-cancel-label');
+    els.heroNameError = document.getElementById('profile-hero-name-error');
     els.heroEmail = document.getElementById('profile-hero-email');
     els.heroDate = document.getElementById('profile-hero-date');
 
     els.infoTitle = document.getElementById('profile-info-title');
     els.infoEmailLabel = document.getElementById('profile-info-email-label');
     els.infoDateLabel = document.getElementById('profile-info-date-label');
-    els.actionsTitle = document.getElementById('profile-actions-title');
-    els.actionChecklist = document.getElementById('profile-action-checklist');
-    els.actionLogoutBtn = document.getElementById('profile-action-logout');
-    els.actionLogoutLabel = document.getElementById('profile-action-logout-label');
 
     els.recentTitle = document.getElementById('profile-recent-title');
+    els.recentSummary = document.getElementById('profile-recent-summary');
+    els.recentList = document.getElementById('profile-recent-list');
+    els.recentEmptyState = document.getElementById('profile-recent-empty-state');
     els.recentEmpty = document.getElementById('profile-recent-empty');
+    els.recentContinueLabel = document.getElementById('profile-action-checklist');
   }
 
   function loadPreference(key, fallback, validValues) {
@@ -147,7 +176,14 @@
     const loggedIn = !!user;
     if (els.guard) els.guard.hidden = loggedIn;
     if (els.content) els.content.hidden = !loggedIn;
-    if (!loggedIn) return;
+    closeNicknameForm();
+    if (!loggedIn) {
+      /* Clear any previous account's cached recent-activity data so it
+         can't briefly flash on screen if a different account logs in
+         later without a full page reload. */
+      cachedProgressData = null;
+      return;
+    }
 
     const nickname = user.displayName || (profile && profile.nickname) || user.email || '';
     if (els.heroName) els.heroName.textContent = nickname;
@@ -157,6 +193,150 @@
       els.heroDate.textContent = formatted || '';
     }
     renderAvatar(profile && profile.avatarDataUrl);
+    loadAndRenderRecent(user.uid);
+  }
+
+  /* ==========================================================================
+     Recent activity — replaces the old "Your progress" bar-chart cards
+     (and the placeholder "Recent" section that sat empty below them)
+     with one real feed: the last few bosses this account has defeated,
+     pulled from users/{uid}.history (written by the checklist page
+     every time a boss flips to completed — see recordHistory in
+     script.js), plus a compact one-line overall total. Boss/region
+     names and totals come from the same gameData docs the checklist
+     itself reads, so this stays correct without duplicating any data.
+     ========================================================================== */
+
+  let cachedProgressData = null;
+
+  function buildBossIndexAndTotals(eldenRegions, shadowRegions, progressSet) {
+    const bossIndex = {};
+    let total = 0;
+    let done = 0;
+    const addGame = (regions, game) => {
+      (regions || []).forEach((region) => {
+        (region.bosses || []).forEach((boss) => {
+          bossIndex[boss.id] = { name: boss.name, regionId: region.id, regionName: region.name, game };
+          total += 1;
+          if (progressSet.has(boss.id)) done += 1;
+        });
+      });
+    };
+    addGame(eldenRegions, 'eldenring');
+    addGame(shadowRegions, 'shadowerdtree');
+    return { bossIndex, total, done };
+  }
+
+  function formatRelativeTime(at) {
+    const diff = Math.max(0, Date.now() - at);
+    const sec = Math.floor(diff / 1000);
+    if (sec < 60) return t('timeJustNow');
+    const min = Math.floor(sec / 60);
+    if (min < 60) return t('timeMinutes').replace('{n}', min);
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return t('timeHours').replace('{n}', hr);
+    const day = Math.floor(hr / 24);
+    if (day < 7) return t('timeDays').replace('{n}', day);
+    try {
+      return new Intl.DateTimeFormat(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short' }).format(new Date(at));
+    } catch (err) {
+      return '';
+    }
+  }
+
+  function renderRecentSection() {
+    if (els.recentSummary) {
+      const total = cachedProgressData ? cachedProgressData.total : 0;
+      const done = cachedProgressData ? cachedProgressData.done : 0;
+      els.recentSummary.textContent = t('recentSummary').replace('{done}', done).replace('{total}', total);
+    }
+
+    const history = cachedProgressData ? cachedProgressData.history : [];
+    const entries = history.slice(0, 8);
+
+    if (!entries.length) {
+      if (els.recentList) els.recentList.hidden = true;
+      if (els.recentEmptyState) els.recentEmptyState.hidden = false;
+      return;
+    }
+    if (els.recentEmptyState) els.recentEmptyState.hidden = true;
+    if (!els.recentList) return;
+
+    const { bossIndex, translations } = cachedProgressData;
+    els.recentList.hidden = false;
+    els.recentList.innerHTML = '';
+
+    entries.forEach((entry) => {
+      const info = bossIndex[entry.id];
+      if (!info) return;
+      const bossName = (currentLang === 'ru' && translations.bosses[entry.id]) || info.name;
+      const regionName = (currentLang === 'ru' && translations.regions[info.regionId]) || info.regionName;
+      const gameLabel = info.game === 'shadowerdtree' ? t('gameShadow') : t('gameElden');
+
+      const li = document.createElement('li');
+      li.className = 'profile-recent-item';
+
+      const icon = document.createElement('span');
+      icon.className = 'profile-recent-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>';
+
+      const text = document.createElement('span');
+      text.className = 'profile-recent-text';
+      const nameEl = document.createElement('span');
+      nameEl.className = 'profile-recent-name';
+      nameEl.textContent = bossName;
+      const metaEl = document.createElement('span');
+      metaEl.className = 'profile-recent-meta';
+      metaEl.textContent = `${regionName} · ${gameLabel}`;
+      text.appendChild(nameEl);
+      text.appendChild(metaEl);
+
+      const timeEl = document.createElement('span');
+      timeEl.className = 'profile-recent-time';
+      timeEl.textContent = formatRelativeTime(entry.at);
+
+      li.appendChild(icon);
+      li.appendChild(text);
+      li.appendChild(timeEl);
+      els.recentList.appendChild(li);
+    });
+  }
+
+  async function loadAndRenderRecent(uid) {
+    try {
+      const [eldenSnap, shadowSnap, translationsSnap, userSnap] = await Promise.all([
+        db.collection('gameData').doc('eldenring').get(),
+        db.collection('gameData').doc('shadowerdtree').get(),
+        db.collection('gameData').doc('translations').get(),
+        db.collection('users').doc(uid).get()
+      ]);
+      const eldenRegions = eldenSnap.exists ? eldenSnap.data().regions : [];
+      const shadowRegions = shadowSnap.exists ? shadowSnap.data().regions : [];
+      const translationsData = translationsSnap.exists ? translationsSnap.data() : {};
+      const userData = userSnap.exists ? userSnap.data() : {};
+
+      const progressList = Array.isArray(userData.progress) ? userData.progress : [];
+      const progressSet = new Set(progressList.filter((id) => typeof id === 'string'));
+      const historyList = Array.isArray(userData.history) ? userData.history : [];
+      const history = historyList.filter((entry) => entry && typeof entry.id === 'string' && typeof entry.at === 'number');
+
+      const { bossIndex, total, done } = buildBossIndexAndTotals(eldenRegions, shadowRegions, progressSet);
+
+      cachedProgressData = {
+        bossIndex,
+        translations: {
+          regions: (translationsData && translationsData.regions) || {},
+          bosses: (translationsData && translationsData.bosses) || {}
+        },
+        history,
+        total,
+        done
+      };
+      renderRecentSection();
+    } catch (err) {
+      console.error('Failed to load recent activity:', err);
+    }
   }
 
   function applyLanguage(lang) {
@@ -187,12 +367,21 @@
     if (els.infoTitle) els.infoTitle.textContent = t('infoTitle');
     if (els.infoEmailLabel) els.infoEmailLabel.textContent = t('infoEmailLabel');
     if (els.infoDateLabel) els.infoDateLabel.textContent = t('infoDateLabel');
-    if (els.actionsTitle) els.actionsTitle.textContent = t('actionsTitle');
-    if (els.actionChecklist) els.actionChecklist.textContent = t('actionChecklist');
-    if (els.actionLogoutLabel) els.actionLogoutLabel.textContent = t('actionLogout');
+
+    if (els.heroAvatarEditBtn) {
+      els.heroAvatarEditBtn.setAttribute('aria-label', t('avatarEditLabel'));
+      els.heroAvatarEditBtn.setAttribute('title', t('avatarEditLabel'));
+    }
+    if (els.heroNameEditBtn) {
+      els.heroNameEditBtn.setAttribute('aria-label', t('nicknameEditLabel'));
+      els.heroNameEditBtn.setAttribute('title', t('nicknameEditLabel'));
+    }
+    if (els.heroNameSaveLabel) els.heroNameSaveLabel.textContent = t('nicknameSave');
+    if (els.heroNameCancelLabel) els.heroNameCancelLabel.textContent = t('nicknameCancel');
 
     if (els.recentTitle) els.recentTitle.textContent = t('recentTitle');
     if (els.recentEmpty) els.recentEmpty.textContent = t('recentEmpty');
+    if (els.recentContinueLabel) els.recentContinueLabel.textContent = t('recentContinue');
 
     if (window.AuthWidget) {
       window.AuthWidget.setLanguage(lang);
@@ -214,6 +403,87 @@
       const isLight = els.html.getAttribute('data-theme') === 'light';
       applyTheme(isLight ? 'dark' : 'light');
     });
+  }
+
+  /* ==========================================================================
+     Avatar & nickname editing — moved here from the account modal, which
+     now only displays them read-only. Both delegate the actual Firebase
+     Auth / Firestore work to AuthWidget.changeAvatar / changeNickname so
+     the resize/compress logic and error strings stay in one place.
+     ========================================================================== */
+
+  function showHeroAvatarError(message) {
+    if (!els.heroAvatarError) return;
+    els.heroAvatarError.textContent = message;
+    els.heroAvatarError.hidden = false;
+  }
+
+  function hideHeroAvatarError() {
+    if (!els.heroAvatarError) return;
+    els.heroAvatarError.hidden = true;
+    els.heroAvatarError.textContent = '';
+  }
+
+  async function handleHeroAvatarChange(event) {
+    const file = event.target.files && event.target.files[0];
+    event.target.value = '';
+    if (!file || !window.AuthWidget) return;
+
+    hideHeroAvatarError();
+    const result = await window.AuthWidget.changeAvatar(file);
+    if (!result.ok) showHeroAvatarError(result.message);
+  }
+
+  function showHeroNameError(message) {
+    if (!els.heroNameError) return;
+    els.heroNameError.textContent = message;
+    els.heroNameError.hidden = false;
+  }
+
+  function hideHeroNameError() {
+    if (!els.heroNameError) return;
+    els.heroNameError.hidden = true;
+    els.heroNameError.textContent = '';
+  }
+
+  function openNicknameForm() {
+    if (!els.heroNameForm) return;
+    hideHeroNameError();
+    if (els.heroNameRow) els.heroNameRow.hidden = true;
+    if (els.heroNameInput) els.heroNameInput.value = els.heroName ? els.heroName.textContent : '';
+    els.heroNameForm.hidden = false;
+    if (els.heroNameInput) {
+      els.heroNameInput.focus();
+      els.heroNameInput.select();
+    }
+  }
+
+  function closeNicknameForm() {
+    if (!els.heroNameForm) return;
+    els.heroNameForm.hidden = true;
+    if (els.heroNameRow) els.heroNameRow.hidden = false;
+    hideHeroNameError();
+  }
+
+  async function handleNicknameSubmit(event) {
+    event.preventDefault();
+    if (!window.AuthWidget || !els.heroNameInput) return;
+    const result = await window.AuthWidget.changeNickname(els.heroNameInput.value);
+    if (!result.ok) {
+      showHeroNameError(result.message);
+      return;
+    }
+    closeNicknameForm();
+  }
+
+  function attachProfileEditEvents() {
+    if (els.heroAvatarEditBtn && els.heroAvatarInput) {
+      els.heroAvatarEditBtn.addEventListener('click', () => els.heroAvatarInput.click());
+    }
+    if (els.heroAvatarInput) els.heroAvatarInput.addEventListener('change', handleHeroAvatarChange);
+    if (els.heroNameEditBtn) els.heroNameEditBtn.addEventListener('click', openNicknameForm);
+    if (els.heroNameCancelBtn) els.heroNameCancelBtn.addEventListener('click', closeNicknameForm);
+    if (els.heroNameForm) els.heroNameForm.addEventListener('submit', handleNicknameSubmit);
   }
 
   function openBurgerMenu() {
@@ -313,20 +583,11 @@
     attachThemeEvents();
     attachLangFilterEvents();
     attachBurgerMenuEvents();
+    attachProfileEditEvents();
 
     if (els.guardLoginBtn) {
       els.guardLoginBtn.addEventListener('click', () => {
         if (window.AuthWidget) window.AuthWidget.openAuthModal('login');
-      });
-    }
-
-    /* Reuses the same sign-out flow as the account modal's "Log out"
-       button (#logout-btn, wired inside auth.js) rather than duplicating
-       it — this quick action just triggers that button. */
-    if (els.actionLogoutBtn) {
-      els.actionLogoutBtn.addEventListener('click', () => {
-        const modalLogoutBtn = document.getElementById('logout-btn');
-        if (modalLogoutBtn) modalLogoutBtn.click();
       });
     }
 

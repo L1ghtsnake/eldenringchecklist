@@ -72,13 +72,26 @@
   box-shadow: var(--shadow-1);
 }
 
+/* The edit badge lives on `-outer`, not `-wrap`: `-wrap` needs
+   `overflow: hidden` to mask the photo into a circle, and a child
+   positioned half outside that circle (the badge, via negative
+   right/bottom) would get clipped by that same overflow — that was
+   the bug (the badge rendered as a cut-off crescent instead of a full
+   circle). `-outer` has no overflow clipping, so the badge now
+   overlaps the avatar's corner cleanly. */
+.profile-hero-avatar-outer {
+  position: relative;
+  display: inline-flex;
+  margin: 0 auto 16px;
+}
+
 .profile-hero-avatar-wrap {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 84px;
   height: 84px;
-  margin: 0 auto 16px;
   border-radius: 50%;
   background: var(--surface-2);
   border: 1px solid var(--border);
@@ -97,6 +110,47 @@
   display: none;
 }
 
+/* Avatar editing now lives here (the personal cabinet) instead of the
+   account modal — same visual treatment as the old modal button
+   (`.account-avatar-edit` in style.css), just sized for the slightly
+   bigger 84px hero avatar. Positioned against `-outer` (see above),
+   not `-wrap`, so it isn't clipped by the wrap's circular mask. */
+.profile-hero-avatar-edit {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--cta);
+  color: var(--on-cta);
+  border: 2px solid var(--surface-1);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-soft), transform 120ms var(--ease-soft);
+}
+
+.profile-hero-avatar-edit:hover { background: var(--cta-hover); }
+.profile-hero-avatar-edit:active { transform: scale(0.92); }
+
+.profile-hero-avatar-edit:focus-visible {
+  outline: 2px solid var(--cta);
+  outline-offset: 2px;
+}
+
+.profile-hero-avatar-error {
+  margin: 4px 0 0;
+}
+
+.profile-hero-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
 .profile-hero-name {
   margin: 0;
   font-size: 22px;
@@ -104,6 +158,97 @@
   letter-spacing: -0.01em;
   color: var(--text-primary);
   overflow-wrap: anywhere;
+}
+
+.profile-hero-name-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+
+.profile-hero-name-edit:hover,
+.profile-hero-name-edit:focus-visible {
+  background: var(--surface-3);
+  border-color: var(--cta);
+  color: var(--cta);
+}
+
+.profile-hero-name-edit:focus-visible {
+  outline: 2px solid var(--focus-soft);
+  outline-offset: 2px;
+}
+
+.profile-hero-name-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.profile-hero-name-form[hidden] { display: none; }
+
+.profile-hero-name-input {
+  width: 180px;
+  max-width: 60vw;
+  padding: 9px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.profile-hero-name-input:focus-visible {
+  outline: 2px solid var(--focus-soft);
+  outline-offset: 1px;
+  border-color: var(--cta);
+}
+
+.profile-hero-name-save,
+.profile-hero-name-cancel {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 12.5px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  transition: background var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+
+.profile-hero-name-save {
+  background: var(--cta);
+  border-color: var(--cta);
+  color: var(--on-cta);
+}
+
+.profile-hero-name-save:hover { background: var(--cta-hover); }
+
+.profile-hero-name-cancel {
+  background: var(--surface-2);
+  color: var(--text-secondary);
+}
+
+.profile-hero-name-cancel:hover {
+  background: var(--surface-3);
+  color: var(--text-primary);
+}
+
+.profile-hero-name-error {
+  margin: 8px 0 0;
 }
 
 /* ---- Account information (email, member-since — icon rows) ---- */
@@ -153,12 +298,70 @@
   overflow-wrap: anywhere;
 }
 
-/* ---- Quick actions ---- */
+/* ---- Progress (per-game completion, replacing the old quick-actions
+   grid — now that checklist progress follows the account, this is what
+   actually earns a spot on the personal cabinet) ---- */
 
-.profile-actions-grid {
+.profile-progress-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.profile-progress-card {
+  padding: 16px 16px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.profile-progress-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.profile-progress-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.profile-progress-card-pct {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--cta);
+  flex-shrink: 0;
+}
+
+.profile-progress-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.profile-progress-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--cta), var(--secondary));
+  transition: width 420ms var(--ease-soft);
+}
+
+.profile-progress-card-count {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.profile-progress-continue {
+  width: 100%;
 }
 
 .profile-action-btn {
@@ -220,17 +423,121 @@
   align-items: center;
   gap: 10px;
   padding: 30px 16px;
+  margin-bottom: 16px;
   text-align: center;
   color: var(--text-muted);
   border: 1px dashed var(--border-soft);
   border-radius: var(--radius-md);
 }
 
+.profile-empty-state[hidden] { display: none; }
+
 .profile-empty-state p {
   margin: 0;
   font-size: 13.5px;
   line-height: 1.5;
   max-width: 320px;
+}
+
+/* ---- Recent activity (replaces the old progress-bar cards + the
+   placeholder "Recent" section below them — one real feed instead of
+   two half-empty blocks) ---- */
+
+.profile-recent-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.profile-recent-head .profile-section-title {
+  margin: 0;
+}
+
+.profile-recent-summary {
+  margin: 0;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cta);
+}
+
+.profile-recent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+
+.profile-recent-list[hidden] { display: none; }
+
+.profile-recent-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.profile-recent-item:last-child {
+  border-bottom: none;
+}
+
+.profile-recent-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--cta);
+}
+
+.profile-recent-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.profile-recent-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.profile-recent-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.profile-recent-time {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.profile-recent-continue {
+  width: 100%;
+}
+
+@media (max-width: 420px) {
+  .profile-recent-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
 }
 
 @media (max-width: 640px) {
@@ -244,7 +551,7 @@
     padding: 24px 18px;
   }
 
-  .profile-actions-grid {
+  .profile-progress-grid {
     grid-template-columns: 1fr;
   }
 

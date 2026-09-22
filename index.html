@@ -25,8 +25,16 @@
       </a>
 
       <nav class="landing-controls" aria-label="Site">
+        <a class="landing-nav-link" href="pages/interactivemap.html">
+          <span id="nav-map-label">Map</span>
+        </a>
+
         <a class="landing-nav-link" href="pages/checklist.html">
           <span id="nav-checklist-label">Checklist</span>
+        </a>
+
+        <a class="landing-nav-link" href="pages/gallery.html">
+          <span id="nav-gallery-label">Gallery</span>
         </a>
 
         <span class="landing-controls-divider" aria-hidden="true"></span>
@@ -156,6 +164,30 @@
             <h3 class="feature-title" id="f4-title">In Your Language</h3>
             <p class="feature-text" id="f4-text">Switch freely between English and Russian at any time.</p>
           </div>
+
+          <div class="feature-card" data-reveal data-reveal-delay="5">
+            <span class="feature-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 20 3 17V4l6 3m0 13 6-3m-6 3V7m6 10 6 3V7l-6-3m0 13V4m0 3-6-3"/></svg>
+            </span>
+            <h3 class="feature-title" id="f5-title">Interactive Map</h3>
+            <p class="feature-text" id="f5-text">Pan and zoom across the whole of the Lands Between to plan your route.</p>
+            <a class="inline-link" href="pages/interactivemap.html">
+              <span id="f5-link-label">Open the map</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+            </a>
+          </div>
+
+          <div class="feature-card" data-reveal data-reveal-delay="6">
+            <span class="feature-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="8.5" cy="9.5" r="1.5" fill="currentColor"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m4 16 5-5 4 4 3-3 5 5"/></svg>
+            </span>
+            <h3 class="feature-title" id="f6-title">Gallery</h3>
+            <p class="feature-text" id="f6-text">Twenty scenes from across the Lands Between, ready to browse and zoom into.</p>
+            <a class="inline-link" href="pages/gallery.html">
+              <span id="f6-link-label">Open the gallery</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-6-6 6 6-6 6"/></svg>
+            </a>
+          </div>
         </div>
       </div>
     </section>
@@ -229,17 +261,11 @@
       <div class="account-avatar-wrap">
         <img id="account-avatar-img" class="account-avatar-img" alt="" hidden />
         <svg id="account-avatar-fallback" class="account-avatar-fallback" width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 21a8 8 0 1 0-16 0M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>
-        <button type="button" class="account-avatar-edit" id="account-avatar-edit" aria-label="Change avatar" title="Change avatar">
-          <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-        </button>
-        <input type="file" id="account-avatar-input" accept="image/*" hidden />
       </div>
 
       <h2 class="account-nickname" id="account-modal-nickname">Nickname</h2>
       <p class="account-modal-email" id="account-modal-email"></p>
       <p class="account-modal-date" id="account-modal-date"></p>
-
-      <p class="auth-error" id="account-avatar-error" hidden></p>
 
       <a class="account-cabinet-link" id="account-cabinet-link" href="pages/profile.html">
         <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 21v-2a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>

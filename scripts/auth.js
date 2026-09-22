@@ -49,6 +49,7 @@
       avatarEditLabel: 'Change avatar',
       avatarErrorInvalid: 'Please choose an image file.',
       avatarErrorGeneric: 'Could not update the avatar. Please try again.',
+      nicknameErrorGeneric: 'Could not update the nickname. Please try again.',
       authSubtitleLogin: 'Welcome back — pick up where you left off.',
       authSubtitleSignup: 'Create an account to save your progress anywhere.',
       loginMenuSub: 'Sync your progress across devices',
@@ -80,6 +81,7 @@
       avatarEditLabel: 'Изменить аватар',
       avatarErrorInvalid: 'Пожалуйста, выберите файл изображения.',
       avatarErrorGeneric: 'Не удалось обновить аватар. Попробуйте ещё раз.',
+      nicknameErrorGeneric: 'Не удалось обновить никнейм. Попробуйте ещё раз.',
       authSubtitleLogin: 'С возвращением — продолжайте с того места, где остановились.',
       authSubtitleSignup: 'Создайте аккаунт, чтобы сохранять прогресс на любом устройстве.',
       loginMenuSub: 'Синхронизируйте прогресс между устройствами',
@@ -144,9 +146,6 @@
     els.accountModalDate = document.getElementById('account-modal-date');
     els.accountAvatarImg = document.getElementById('account-avatar-img');
     els.accountAvatarFallback = document.getElementById('account-avatar-fallback');
-    els.accountAvatarEditBtn = document.getElementById('account-avatar-edit');
-    els.accountAvatarInput = document.getElementById('account-avatar-input');
-    els.accountAvatarError = document.getElementById('account-avatar-error');
     els.accountCabinetLink = document.getElementById('account-cabinet-link');
     els.accountCabinetLinkLabel = document.getElementById('account-cabinet-link-label');
   }
@@ -171,10 +170,6 @@
     }
     if (els.logoutBtnInline) els.logoutBtnInline.setAttribute('aria-label', t('logout'));
     if (els.logoutInlineLabel) els.logoutInlineLabel.textContent = t('logout');
-    if (els.accountAvatarEditBtn) {
-      els.accountAvatarEditBtn.setAttribute('aria-label', t('avatarEditLabel'));
-      els.accountAvatarEditBtn.setAttribute('title', t('avatarEditLabel'));
-    }
     if (els.logoutBtn) {
       const logoutLabel = els.logoutBtn.querySelector('#logout-label');
       if (logoutLabel) logoutLabel.textContent = t('logout');
@@ -398,29 +393,21 @@
     });
   }
 
-  function showAccountAvatarError(message) {
-    if (!els.accountAvatarError) return;
-    els.accountAvatarError.textContent = message;
-    els.accountAvatarError.hidden = false;
-  }
 
-  function hideAccountAvatarError() {
-    if (!els.accountAvatarError) return;
-    els.accountAvatarError.hidden = true;
-    els.accountAvatarError.textContent = '';
-  }
-
-  async function handleAvatarChange(event) {
-    const file = event.target.files && event.target.files[0];
-    event.target.value = '';
-    if (!file || !currentUser) return;
+  /* Public: change the signed-in user's avatar from a <input type=file>
+     change event's File. Avatar editing itself now lives only in the
+     personal cabinet page (profile.js calls this directly) — the account
+     modal just displays the avatar read-only. Returns
+     { ok: true } or { ok: false, message } with an already-localized
+     error message, so callers don't need their own copy of auth.js's
+     i18n strings. */
+  async function changeAvatar(file) {
+    if (!file || !currentUser) return { ok: false, message: t('avatarErrorGeneric') };
 
     if (!file.type || !file.type.startsWith('image/')) {
-      showAccountAvatarError(t('avatarErrorInvalid'));
-      return;
+      return { ok: false, message: t('avatarErrorInvalid') };
     }
 
-    hideAccountAvatarError();
     try {
       const dataUrl = await readAndResizeImage(file, AVATAR_MAX_DIMENSION);
       currentUserProfile = Object.assign({}, currentUserProfile, { avatarDataUrl: dataUrl });
@@ -429,9 +416,34 @@
       renderAvatarInto(els.profileCardAvatar, els.profileCardIcon, dataUrl);
       await db.collection('users').doc(currentUser.uid).set({ avatarDataUrl: dataUrl }, { merge: true });
       if (hooks.onAuthChange) hooks.onAuthChange(currentUser, currentUserProfile);
+      return { ok: true, dataUrl };
     } catch (err) {
       console.error('Failed to update avatar:', err);
-      showAccountAvatarError(t('avatarErrorGeneric'));
+      return { ok: false, message: t('avatarErrorGeneric') };
+    }
+  }
+
+  /* Public: rename the signed-in user (Firebase Auth displayName is the
+     source of truth everywhere it's set — see renderAccountModal /
+     renderAccountProfileCard — with the Firestore `nickname` field kept
+     in sync as a fallback for the rare case displayName isn't loaded
+     yet). */
+  async function changeNickname(newNickname) {
+    const trimmed = (newNickname || '').trim();
+    if (!currentUser) return { ok: false, message: t('authErrorGeneric') };
+    if (!trimmed) return { ok: false, message: t('authErrorNicknameRequired') };
+
+    try {
+      await currentUser.updateProfile({ displayName: trimmed });
+      currentUserProfile = Object.assign({}, currentUserProfile, { nickname: trimmed });
+      await db.collection('users').doc(currentUser.uid).set({ nickname: trimmed }, { merge: true });
+      renderAccountModal(currentUser, currentUserProfile);
+      renderAccountProfileCard(currentUser, currentUserProfile);
+      if (hooks.onAuthChange) hooks.onAuthChange(currentUser, currentUserProfile);
+      return { ok: true, nickname: trimmed };
+    } catch (err) {
+      console.error('Failed to update nickname:', err);
+      return { ok: false, message: t('nicknameErrorGeneric') };
     }
   }
 
@@ -530,10 +542,6 @@
         closeAccountModal();
       });
     }
-    if (els.accountAvatarEditBtn && els.accountAvatarInput) {
-      els.accountAvatarEditBtn.addEventListener('click', () => els.accountAvatarInput.click());
-    }
-    if (els.accountAvatarInput) els.accountAvatarInput.addEventListener('change', handleAvatarChange);
     if (els.authModalClose) els.authModalClose.addEventListener('click', closeAuthModal);
     if (els.authModal) {
       els.authModal.addEventListener('click', (event) => {
@@ -590,6 +598,8 @@
     init,
     setLanguage,
     openAuthModal,
+    changeAvatar,
+    changeNickname,
     isLoggedIn: () => !!currentUser,
     getUser: () => currentUser,
     getProfile: () => currentUserProfile

@@ -1,0 +1,103 @@
+/* ==========================================================================
+   Interactive map page — reuses style.css's variables, .page shell and
+   shared header; this file only covers the map-specific intro block and
+   the framed iframe card.
+   ========================================================================== */
+
+.map-page {
+  margin-top: 8px;
+}
+
+.map-intro {
+  max-width: 640px;
+  margin: 0 auto 28px;
+  text-align: center;
+}
+
+.map-eyebrow {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cta);
+}
+
+.map-title {
+  margin: 0 0 12px;
+  font-size: clamp(22px, 3.4vw, 30px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.map-subtitle {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+/* ---- Framed map card ---- */
+
+.map-frame {
+  background: var(--surface-1);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+  padding: 10px;
+  overflow: hidden;
+}
+
+.map-frame-inner {
+  position: relative;
+  overflow: hidden;
+  border-radius: calc(var(--radius-lg) - 6px);
+  background: #0b0a08;
+  border: 1px solid var(--border-soft);
+}
+
+/* The iframe tag itself is left exactly as embedded — this just clips
+   its corners and gives it a border that matches the rest of the site's
+   card system, without touching the iframe's own src/height/style. */
+.map-frame-inner iframe {
+  display: block;
+  border: 0;
+}
+
+.map-credit {
+  margin: 12px 4px 2px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.map-credit a {
+  color: var(--secondary);
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft);
+}
+
+.map-credit a:hover,
+.map-credit a:focus-visible {
+  color: var(--cta);
+  border-bottom-color: currentColor;
+}
+
+@media (max-width: 640px) {
+  .map-frame {
+    padding: 6px;
+  }
+
+  .map-frame-inner iframe {
+    height: 420px;
+  }
+}
+
+@media (max-width: 420px) {
+  .map-frame-inner iframe {
+    height: 360px;
+  }
+}

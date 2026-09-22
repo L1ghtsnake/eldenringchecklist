@@ -68,11 +68,11 @@ body.landing-body.is-ready {
 }
 
 .landing-header .brand-icon {
-  height: 42px;
+  height: 52px;
 }
 
 .landing-header .brand-logo {
-  height: 27px;
+  height: 33px;
 }
 
 .landing-header .brand-eyebrow {
@@ -355,7 +355,7 @@ html[data-theme='light'] .landing-controls .theme-toggle-thumb {
 }
 
 .hero-wordmark {
-  height: clamp(56px, 11vw, 100px);
+  height: clamp(64px, 13vw, 124px);
   width: auto;
   object-fit: contain;
   flex-shrink: 0;
@@ -495,6 +495,7 @@ html[data-theme='light'] .landing-controls .theme-toggle-thumb {
 [data-reveal-delay="2"] { transition-delay: 0.2s; }
 [data-reveal-delay="3"] { transition-delay: 0.3s; }
 [data-reveal-delay="4"] { transition-delay: 0.4s; }
+[data-reveal-delay="5"] { transition-delay: 0.5s; }
 
 /* ---- Sections ---- */
 
@@ -669,11 +670,11 @@ html[data-theme='light'] .landing-controls .theme-toggle-thumb {
      text nav link at phone widths — scale everything in the header back
      down here so nothing overlaps. */
   .landing-header .brand-icon {
-    height: 28px;
+    height: 33px;
   }
 
   .landing-header .brand-logo {
-    height: 18px;
+    height: 21px;
   }
 
   .landing-nav-link {
@@ -731,11 +732,11 @@ html[data-theme='light'] .landing-controls .theme-toggle-thumb {
 
 @media (max-width: 360px) {
   .landing-header .brand-icon {
-    height: 24px;
+    height: 28px;
   }
 
   .landing-header .brand-logo {
-    height: 15px;
+    height: 18px;
   }
 
   .landing-nav-link {

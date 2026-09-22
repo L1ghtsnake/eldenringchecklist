@@ -12,6 +12,8 @@
       brandEyebrow: 'Home',
       brandTitle: 'Elden Ring Database',
       navChecklist: 'Checklist',
+      navMap: 'Map',
+      navGallery: 'Gallery',
       langLabel: 'Language',
       themeLabel: 'Toggle dark or light theme',
       heroTitle: 'Welcome to the Lands Between',
@@ -34,6 +36,12 @@
       f3Text: 'Create an account to sync your checklist across every device you play on.',
       f4Title: 'In Your Language',
       f4Text: 'Switch freely between English and Russian at any time.',
+      f5Title: 'Interactive Map',
+      f5Text: 'Pan and zoom across the whole of the Lands Between to plan your route.',
+      f5Link: 'Open the map',
+      f6Title: 'Gallery',
+      f6Text: 'Twenty scenes from across the Lands Between, ready to browse and zoom into.',
+      f6Link: 'Open the gallery',
       ctaTitle: 'A Growing Project',
       ctaBody: 'This started as a boss checklist and keeps growing from there — more tools for the Lands Between are on the way.',
       ctaLink: 'See the checklist',
@@ -44,6 +52,8 @@
       brandEyebrow: 'Главная',
       brandTitle: 'Elden Ring Database',
       navChecklist: 'Чек-лист',
+      navMap: 'Карта',
+      navGallery: 'Галерея',
       langLabel: 'Язык',
       themeLabel: 'Переключить тёмную или светлую тему',
       heroTitle: 'Добро пожаловать в Междуземье',
@@ -66,6 +76,12 @@
       f3Text: 'Создайте аккаунт, чтобы синхронизировать чек-лист на всех своих устройствах.',
       f4Title: 'На вашем языке',
       f4Text: 'Переключайтесь между английским и русским в любой момент.',
+      f5Title: 'Интерактивная карта',
+      f5Text: 'Двигайте и увеличивайте карту всего Междуземья, чтобы спланировать маршрут.',
+      f5Link: 'Открыть карту',
+      f6Title: 'Галерея',
+      f6Text: 'Двадцать сцен из Междуземья — можно листать и приближать каждую.',
+      f6Link: 'Открыть галерею',
       ctaTitle: 'Проект растёт',
       ctaBody: 'Всё начиналось с чек-листа боссов — и на этом сайт не останавливается. Скоро здесь появятся другие инструменты для Междуземья.',
       ctaLink: 'Смотреть чек-лист',
@@ -81,6 +97,8 @@
     els.brandEyebrow = document.getElementById('brand-eyebrow');
     els.brandTitle = document.getElementById('brand-title');
     els.navChecklistLabel = document.getElementById('nav-checklist-label');
+    els.navMapLabel = document.getElementById('nav-map-label');
+    els.navGalleryLabel = document.getElementById('nav-gallery-label');
     els.themeToggle = document.getElementById('theme-toggle');
     els.langFilterBtn = document.getElementById('lang-filter-btn');
     els.langFilterBtnLabel = document.getElementById('lang-filter-btn-label');
@@ -106,6 +124,12 @@
     els.f3Text = document.getElementById('f3-text');
     els.f4Title = document.getElementById('f4-title');
     els.f4Text = document.getElementById('f4-text');
+    els.f5Title = document.getElementById('f5-title');
+    els.f5Text = document.getElementById('f5-text');
+    els.f5Link = document.getElementById('f5-link-label');
+    els.f6Title = document.getElementById('f6-title');
+    els.f6Text = document.getElementById('f6-text');
+    els.f6Link = document.getElementById('f6-link-label');
     els.ctaTitle = document.getElementById('cta-title');
     els.ctaBody = document.getElementById('cta-body');
     els.ctaLink = document.getElementById('cta-link-label');
@@ -154,6 +178,8 @@
     if (els.brandEyebrow) els.brandEyebrow.textContent = t(lang, 'brandEyebrow');
     if (els.brandTitle) els.brandTitle.textContent = t(lang, 'brandTitle');
     if (els.navChecklistLabel) els.navChecklistLabel.textContent = t(lang, 'navChecklist');
+    if (els.navMapLabel) els.navMapLabel.textContent = t(lang, 'navMap');
+    if (els.navGalleryLabel) els.navGalleryLabel.textContent = t(lang, 'navGallery');
     if (els.themeToggle) els.themeToggle.setAttribute('aria-label', t(lang, 'themeLabel'));
 
     if (els.heroTitle) els.heroTitle.textContent = t(lang, 'heroTitle');
@@ -178,6 +204,12 @@
     if (els.f3Text) els.f3Text.textContent = t(lang, 'f3Text');
     if (els.f4Title) els.f4Title.textContent = t(lang, 'f4Title');
     if (els.f4Text) els.f4Text.textContent = t(lang, 'f4Text');
+    if (els.f5Title) els.f5Title.textContent = t(lang, 'f5Title');
+    if (els.f5Text) els.f5Text.textContent = t(lang, 'f5Text');
+    if (els.f5Link) els.f5Link.textContent = t(lang, 'f5Link');
+    if (els.f6Title) els.f6Title.textContent = t(lang, 'f6Title');
+    if (els.f6Text) els.f6Text.textContent = t(lang, 'f6Text');
+    if (els.f6Link) els.f6Link.textContent = t(lang, 'f6Link');
 
     if (els.ctaTitle) els.ctaTitle.textContent = t(lang, 'ctaTitle');
     if (els.ctaBody) els.ctaBody.textContent = t(lang, 'ctaBody');

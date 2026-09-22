@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Elden Ring Boss Checklist</title>
+  <title>Elden Ring Database — Interactive Map</title>
+  <meta name="description" content="An interactive map of the Lands Between, with every region, dungeon and point of interest." />
   <link rel="icon" type="image/png" href="../img/favicon.png" />
   <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="../css/interactivemap.css" />
 </head>
 <body>
   <div class="page">
@@ -17,8 +19,8 @@
           <img class="brand-logo" src="../img/logo-wordmark.webp" alt="Elden Ring" />
         </span>
         <div class="brand-text">
-          <p class="brand-eyebrow" id="brand-eyebrow">Boss Checklist</p>
-          <h1 class="brand-title visually-hidden" id="brand-title">Elden Ring Boss Checklist</h1>
+          <p class="brand-eyebrow" id="brand-eyebrow">Interactive Map</p>
+          <h1 class="brand-title visually-hidden" id="brand-title">Elden Ring Database — Interactive Map</h1>
         </div>
       </a>
 
@@ -106,131 +108,28 @@
       </div>
     </header>
 
-    <main class="layout">
-
-      <div class="game-switch" role="tablist" aria-label="Game">
-        <button type="button" class="game-switch-btn active" data-game="eldenring" role="tab" aria-selected="true">Elden Ring</button>
-        <button type="button" class="game-switch-btn" data-game="shadowerdtree" role="tab" aria-selected="false">Shadow of the Erdtree</button>
+    <main class="map-page">
+      <div class="map-intro">
+        <p class="map-eyebrow" id="map-eyebrow">Explore</p>
+        <h1 class="map-title" id="map-title">Interactive Map of the Lands Between</h1>
+        <p class="map-subtitle" id="map-subtitle">Every region, legacy dungeon and point of interest — pan and zoom to plan your next route. Map data provided by mapgenie.io.</p>
       </div>
 
-      <section class="overview-card" aria-label="Overall progress">
-        <div class="overview-chart">
-          <svg class="chart" viewBox="0 0 130 130" width="130" height="130" role="img" aria-label="Overall completion chart">
-            <circle class="chart-track" cx="65" cy="65" r="54" />
-            <circle id="chart-fill" class="chart-fill" cx="65" cy="65" r="54" transform="rotate(-90 65 65)" />
-          </svg>
-          <div class="chart-center">
-            <span id="chart-percent" class="chart-percent">0%</span>
-            <span class="chart-caption" id="chart-caption-label">cleared</span>
-          </div>
+      <div class="map-frame">
+        <div class="map-frame-inner">
+          <iframe src="https://mapgenie.io/elden-ring/maps/the-lands-between?embed=light" height="500" style="position: relative; width: 100%;"></iframe>
         </div>
-
-        <div class="overview-stats">
-          <div class="stat-block">
-            <span class="stat-figure"><span id="completed-count">0</span><span class="stat-slash">/</span><span id="total-count">0</span></span>
-            <span class="stat-caption" id="stat-caption">bosses defeated</span>
-          </div>
-
-          <div class="bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Overall progress bar">
-            <div id="overall-bar" class="bar-fill"></div>
-          </div>
-
-          <div class="stat-chips">
-            <span class="chip chip-muted"><span id="remaining-count">0</span> <span id="remaining-label">remaining</span></span>
-          </div>
-        </div>
-      </section>
-
-      <section class="controls-card" aria-label="Search and filters">
-        <div class="search-field">
-          <svg class="search-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Zm9 2-5.2-5.2"/></svg>
-          <label class="visually-hidden" for="search-input">Search bosses</label>
-          <input id="search-input" type="text" placeholder="Search a boss by name…" autocomplete="off" />
-        </div>
-
-        <div class="filters" role="group" aria-label="Filter bosses">
-          <button type="button" class="filter-btn active" data-filter="all" aria-pressed="true">All</button>
-          <button type="button" class="filter-btn" data-filter="remaining" aria-pressed="false">Remaining</button>
-          <button type="button" class="filter-btn" data-filter="completed" aria-pressed="false">Completed</button>
-
-          <div class="category-filter" id="category-filter">
-            <button type="button" class="icon-btn category-filter-btn" id="category-filter-btn" aria-haspopup="true" aria-expanded="false" aria-label="Filter by category" title="Filter by category">
-              <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><polygon fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-            </button>
-            <div class="category-filter-panel" id="category-filter-panel" role="menu" hidden>
-              <label class="category-option">
-                <span class="category-checkbox-wrap">
-                  <input type="checkbox" class="category-checkbox" value="story" checked />
-                  <span class="category-checkbox-visual" aria-hidden="true">
-                    <svg width="11" height="9" viewBox="0 0 13 10"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  </span>
-                </span>
-                <span id="cat-label-story">Story bosses</span>
-              </label>
-              <label class="category-option">
-                <span class="category-checkbox-wrap">
-                  <input type="checkbox" class="category-checkbox" value="hard" checked />
-                  <span class="category-checkbox-visual" aria-hidden="true">
-                    <svg width="11" height="9" viewBox="0 0 13 10"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  </span>
-                </span>
-                <span id="cat-label-hard">Hard bosses</span>
-              </label>
-              <label class="category-option">
-                <span class="category-checkbox-wrap">
-                  <input type="checkbox" class="category-checkbox" value="quest" checked />
-                  <span class="category-checkbox-visual" aria-hidden="true">
-                    <svg width="11" height="9" viewBox="0 0 13 10"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  </span>
-                </span>
-                <span id="cat-label-quest">Quest bosses</span>
-              </label>
-              <label class="category-option">
-                <span class="category-checkbox-wrap">
-                  <input type="checkbox" class="category-checkbox" value="optional" checked />
-                  <span class="category-checkbox-visual" aria-hidden="true">
-                    <svg width="11" height="9" viewBox="0 0 13 10"><path d="M1 5.2 4.6 8.5 12 1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                  </span>
-                </span>
-                <span id="cat-label-optional">Optional bosses</span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="regions-section" aria-label="Regions">
-        <div class="regions-heading">
-          <h2 id="regions-title">Regions</h2>
-          <span class="regions-heading-meta"><span id="regions-found-count">8</span> <span id="regions-shown-label">shown</span></span>
-        </div>
-
-        <div id="accordion" class="accordion"></div>
-
-        <p id="empty-state" class="no-results" hidden>Nothing found. Try a different search term.</p>
-      </section>
-
-      <section class="danger-zone" aria-label="Reset progress">
-        <button id="reset-btn" type="button" class="reset-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>
-          <span id="reset-label">Reset progress</span>
-        </button>
-      </section>
-
+        <p class="map-credit">
+          <span id="map-credit-text">Map powered by</span>
+          <a href="https://mapgenie.io/elden-ring/maps/the-lands-between" target="_blank" rel="noopener noreferrer">mapgenie.io</a>
+        </p>
+      </div>
     </main>
 
-    <footer class="site-footer">
-      <p id="footer-text">Progress is saved automatically in this browser.</p>
-    </footer>
   </div>
 
-  <!-- Modals and toast live outside .page on purpose: .page has a
-       transform-based entrance animation, and a `transform` on any
-       ancestor turns it into the containing block for `position: fixed`
-       descendants — which made these overlays position themselves inside
-       the (very tall) .page box instead of the viewport, and jumping
-       focus into an off-screen input made the page auto-scroll down to
-       reach it. Keeping them as siblings of .page avoids that entirely. -->
+  <!-- Auth / account modals — siblings of .page rather than nested
+       inside it (see the note in checklist.html for why). -->
 
   <div class="modal-overlay" id="auth-modal" hidden>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
@@ -310,6 +209,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
   <script src="../scripts/firebase.js"></script>
   <script src="../scripts/auth.js"></script>
-  <script src="../scripts/script.js"></script>
+  <script src="../scripts/interactivemap.js"></script>
 </body>
 </html>

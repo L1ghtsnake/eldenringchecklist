@@ -211,12 +211,6 @@ body.is-ready .page {
   text-decoration: none;
   color: inherit;
   border-radius: var(--radius-md);
-  transition: opacity var(--dur-fast) var(--ease-soft);
-}
-
-a.brand:hover,
-a.brand:focus-visible {
-  opacity: 0.82;
 }
 
 a.brand:focus-visible {
@@ -227,16 +221,31 @@ a.brand:focus-visible {
 /* Logo lockup — the ring emblem icon and the "ELDEN RING" wordmark
    shown together as two separate images side by side (rather than one
    flattened graphic), matching the game's own title lockup while
-   staying crisp at any size and easy to resize independently. */
+   staying crisp at any size and easy to resize independently.
+
+   The hover/focus glow lives here, on the image pair only — not on
+   `.brand` as a whole — so the eyebrow text next to it stays put
+   instead of visibly reacting too. It's also the ONLY thing that
+   changes on hover (previously `a.brand:hover` dimmed the whole link
+   via opacity *while* its children kept their own always-on
+   drop-shadow filters, which on some renders could show as a double
+   flash — one filtered element fading under another). One element,
+   one filter transition, no stacked effects. */
 .brand-logo-lockup {
   display: flex;
   align-items: center;
   gap: 9px;
   flex-shrink: 0;
+  transition: filter var(--dur-fast) var(--ease-soft);
+}
+
+a.brand:hover .brand-logo-lockup,
+a.brand:focus-visible .brand-logo-lockup {
+  filter: brightness(1.18);
 }
 
 .brand-icon {
-  height: 38px;
+  height: 58px;
   width: auto;
   flex-shrink: 0;
   object-fit: contain;
@@ -244,7 +253,7 @@ a.brand:focus-visible {
 }
 
 .brand-logo {
-  height: 24px;
+  height: 36px;
   width: auto;
   flex-shrink: 0;
   object-fit: contain;
@@ -282,7 +291,7 @@ a.brand:focus-visible {
 .header-controls {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 

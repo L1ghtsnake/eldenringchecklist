@@ -13,9 +13,39 @@ const CATEGORY_FILTER_KEY = 'eldenRingBossChecklistCategories';
    carries category tags. */
 const BOSS_CATEGORIES = ['story', 'hard', 'quest', 'optional'];
 
+/* How many recent completions to keep around for the personal cabinet's
+   "Recent activity" feed (profile.js reads this back from
+   users/{uid}.history). Newest first; trimmed on every write so the
+   Firestore document doesn't grow without bound. */
+const HISTORY_LIMIT = 20;
+
 
 let games = {};
 let ruNames = { regions: {}, bosses: {} };
+
+/* ==========================================================================
+   Account-tied progress
+   --------------------------------------------------------------------------
+   Progress lives in one of two places depending on whether the visitor is
+   signed in:
+     - Signed OUT (guest): the classic per-browser localStorage blob
+       (STORAGE_KEY) — unchanged behaviour from before accounts existed.
+     - Signed IN: Firestore, under users/{uid}.progress (an array of boss
+       ids), fetched on login and saved on every change. This is what
+       makes progress follow the account rather than the browser.
+   Logging out clears the on-screen checklist back to empty rather than
+   falling back to whatever guest progress happens to be sitting in
+   localStorage — a real account's progress is only ever visible while
+   that account is signed in. `authInitialized` distinguishes the very
+   first auth callback (page load — could resolve to a guest OR an
+   already-logged-in session) from a later transition (an actual
+   login/logout while the page is open), since only the latter should
+   reset the screen on sign-out. `gameDataLoaded` defers applying an
+   auth state that arrives before the boss data has finished loading. */
+let gameDataLoaded = false;
+let authInitialized = false;
+let pendingAuthState = null;
+let saveAccountProgressTimer = null;
 
 /* UI string dictionary */
 const i18n = {
@@ -39,6 +69,7 @@ const i18n = {
     noneFound: 'Nothing found. Try a different search term.',
     noMatch: 'No bosses match this filter.',
     footer: 'Progress is saved automatically in this browser.',
+    footerAccount: 'Progress is saved automatically to your account.',
     resetConfirm: 'Reset all boss progress? This cannot be undone.',
     themeToggle: 'Toggle dark or light theme',
     categoryFilterLabel: 'Filter by category',
@@ -70,6 +101,7 @@ const i18n = {
     noneFound: 'Ничего не найдено. Попробуйте другой запрос.',
     noMatch: 'Нет боссов, подходящих под фильтр.',
     footer: 'Прогресс сохраняется автоматически в этом браузере.',
+    footerAccount: 'Прогресс сохраняется автоматически в вашем аккаунте.',
     resetConfirm: 'Сбросить весь прогресс по боссам? Это действие необратимо.',
     themeToggle: 'Переключить тёмную или светлую тему',
     categoryFilterLabel: 'Фильтр по категориям',
@@ -91,6 +123,10 @@ const state = {
   filter: 'all',
   searchTerm: '',
   completed: new Set(),
+  /* Account-only: {id, at}[], newest first — see HISTORY_LIMIT above.
+     Stays empty for guests (the personal cabinet is login-only, so
+     there's nowhere to show it, and no reason to grow localStorage). */
+  history: [],
   openRegions: {
     eldenring: new Set(),
     shadowerdtree: new Set()
@@ -180,6 +216,12 @@ async function fetchGameData() {
    scripts/auth.js (AuthWidget.setLanguage) — this just covers the two
    burger-menu section headers ("Preferences" / "Account"), which are
    plain menu chrome outside auth.js's scope. */
+function refreshFooterText() {
+  if (!els.footerText) return;
+  const loggedIn = !!(window.AuthWidget && window.AuthWidget.isLoggedIn());
+  els.footerText.textContent = t(loggedIn ? 'footerAccount' : 'footer');
+}
+
 function refreshMenuSectionText() {
   if (els.menuAccountLabel) els.menuAccountLabel.textContent = t('menuAccountLabel');
   if (els.menuPrefsLabel) els.menuPrefsLabel.textContent = t('menuPrefsLabel');
@@ -399,12 +441,98 @@ function loadProgress() {
   }
 }
 
+/* Records (or refreshes) a "completed" moment for the personal
+   cabinet's Recent activity feed. Newest-first, deduplicated (a boss
+   toggled off and back on again just moves back to the top rather
+   than appearing twice), capped at HISTORY_LIMIT. Guest state.history
+   updates too (harmless — it's simply never persisted or read back
+   for a signed-out visitor). */
+function recordHistory(bossId) {
+  state.history = state.history.filter((entry) => entry.id !== bossId);
+  state.history.unshift({ id: bossId, at: Date.now() });
+  if (state.history.length > HISTORY_LIMIT) state.history.length = HISTORY_LIMIT;
+}
+
+/* Un-completing a boss drops it from the feed too — "recent activity"
+   should only ever list bosses that are still marked defeated. */
+function removeHistory(bossId) {
+  state.history = state.history.filter((entry) => entry.id !== bossId);
+}
+
 function saveProgress() {
+  if (window.AuthWidget && window.AuthWidget.isLoggedIn()) {
+    saveAccountProgress();
+    return;
+  }
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(state.completed)));
   } catch (err) {
     /* storage unavailable */
   }
+}
+
+/* Debounced so rapid-fire changes (select-all on a big region) don't
+   fire a Firestore write per checkbox. */
+function saveAccountProgress() {
+  const user = window.AuthWidget.getUser();
+  if (!user) return;
+  if (saveAccountProgressTimer) window.clearTimeout(saveAccountProgressTimer);
+  saveAccountProgressTimer = window.setTimeout(() => {
+    db.collection('users').doc(user.uid).set(
+      { progress: Array.from(state.completed), history: state.history },
+      { merge: true }
+    ).catch((err) => console.error('Failed to save progress to account:', err));
+  }, 400);
+}
+
+async function loadAccountProgress(uid) {
+  try {
+    const snap = await db.collection('users').doc(uid).get();
+    const data = snap.exists ? snap.data() : null;
+    const list = data && Array.isArray(data.progress) ? data.progress : [];
+    const historyList = data && Array.isArray(data.history) ? data.history : [];
+    const completed = new Set(list.filter((id) => typeof id === 'string'));
+    const history = historyList.filter((entry) => entry && typeof entry.id === 'string' && typeof entry.at === 'number');
+    return { completed, history };
+  } catch (err) {
+    console.error('Failed to load account progress:', err);
+    return { completed: new Set(), history: [] };
+  }
+}
+
+/* Called by AuthWidget every time sign-in state changes (including once,
+   asynchronously, right after page load). See the block comment above
+   `gameDataLoaded` for the full reasoning. */
+function handleAuthChange(user, profile) {
+  const isFirstCall = !authInitialized;
+  authInitialized = true;
+
+  if (!gameDataLoaded) {
+    pendingAuthState = { user, isFirstCall };
+    return;
+  }
+  applyAuthState(user, isFirstCall);
+}
+
+async function applyAuthState(user, isFirstCall) {
+  if (user) {
+    const data = await loadAccountProgress(user.uid);
+    state.completed = data.completed;
+    state.history = data.history;
+  } else if (!isFirstCall) {
+    /* A real sign-out while the page is open: the checklist resets to
+       empty rather than exposing whatever guest progress is stored
+       locally — the account's own progress isn't meant to leak into a
+       signed-out view once it's been shown. */
+    state.completed = new Set();
+    state.history = [];
+  }
+  /* (no user, isFirstCall) — a guest on page load — is left untouched;
+     `state.completed` already holds whatever loadProgress() read from
+     localStorage during init(). */
+  refreshFooterText();
+  buildAccordion();
+  updateProgress();
 }
 
 function loadPreference(key, fallback, validValues) {
@@ -604,8 +732,10 @@ function toggleBoss(bossId, rowEl) {
   const nowDone = !state.completed.has(bossId);
   if (nowDone) {
     state.completed.add(bossId);
+    recordHistory(bossId);
   } else {
     state.completed.delete(bossId);
+    removeHistory(bossId);
   }
 
   if (rowEl) {
@@ -634,8 +764,10 @@ function toggleSelectAll(regionId) {
   region.bosses.forEach((boss) => {
     if (shouldSelectAll) {
       state.completed.add(boss.id);
+      recordHistory(boss.id);
     } else {
       state.completed.delete(boss.id);
+      removeHistory(boss.id);
     }
   });
 
@@ -716,6 +848,7 @@ function resetProgress() {
   const confirmed = confirm(t('resetConfirm'));
   if (!confirmed) return;
   state.completed = new Set();
+  state.history = [];
   saveProgress();
   buildAccordion();
   updateProgress();
@@ -807,7 +940,7 @@ function applyLanguage(lang) {
   els.remainingLabel.textContent = t('remaining');
   els.regionsTitle.textContent = t('regionsTitle');
   els.regionsShownLabel.textContent = t('shown');
-  els.footerText.textContent = t('footer');
+  refreshFooterText();
   els.themeToggle.setAttribute('aria-label', t('themeToggle'));
 
   els.gameButtons.forEach((btn) => {
@@ -854,7 +987,7 @@ function attachEvents() {
 async function init() {
   cacheDom();
   if (window.AuthWidget) {
-    window.AuthWidget.init('en', { onBeforeOpen: closeBurgerMenu });
+    window.AuthWidget.init('en', { onBeforeOpen: closeBurgerMenu, onAuthChange: handleAuthChange });
   }
   refreshMenuSectionText();
 
@@ -875,8 +1008,9 @@ async function init() {
       shadowerdtree: { id: 'shadowerdtree', regions: data.shadowErdtreeRegions }
     };
     ruNames = data.ruNames;
-    state.openRegions.eldenring.add(data.eldenRingRegions[0].id);
-    state.openRegions.shadowerdtree.add(data.shadowErdtreeRegions[0].id);
+    /* Regions all start collapsed — no location is force-opened on
+       load anymore (the first one used to be pinned open by default,
+       which read as a stray/buggy pre-expanded dropdown). */
   } catch (err) {
     console.error('Failed to load boss data from Firebase:', err);
     if (els.accordion) {
@@ -886,6 +1020,13 @@ async function init() {
   }
 
   state.completed = loadProgress();
+
+  gameDataLoaded = true;
+  if (pendingAuthState) {
+    const { user, isFirstCall } = pendingAuthState;
+    pendingAuthState = null;
+    await applyAuthState(user, isFirstCall);
+  }
 
   const savedTheme = loadPreference(THEME_KEY, 'dark', ['dark', 'light']);
   const savedLang = loadPreference(LANG_KEY, 'en', ['en', 'ru']);
