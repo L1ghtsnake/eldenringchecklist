@@ -1,0 +1,714 @@
+/* ==========================================================================
+   Guide ("Руководство") — a deliberately different visual language from
+   the checklist: an open reference index rather than a collapsible
+   progress list. Reuses only style.css's color/spacing/font tokens, the
+   .page shell and the shared header — every component on this page
+   (hero, tabs, search, region blocks, boss tiles) is its own, so the
+   guide never reads as "the checklist with links instead of checkboxes".
+   ========================================================================== */
+
+.wiki-page {
+  margin-top: 4px;
+  max-width: 980px;
+}
+
+/* ---- Hero banner ---- */
+
+.wiki-hero {
+  position: relative;
+  padding: 8px 0 26px 22px;
+  margin-bottom: 28px;
+  border-left: 3px solid var(--cta);
+}
+
+.wiki-hero-mark {
+  position: absolute;
+  left: -3px;
+  top: 0;
+  width: 3px;
+  height: 34px;
+  background: var(--text-primary);
+}
+
+.wiki-eyebrow {
+  margin: 0 0 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--cta);
+}
+
+.wiki-title {
+  margin: 0 0 10px;
+  font-size: clamp(26px, 4.4vw, 38px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.wiki-subtitle {
+  margin: 0;
+  max-width: 560px;
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+/* ---- Toolbar: tabs + search side by side ---- */
+
+.wiki-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 30px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.wiki-tabs {
+  display: flex;
+  gap: 22px;
+}
+
+.wiki-tab {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 6px 0 12px;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+
+.wiki-tab::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--cta);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur-base) var(--ease-soft);
+}
+
+.wiki-tab:hover { color: var(--text-secondary); }
+
+.wiki-tab.active {
+  color: var(--text-primary);
+}
+
+.wiki-tab.active::after { transform: scaleX(1); }
+
+.wiki-tab:focus-visible {
+  outline: 2px solid var(--cta);
+  outline-offset: 3px;
+}
+
+.wiki-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: 0 1 260px;
+  border-bottom: 1.5px solid var(--border);
+  padding: 6px 2px 10px;
+  transition: border-color var(--dur-fast) var(--ease-soft);
+}
+
+.wiki-search:focus-within { border-color: var(--cta); }
+
+.wiki-search-icon { color: var(--text-muted); flex-shrink: 0; }
+
+.wiki-search:focus-within .wiki-search-icon { color: var(--cta); }
+
+#search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 14.5px;
+  color: var(--text-primary);
+  padding: 0;
+}
+
+#search-input::placeholder { color: var(--text-muted); }
+
+/* ---- Regions ---- */
+
+.wiki-regions-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.wiki-regions-heading h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.wiki-regions-heading-meta {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.wiki-regions {
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+}
+
+.wiki-region {
+  animation: wikiRegionIn var(--dur-base) var(--ease-soft) both;
+}
+
+@keyframes wikiRegionIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.wiki-region-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.wiki-region-index {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--cta);
+  letter-spacing: 0.04em;
+}
+
+.wiki-region-name {
+  margin: 0;
+  flex: 1;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.wiki-region-count {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.wiki-region-count-label {
+  text-transform: lowercase;
+}
+
+.wiki-region-empty {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ---- Boss index: a two-column list of hairline rows, same quiet
+   line-based language as the hero and toolbar — no boxed tiles. ---- */
+
+.wiki-boss-list {
+  columns: 2;
+  column-gap: 40px;
+}
+
+.wiki-boss-row {
+  display: flex;
+  align-items: baseline;
+  gap: 11px;
+  padding: 10px 2px;
+  border-bottom: 1px solid var(--border-soft);
+  color: inherit;
+  text-decoration: none;
+  break-inside: avoid;
+  animation: wikiRegionIn var(--dur-base) var(--ease-soft) both;
+  transition: border-color var(--dur-fast) var(--ease-soft);
+}
+
+.wiki-boss-row:hover { border-color: var(--cta); }
+.wiki-boss-row:hover .wiki-boss-row-name { color: var(--cta); }
+
+.wiki-boss-row:focus-visible {
+  outline: 2px solid var(--cta);
+  outline-offset: 2px;
+}
+
+.wiki-boss-row-index {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.wiki-boss-row-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+
+.wiki-boss-row-arrow {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: color var(--dur-fast) var(--ease-soft), transform var(--dur-fast) var(--ease-soft);
+}
+
+.wiki-boss-row:hover .wiki-boss-row-arrow {
+  color: var(--cta);
+  transform: translateX(2px);
+}
+
+.wiki-empty {
+  margin: 30px 0 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 640px) {
+  .wiki-hero { padding-left: 16px; }
+  .wiki-toolbar { flex-direction: column; align-items: stretch; }
+  .wiki-search { flex-basis: auto; }
+  .wiki-boss-list { columns: 1; }
+}
+
+/* ==========================================================================
+   Single boss page
+   ========================================================================== */
+
+.wiki-boss-page {
+  margin-top: 8px;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.wiki-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 20px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+
+.wiki-back-link:hover { color: var(--cta); }
+
+.wiki-boss-hero {
+  margin-bottom: 24px;
+}
+
+.wiki-boss-name {
+  margin: 0 0 8px;
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.wiki-boss-meta {
+  margin: 0;
+  font-size: 14.5px;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wiki-boss-meta-dot { color: var(--text-muted); }
+
+.wiki-boss-tagline {
+  margin: 10px 0 0;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft);
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.wiki-boss-media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+  transition: var(--theme-transition);
+}
+
+.wiki-boss-media-icon { opacity: 0.6; }
+
+/* Visibility of the placeholder icon/text and the real photo is driven
+   entirely by the .has-photo class on the media box, with !important —
+   not by each element's own [hidden] attribute, which some browsers
+   (older WebKit in particular) don't reliably apply to inline SVG. */
+
+.wiki-boss-photo {
+  display: none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  /* contain, not cover — a lot of source photos are square or portrait,
+     and cropping them into this wide 16:9 box would slice off the top
+     of the boss's head or their feet. Letterboxing keeps the whole
+     figure on screen; the box's own background fills the bars. */
+  object-fit: contain;
+  border-radius: calc(var(--radius-lg) - 1.5px);
+}
+
+.wiki-boss-media.has-photo .wiki-boss-photo { display: block !important; }
+
+.wiki-boss-media.has-photo .wiki-boss-media-icon,
+.wiki-boss-media.has-photo .wiki-boss-media-text {
+  display: none !important;
+}
+
+.wiki-boss-media.has-photo {
+  border-style: solid;
+  border-color: var(--border-soft);
+}
+
+.wiki-boss-media-text {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.wiki-boss-stats {
+  display: none;
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 14px;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 11px 18px;
+  background: rgba(10, 8, 4, 0.72);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.wiki-boss-stats.is-visible { display: flex !important; }
+
+html[data-theme='light'] .wiki-boss-stats {
+  background: rgba(10, 8, 4, 0.72);
+}
+
+.wiki-boss-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.wiki-boss-stat-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.wiki-boss-stat-value {
+  font-size: 17px;
+  font-weight: 800;
+  color: #f0cf7c;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.wiki-boss-stat-sep {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.wiki-boss-content-placeholder {
+  margin: 0 0 24px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* ---- Rich boss sections: quiet headings + hairline tables, the same
+   line-based language as the rest of the guide — no boxed cards. ---- */
+
+.wiki-section-title {
+  margin: 34px 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--cta);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+#wiki-boss-sections .wiki-section-title:first-child { margin-top: 0; }
+
+.wiki-section-text {
+  margin: 0 0 12px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--text-secondary);
+}
+
+.wiki-section-text:last-child { margin-bottom: 0; }
+
+.wiki-bullet-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wiki-bullet-list li {
+  position: relative;
+  padding-left: 20px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
+
+.wiki-bullet-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cta);
+}
+
+.wiki-table-scroll {
+  overflow-x: auto;
+  margin-bottom: 4px;
+}
+
+.wiki-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.wiki-table th,
+.wiki-table td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: 13.5px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.wiki-table th {
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+
+.wiki-table td {
+  color: var(--text-secondary);
+}
+
+.wiki-table tr:last-child th,
+.wiki-table tr:last-child td {
+  border-bottom: none;
+}
+
+.wiki-table--loot .wiki-table-num {
+  text-align: right;
+  color: var(--text-primary);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ---- Resistances: a wrapping grid of label/value cells instead of a
+   wide table, so 8 columns never force horizontal scrolling. ---- */
+
+.wiki-resist-group {
+  margin-bottom: 20px;
+}
+
+.wiki-resist-group:last-child { margin-bottom: 0; }
+
+.wiki-resist-group-label {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.wiki-resist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+@media (min-width: 641px) {
+  .wiki-resist-grid { grid-template-columns: repeat(8, 1fr); }
+}
+
+.wiki-resist-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 14px 8px;
+  background: var(--surface-2);
+  text-align: center;
+}
+
+.wiki-resist-cell-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6em;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--text-muted);
+  word-break: break-word;
+  hyphens: auto;
+}
+
+.wiki-resist-cell-value {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.wiki-boss-pagination {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.wiki-boss-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  text-decoration: none;
+  min-width: 0;
+  transition: background var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft);
+}
+
+.wiki-boss-nav-link:hover {
+  background: var(--surface-3);
+  border-color: var(--cta);
+}
+
+.wiki-boss-nav-link[hidden] { visibility: hidden; }
+
+.wiki-boss-nav-link--next {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+.wiki-boss-nav-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.wiki-boss-nav-dir {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.wiki-boss-nav-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- Not-found state ---- */
+
+.wiki-not-found {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.wiki-not-found h1 {
+  margin: 0 0 10px;
+  font-size: 22px;
+  color: var(--text-primary);
+}
+
+.wiki-not-found p {
+  margin: 0 0 18px;
+  color: var(--text-secondary);
+}
+
+.wiki-not-found .wiki-back-link {
+  justify-content: center;
+  display: inline-flex;
+}
+
+@media (max-width: 560px) {
+  .wiki-boss-pagination {
+    grid-template-columns: 1fr;
+  }
+  .wiki-boss-nav-link--next {
+    justify-content: flex-start;
+    text-align: left;
+  }
+}

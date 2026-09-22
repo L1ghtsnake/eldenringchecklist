@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Elden Ring Database — Gallery</title>
-  <meta name="description" content="A gallery of the Lands Between — twenty scenes from Elden Ring and Shadow of the Erdtree." />
+  <title>Elden Ring Database — Guide</title>
+  <meta name="description" content="A guide to every boss in Elden Ring and Shadow of the Erdtree." />
   <link rel="icon" type="image/png" href="../img/favicon.png" />
   <link rel="stylesheet" href="../css/style.css" />
-  <link rel="stylesheet" href="../css/gallery.css" />
+  <link rel="stylesheet" href="../css/wiki.css" />
 </head>
 <body>
-  <div class="page page-wide">
+  <div class="page">
 
     <header class="site-header">
       <a class="brand" href="../index.html" aria-label="Elden Ring Database — home">
@@ -19,8 +19,8 @@
           <img class="brand-logo" src="../img/logo-wordmark.webp" alt="Elden Ring" />
         </span>
         <div class="brand-text">
-          <p class="brand-eyebrow" id="brand-eyebrow">Gallery</p>
-          <h1 class="brand-title visually-hidden" id="brand-title">Elden Ring Database — Gallery</h1>
+          <p class="brand-eyebrow" id="brand-eyebrow">Guide</p>
+          <h1 class="brand-title visually-hidden" id="brand-title">Elden Ring Database — Guide</h1>
         </div>
       </a>
 
@@ -112,43 +112,45 @@
       </div>
     </header>
 
-    <main class="gallery-page">
-      <div class="gallery-intro">
-        <p class="gallery-eyebrow" id="gallery-eyebrow">Scenes</p>
-        <h1 class="gallery-title" id="gallery-title">Gallery of the Lands Between</h1>
-        <p class="gallery-subtitle" id="gallery-subtitle">Twenty views from Elden Ring and Shadow of the Erdtree. Click any scene to look closer.</p>
+    <main class="layout wiki-page">
+
+      <div class="wiki-hero">
+        <span class="wiki-hero-mark" aria-hidden="true"></span>
+        <p class="wiki-eyebrow" id="guide-eyebrow">Reference</p>
+        <h1 class="wiki-title" id="guide-title">Boss Guide</h1>
+        <p class="wiki-subtitle" id="guide-subtitle">Every boss from the base game and Shadow of the Erdtree, region by region. Pick one to open its page.</p>
       </div>
 
-      <div class="gallery-grid" id="gallery-grid" role="list"></div>
+      <div class="wiki-toolbar">
+        <div class="wiki-tabs" role="tablist" aria-label="Game">
+          <button type="button" class="wiki-tab active" data-game="eldenring" role="tab" aria-selected="true">Elden Ring</button>
+          <button type="button" class="wiki-tab" data-game="shadowerdtree" role="tab" aria-selected="false">Shadow of the Erdtree</button>
+        </div>
 
-      <nav class="gallery-pagination" id="gallery-pagination" aria-label="Gallery pages"></nav>
+        <div class="wiki-search">
+          <svg class="wiki-search-icon" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Zm9 2-5.2-5.2"/></svg>
+          <label class="visually-hidden" for="search-input">Search bosses</label>
+          <input id="search-input" type="text" placeholder="Search a boss by name…" autocomplete="off" />
+        </div>
+      </div>
+
+      <section class="wiki-regions-section" aria-label="Regions">
+        <div class="wiki-regions-heading">
+          <h2 id="regions-title">Regions</h2>
+          <span class="wiki-regions-heading-meta"><span id="regions-found-count">10</span> <span id="regions-shown-label">shown</span></span>
+        </div>
+
+        <div id="accordion" class="wiki-regions"></div>
+
+        <p id="empty-state" class="wiki-empty" hidden>Nothing found. Try a different search term.</p>
+      </section>
+
     </main>
 
   </div>
 
-  <!-- Lightbox — sibling of .page, like the auth/account modals, so its
-       fixed overlay isn't affected by any transform/opacity on .page. -->
-  <div class="lightbox-overlay" id="lightbox-overlay" hidden role="dialog" aria-modal="true" aria-label="Image viewer">
-    <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close">
-      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg>
-    </button>
-
-    <button type="button" class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Previous image">
-      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m15 6-6 6 6 6"/></svg>
-    </button>
-
-    <div class="lightbox-stage">
-      <img id="lightbox-image" class="lightbox-image" src="" alt="" />
-      <p class="lightbox-counter" id="lightbox-counter">1 / 20</p>
-    </div>
-
-    <button type="button" class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next image">
-      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></svg>
-    </button>
-  </div>
-
-  <!-- Auth / account modals — siblings of .page rather than nested
-       inside it (see the note in checklist.html for why). -->
+  <!-- Auth / account modals — siblings of .page (see the note in
+       checklist.html for why). -->
 
   <div class="modal-overlay" id="auth-modal" hidden>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
@@ -228,6 +230,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
   <script src="../scripts/firebase.js"></script>
   <script src="../scripts/auth.js"></script>
-  <script src="../scripts/gallery.js"></script>
+  <script src="../scripts/wiki.js"></script>
 </body>
 </html>

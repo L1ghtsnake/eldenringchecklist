@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Elden Ring Database — Gallery</title>
-  <meta name="description" content="A gallery of the Lands Between — twenty scenes from Elden Ring and Shadow of the Erdtree." />
+  <title>Elden Ring Database — Guide</title>
   <link rel="icon" type="image/png" href="../img/favicon.png" />
   <link rel="stylesheet" href="../css/style.css" />
-  <link rel="stylesheet" href="../css/gallery.css" />
+  <link rel="stylesheet" href="../css/wiki.css" />
 </head>
 <body>
-  <div class="page page-wide">
+  <div class="page">
 
     <header class="site-header">
       <a class="brand" href="../index.html" aria-label="Elden Ring Database — home">
@@ -19,8 +18,8 @@
           <img class="brand-logo" src="../img/logo-wordmark.webp" alt="Elden Ring" />
         </span>
         <div class="brand-text">
-          <p class="brand-eyebrow" id="brand-eyebrow">Gallery</p>
-          <h1 class="brand-title visually-hidden" id="brand-title">Elden Ring Database — Gallery</h1>
+          <p class="brand-eyebrow" id="brand-eyebrow">Guide</p>
+          <h1 class="brand-title visually-hidden" id="brand-title">Elden Ring Database — Guide</h1>
         </div>
       </a>
 
@@ -112,43 +111,78 @@
       </div>
     </header>
 
-    <main class="gallery-page">
-      <div class="gallery-intro">
-        <p class="gallery-eyebrow" id="gallery-eyebrow">Scenes</p>
-        <h1 class="gallery-title" id="gallery-title">Gallery of the Lands Between</h1>
-        <p class="gallery-subtitle" id="gallery-subtitle">Twenty views from Elden Ring and Shadow of the Erdtree. Click any scene to look closer.</p>
+    <main class="layout wiki-boss-page">
+
+      <a class="wiki-back-link" id="wiki-boss-back-link" href="wiki.html">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m15 6-6 6 6 6"/></svg>
+        <span id="wiki-boss-back-label">Back to guide</span>
+      </a>
+
+      <div id="wiki-boss-view">
+        <div class="wiki-boss-hero">
+          <h1 class="wiki-boss-name" id="wiki-boss-name">—</h1>
+          <p class="wiki-boss-meta">
+            <span id="wiki-boss-region">—</span>
+            <span class="wiki-boss-meta-dot" aria-hidden="true">·</span>
+            <span id="wiki-boss-game">—</span>
+          </p>
+          <p class="wiki-boss-tagline" id="wiki-boss-tagline" hidden></p>
+        </div>
+
+        <div class="wiki-boss-media" id="wiki-boss-media">
+          <img class="wiki-boss-photo" id="wiki-boss-photo" alt="" hidden />
+          <svg class="wiki-boss-media-icon" id="wiki-boss-media-icon" width="34" height="34" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="8.5" cy="9.5" r="1.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" d="m4 17 5-5 4 4 3-3 4 4"/></svg>
+          <p class="wiki-boss-media-text" id="wiki-boss-image-placeholder-text">Image coming soon</p>
+
+          <div class="wiki-boss-stats" id="wiki-boss-stats" hidden>
+            <span class="wiki-boss-stat">
+              <span class="wiki-boss-stat-label" id="wiki-boss-hp-label">HP</span>
+              <span class="wiki-boss-stat-value" id="wiki-boss-hp-value">—</span>
+            </span>
+            <span class="wiki-boss-stat-sep" aria-hidden="true"></span>
+            <span class="wiki-boss-stat">
+              <span class="wiki-boss-stat-label" id="wiki-boss-runes-label">Runes</span>
+              <span class="wiki-boss-stat-value" id="wiki-boss-runes-value">—</span>
+            </span>
+          </div>
+        </div>
+
+        <p class="wiki-boss-content-placeholder" id="wiki-boss-content-placeholder">The write-up for this boss is coming soon.</p>
+
+        <div id="wiki-boss-sections"></div>
+
+        <nav class="wiki-boss-pagination" aria-label="Boss navigation">
+          <a class="wiki-boss-nav-link wiki-boss-nav-link--prev" id="wiki-boss-prev" href="#">
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m15 6-6 6 6 6"/></svg>
+            <span class="wiki-boss-nav-text">
+              <span class="wiki-boss-nav-dir" id="wiki-boss-prev-dir">Previous</span>
+              <span class="wiki-boss-nav-name" id="wiki-boss-prev-label">—</span>
+            </span>
+          </a>
+          <a class="wiki-boss-nav-link wiki-boss-nav-link--next" id="wiki-boss-next" href="#">
+            <span class="wiki-boss-nav-text">
+              <span class="wiki-boss-nav-dir" id="wiki-boss-next-dir">Next</span>
+              <span class="wiki-boss-nav-name" id="wiki-boss-next-label">—</span>
+            </span>
+            <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></svg>
+          </a>
+        </nav>
       </div>
 
-      <div class="gallery-grid" id="gallery-grid" role="list"></div>
+      <div id="wiki-boss-not-found" class="wiki-not-found" hidden>
+        <h1 id="wiki-not-found-title">Boss not found</h1>
+        <p id="wiki-not-found-text">This boss doesn't exist or the link is broken.</p>
+        <a class="wiki-back-link" id="wiki-not-found-back" href="wiki.html">
+          <span id="wiki-not-found-back-label">Back to the guide</span>
+        </a>
+      </div>
 
-      <nav class="gallery-pagination" id="gallery-pagination" aria-label="Gallery pages"></nav>
     </main>
 
   </div>
 
-  <!-- Lightbox — sibling of .page, like the auth/account modals, so its
-       fixed overlay isn't affected by any transform/opacity on .page. -->
-  <div class="lightbox-overlay" id="lightbox-overlay" hidden role="dialog" aria-modal="true" aria-label="Image viewer">
-    <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close">
-      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg>
-    </button>
-
-    <button type="button" class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Previous image">
-      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m15 6-6 6 6 6"/></svg>
-    </button>
-
-    <div class="lightbox-stage">
-      <img id="lightbox-image" class="lightbox-image" src="" alt="" />
-      <p class="lightbox-counter" id="lightbox-counter">1 / 20</p>
-    </div>
-
-    <button type="button" class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next image">
-      <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></svg>
-    </button>
-  </div>
-
-  <!-- Auth / account modals — siblings of .page rather than nested
-       inside it (see the note in checklist.html for why). -->
+  <!-- Auth / account modals — siblings of .page (see the note in
+       checklist.html for why). -->
 
   <div class="modal-overlay" id="auth-modal" hidden>
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
@@ -228,6 +262,6 @@
   <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
   <script src="../scripts/firebase.js"></script>
   <script src="../scripts/auth.js"></script>
-  <script src="../scripts/gallery.js"></script>
+  <script src="../scripts/wiki-boss.js"></script>
 </body>
 </html>

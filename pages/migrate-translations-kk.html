@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<title>Добавление казахского языка — служебный инструмент</title>
+<style>
+  body { font-family: -apple-system, Arial, sans-serif; background: #14141a; color: #e8e6e0; padding: 24px; max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 20px; }
+  h2 { font-size: 16px; margin-top: 28px; border-bottom: 1px solid #333; padding-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+  th, td { text-align: left; padding: 4px 8px; border-bottom: 1px solid #2a2a30; }
+  th { color: #9a9690; font-weight: 600; }
+  .ok { color: #6fcf72; }
+  .warn { color: #e0a030; }
+  .err { color: #e05a5a; font-weight: 600; }
+  button { background: #7a3a3a; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-size: 14px; cursor: pointer; margin-top: 12px; }
+  button:disabled { background: #444; cursor: not-allowed; opacity: 0.6; }
+  button:hover:not(:disabled) { background: #963; }
+  #status { margin-top: 16px; padding: 10px; border-radius: 6px; background: #1e1e24; white-space: pre-wrap; }
+  code { background: #1e1e24; padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<h1>Служебная страница: добавление казахского языка в gameData/translations</h1>
+<p>Эта страница читает текущий документ <code>gameData/translations</code> (сейчас это плоская структура
+<code>{regions: {...}, bosses: {...}}</code> с русскими названиями), показывает предпросмотр (ничего не пишет),
+и только по нажатию кнопки перестраивает документ в новую форму
+<code>{ru: {regions, bosses}, kk: {regions, bosses}}</code> — старые русские названия переносятся как есть в <code>ru</code>,
+а казахские названия (из <code>kk-translations-data.js</code>) записываются в <code>kk</code>.</p>
+<p class="warn">Требует временных правил Firestore, разрешающих запись в <code>gameData</code> (см. чат). После записи не забудьте вернуть боевые правила.</p>
+
+<h2>1. Предпросмотр (только чтение)</h2>
+<div id="preview">Загрузка данных из Firestore…</div>
+
+<h2>2. Запись в Firestore</h2>
+<button id="writeBtn" disabled>Загрузка…</button>
+<div id="status"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="../scripts/firebase.js"></script>
+<script src="kk-translations-data.js"></script>
+<script>
+'use strict';
+
+const DOC_REF = () => db.collection('gameData').doc('translations');
+
+let fetchedData = null; // raw doc.data(), old flat shape
+let newDoc = null;      // computed new nested shape, ready to write
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+}
+
+async function loadAndPreview() {
+  const previewEl = document.getElementById('preview');
+  const writeBtn = document.getElementById('writeBtn');
+  try {
+    const snap = await DOC_REF().get();
+    fetchedData = snap.exists ? snap.data() : { regions: {}, bosses: {} };
+
+    const alreadyNested = !!(fetchedData.ru || fetchedData.kk);
+    const oldRegions = alreadyNested ? ((fetchedData.ru && fetchedData.ru.regions) || {}) : (fetchedData.regions || {});
+    const oldBosses = alreadyNested ? ((fetchedData.ru && fetchedData.ru.bosses) || {}) : (fetchedData.bosses || {});
+
+    newDoc = {
+      ru: { regions: oldRegions, bosses: oldBosses },
+      kk: { regions: KK_REGIONS, bosses: KK_BOSSES }
+    };
+
+    const regionIds = Object.keys(KK_REGIONS);
+    const bossIds = Object.keys(KK_BOSSES);
+    const missingRuRegions = regionIds.filter((id) => !oldRegions[id]);
+    const missingRuBosses = bossIds.filter((id) => !oldBosses[id]);
+
+    let html = '';
+    if (alreadyNested) {
+      html += `<p class="warn">Документ уже в новой (вложенной) форме — беру существующие ru-данные как есть и обновляю/добавляю kk-данные.</p>`;
+    }
+    html += `<p class="ok">Регионов на казахском: ${regionIds.length}. Боссов на казахском: ${bossIds.length}.</p>`;
+    if (missingRuRegions.length || missingRuBosses.length) {
+      html += `<p class="warn">В текущих ru-данных не найдено: ${missingRuRegions.length} регионов, ${missingRuBosses.length} боссов (не критично — просто разное покрытие между языками).</p>`;
+    }
+
+    let rows = '';
+    regionIds.forEach((id) => {
+      rows += `<tr><td><code>${id}</code></td><td>${escapeHtml(oldRegions[id] || '—')}</td><td>${escapeHtml(KK_REGIONS[id])}</td></tr>`;
+    });
+    html += `<h3>Регионы</h3><table><thead><tr><th>ID</th><th>RU (текущий)</th><th>KK (новый)</th></tr></thead><tbody>${rows}</tbody></table>`;
+
+    let bossRows = '';
+    bossIds.slice(0, 40).forEach((id) => {
+      bossRows += `<tr><td><code>${id}</code></td><td>${escapeHtml(oldBosses[id] || '—')}</td><td>${escapeHtml(KK_BOSSES[id])}</td></tr>`;
+    });
+    html += `<h3>Боссы (первые 40 из ${bossIds.length}, остальные будут записаны так же)</h3><table><thead><tr><th>ID</th><th>RU (текущий)</th><th>KK (новый)</th></tr></thead><tbody>${bossRows}</tbody></table>`;
+
+    previewEl.innerHTML = html;
+    writeBtn.disabled = false;
+    writeBtn.textContent = `Записать новый документ (ru + kk) в Firestore`;
+  } catch (err) {
+    console.error(err);
+    previewEl.innerHTML = `<p class="err">Ошибка чтения: ${err.message}. Проверьте, что временные правила Firestore для gameData уже включены.</p>`;
+  }
+}
+
+async function writeTranslations() {
+  const statusEl = document.getElementById('status');
+  const writeBtn = document.getElementById('writeBtn');
+  if (!newDoc) return;
+  writeBtn.disabled = true;
+  statusEl.textContent = 'Записываю…';
+  try {
+    await DOC_REF().set(newDoc);
+    statusEl.innerHTML = `<span class="ok">Готово! Документ gameData/translations теперь содержит ru и kk (${Object.keys(newDoc.kk.regions).length} регионов, ${Object.keys(newDoc.kk.bosses).length} боссов на казахском).</span>\nТеперь верните боевые правила Firestore (запрет записи в gameData) — см. чат.`;
+  } catch (err) {
+    console.error(err);
+    statusEl.innerHTML = `<span class="err">Ошибка записи: ${err.message}</span>`;
+    writeBtn.disabled = false;
+  }
+}
+
+document.getElementById('writeBtn').addEventListener('click', () => {
+  if (confirm('Перезаписать весь документ gameData/translations новой структурой {ru, kk}? Старые русские названия сохранятся внутри ru.')) {
+    writeTranslations();
+  }
+});
+
+loadAndPreview();
+</script>
+</body>
+</html>

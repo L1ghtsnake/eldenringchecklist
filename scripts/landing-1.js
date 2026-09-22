@@ -14,7 +14,6 @@
       navChecklist: 'Checklist',
       navMap: 'Map',
       navGallery: 'Gallery',
-      navGuide: 'Guide',
       langLabel: 'Language',
       themeLabel: 'Toggle dark or light theme',
       heroTitle: 'Welcome to the Lands Between',
@@ -55,7 +54,6 @@
       navChecklist: 'Чек-лист',
       navMap: 'Карта',
       navGallery: 'Галерея',
-      navGuide: 'Руководство',
       langLabel: 'Язык',
       themeLabel: 'Переключить тёмную или светлую тему',
       heroTitle: 'Добро пожаловать в Междуземье',
@@ -96,7 +94,6 @@
       navChecklist: 'Чек-лист',
       navMap: 'Карта',
       navGallery: 'Галерея',
-      navGuide: 'Нұсқаулық',
       langLabel: 'Тіл',
       themeLabel: 'Қараңғы немесе ашық тақырыпты ауыстыру',
       heroTitle: 'Аралық Жерге қош келдіңіз',
@@ -142,7 +139,6 @@
     els.navChecklistLabel = document.getElementById('nav-checklist-label');
     els.navMapLabel = document.getElementById('nav-map-label');
     els.navGalleryLabel = document.getElementById('nav-gallery-label');
-    els.navGuideLabel = document.getElementById('nav-guide-label');
     els.themeToggle = document.getElementById('theme-toggle');
     els.langFilterBtn = document.getElementById('lang-filter-btn');
     els.langFilterBtnLabel = document.getElementById('lang-filter-btn-label');
@@ -224,7 +220,6 @@
     if (els.navChecklistLabel) els.navChecklistLabel.textContent = t(lang, 'navChecklist');
     if (els.navMapLabel) els.navMapLabel.textContent = t(lang, 'navMap');
     if (els.navGalleryLabel) els.navGalleryLabel.textContent = t(lang, 'navGallery');
-    if (els.navGuideLabel) els.navGuideLabel.textContent = t(lang, 'navGuide');
     if (els.themeToggle) els.themeToggle.setAttribute('aria-label', t(lang, 'themeLabel'));
 
     if (els.heroTitle) els.heroTitle.textContent = t(lang, 'heroTitle');
