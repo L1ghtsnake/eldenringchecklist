@@ -195,6 +195,15 @@ body.is-ready .page {
    Header
    ========================================================================== */
 
+/* The header needs more room than most pages' own reading width (a
+   nav bar with five links plus the language/theme/account controls is
+   wider than an 880px article column) — rather than widen every
+   page's whole content column just for this, `.site-header` breaks
+   out of `.page`'s max-width/padding and centers its own, wider band
+   (up to 1400px) with the same 24px minimum side gutter `.page` uses.
+   This is what actually keeps the header on one line: without it, the
+   header would be capped at whatever the page's own max-width is,
+   regardless of how much room the rules below give it to work with. */
 .site-header {
   display: flex;
   align-items: center;
@@ -202,6 +211,13 @@ body.is-ready .page {
   gap: 16px;
   margin-bottom: 28px;
   flex-wrap: wrap;
+  width: 100vw;
+  max-width: 1400px;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding-left: max(24px, calc((100vw - 1400px) / 2 + 24px));
+  padding-right: max(24px, calc((100vw - 1400px) / 2 + 24px));
+  box-sizing: border-box;
 }
 
 .brand {
@@ -403,36 +419,6 @@ a.brand:focus-visible .brand-logo-lockup {
 .menu-nav-link:focus-visible::after {
   transform: scaleX(1);
   transform-origin: left center;
-}
-
-/* On desktop the nav links get their own full-width row under the
-   brand/controls line, instead of being loosely mixed in with the
-   language/theme/account icons inside `.header-controls` (which made
-   the header look uneven — different-height items packed together
-   with no separation). `.menu-section--nav` breaks out of the normal
-   `display: contents` flattening here, becomes its own flex row, and
-   is pushed after the other sections with `order` + forced to full
-   width with `flex-basis: 100%`, so it wraps onto a clean line of its
-   own inside `.header-controls`. Guarded to desktop only — the mobile
-   burger-menu rules below fully re-style `.menu-section--nav` for the
-   stacked dropdown and must win there untouched. */
-@media (min-width: 641px) {
-  .header-controls {
-    justify-content: flex-end;
-  }
-
-  .menu-section--nav {
-    display: flex;
-    order: 3;
-    flex-basis: 100%;
-    width: 100%;
-    justify-content: center;
-    align-items: center;
-    gap: 30px;
-    margin-top: 14px;
-    padding-top: 14px;
-    border-top: 1px solid var(--border-soft);
-  }
 }
 
 /* Login button grows a short subtitle once it's stacked in the mobile
@@ -2108,7 +2094,7 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
   .region-mini-bar { display: block; }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 1180px) {
   .page { padding: 20px 14px 48px; }
   .overview-card { padding: 20px; gap: 20px; }
   .site-header { gap: 12px; }
