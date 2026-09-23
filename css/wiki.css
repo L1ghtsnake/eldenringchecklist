@@ -701,6 +701,7 @@ html[data-theme='light'] .wiki-boss-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
+  margin-top: 36px;
 }
 
 .wiki-boss-nav-link {
