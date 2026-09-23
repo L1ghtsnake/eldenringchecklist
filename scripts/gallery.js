@@ -6,7 +6,7 @@
   const THEME_KEY = 'eldenRingBossChecklistTheme';
   const LANG_KEY = 'eldenRingBossChecklistLang';
 
-  const PAGE_SIZE = 8;
+  const PAGE_SIZE = 9;
 
   /* Twenty real screenshots — ten from Elden Ring, ten from Shadow of
      the Erdtree — sourced from the games' own official Steam store

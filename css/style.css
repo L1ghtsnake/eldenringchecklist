@@ -405,6 +405,36 @@ a.brand:focus-visible .brand-logo-lockup {
   transform-origin: left center;
 }
 
+/* On desktop the nav links get their own full-width row under the
+   brand/controls line, instead of being loosely mixed in with the
+   language/theme/account icons inside `.header-controls` (which made
+   the header look uneven — different-height items packed together
+   with no separation). `.menu-section--nav` breaks out of the normal
+   `display: contents` flattening here, becomes its own flex row, and
+   is pushed after the other sections with `order` + forced to full
+   width with `flex-basis: 100%`, so it wraps onto a clean line of its
+   own inside `.header-controls`. Guarded to desktop only — the mobile
+   burger-menu rules below fully re-style `.menu-section--nav` for the
+   stacked dropdown and must win there untouched. */
+@media (min-width: 641px) {
+  .header-controls {
+    justify-content: flex-end;
+  }
+
+  .menu-section--nav {
+    display: flex;
+    order: 3;
+    flex-basis: 100%;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-soft);
+  }
+}
+
 /* Login button grows a short subtitle once it's stacked in the mobile
    menu; `display: contents` keeps it invisible-in-layout on desktop so
    the button stays a plain round icon there. */
