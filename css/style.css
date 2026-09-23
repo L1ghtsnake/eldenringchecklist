@@ -213,7 +213,14 @@ body.is-ready .page {
   flex-wrap: wrap;
   width: 100vw;
   max-width: 1400px;
-  margin-left: calc(50% - 50vw);
+  /* `100vw` measures the full window, including the space
+     `scrollbar-gutter: stable` (see the `html` rule) permanently
+     reserves for the scrollbar — but `.page`'s own centering doesn't
+     see that reserved space at all, since it's sized off `body`'s
+     narrower visible content box. That mismatch is what made this
+     bleed sit very slightly left of `.page` below it; nudging the
+     left margin a few pixels closes the gap. */
+  margin-left: calc(50% - 50vw + 8px);
   margin-right: calc(50% - 50vw);
   padding-left: max(24px, calc((100vw - 1400px) / 2 + 24px));
   padding-right: max(24px, calc((100vw - 1400px) / 2 + 24px));
