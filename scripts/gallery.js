@@ -40,7 +40,13 @@
       closeImage: 'Close',
       pageLabel: 'Page',
       menuAccountLabel: 'Account',
-      menuPrefsLabel: 'Preferences'
+      menuPrefsLabel: 'Preferences',
+      menuNavLabel: 'Navigation',
+      navHome: 'Home',
+      navGuide: 'Guide',
+      navMap: 'Map',
+      navChecklist: 'Checklist',
+      navGallery: 'Gallery'
     },
     ru: {
       docTitle: 'Elden Ring Database — Галерея',
@@ -59,7 +65,13 @@
       closeImage: 'Закрыть',
       pageLabel: 'Страница',
       menuAccountLabel: 'Аккаунт',
-      menuPrefsLabel: 'Настройки'
+      menuPrefsLabel: 'Настройки',
+      menuNavLabel: 'Навигация',
+      navHome: 'Главная',
+      navGuide: 'Руководство',
+      navMap: 'Карта',
+      navChecklist: 'Чек-лист',
+      navGallery: 'Галерея'
     },
     kk: {
       docTitle: 'Elden Ring Database — Галерея',
@@ -78,7 +90,13 @@
       closeImage: 'Жабу',
       pageLabel: 'Бет',
       menuAccountLabel: 'Аккаунт',
-      menuPrefsLabel: 'Баптаулар'
+      menuPrefsLabel: 'Баптаулар',
+      menuNavLabel: 'Навигация',
+      navHome: 'Басты бет',
+      navGuide: 'Нұсқаулық',
+      navMap: 'Карта',
+      navChecklist: 'Чек-лист',
+      navGallery: 'Галерея'
     }
   };
 
@@ -101,6 +119,12 @@
     els.langOptions = document.querySelectorAll('.lang-option');
     els.menuAccountLabel = document.getElementById('menu-account-label');
     els.menuPrefsLabel = document.getElementById('menu-prefs-label');
+    els.menuNavLabel = document.getElementById('menu-nav-label');
+    els.navHomeLabel = document.getElementById('nav-home-label');
+    els.navGuideLabel = document.getElementById('nav-guide-label');
+    els.navMapLabel = document.getElementById('nav-map-label');
+    els.navChecklistLabel = document.getElementById('nav-checklist-label');
+    els.navGalleryLabel = document.getElementById('nav-gallery-label');
     els.burgerMenu = document.getElementById('burger-menu');
     els.burgerBtn = document.getElementById('burger-btn');
     els.headerControls = document.getElementById('header-controls');
@@ -154,7 +178,6 @@
     pageImages.forEach((image, i) => {
       const globalIndex = start + i;
       const alt = image.game === 'eldenring' ? t('tileAltElden') : t('tileAltShadow');
-      const badge = image.game === 'eldenring' ? t('badgeElden') : t('badgeShadow');
 
       const tile = document.createElement('button');
       tile.type = 'button';
@@ -164,7 +187,6 @@
       tile.style.animationDelay = (i * 45) + 'ms';
       tile.innerHTML = `
         <img src="${image.thumb}" alt="${alt}" loading="lazy" />
-        <span class="gallery-tile-badge">${badge}</span>
         <span class="gallery-tile-zoom" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3M11 8v6M8 11h6"/></svg>
         </span>
@@ -301,6 +323,12 @@
     if (els.themeToggle) els.themeToggle.setAttribute('aria-label', t('themeLabel'));
     if (els.menuAccountLabel) els.menuAccountLabel.textContent = t('menuAccountLabel');
     if (els.menuPrefsLabel) els.menuPrefsLabel.textContent = t('menuPrefsLabel');
+    if (els.menuNavLabel) els.menuNavLabel.textContent = t('menuNavLabel');
+    if (els.navHomeLabel) els.navHomeLabel.textContent = t('navHome');
+    if (els.navGuideLabel) els.navGuideLabel.textContent = t('navGuide');
+    if (els.navMapLabel) els.navMapLabel.textContent = t('navMap');
+    if (els.navChecklistLabel) els.navChecklistLabel.textContent = t('navChecklist');
+    if (els.navGalleryLabel) els.navGalleryLabel.textContent = t('navGallery');
 
     if (els.galleryEyebrow) els.galleryEyebrow.textContent = t('galleryEyebrow');
     if (els.galleryTitle) els.galleryTitle.textContent = t('galleryTitle');

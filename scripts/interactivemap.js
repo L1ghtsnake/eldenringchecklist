@@ -16,7 +16,13 @@
       mapSubtitle: 'Every region, legacy dungeon and point of interest — pan and zoom to plan your next route. Map data provided by mapgenie.io.',
       mapCredit: 'Map powered by',
       menuAccountLabel: 'Account',
-      menuPrefsLabel: 'Preferences'
+      menuPrefsLabel: 'Preferences',
+      menuNavLabel: 'Navigation',
+      navHome: 'Home',
+      navGuide: 'Guide',
+      navMap: 'Map',
+      navChecklist: 'Checklist',
+      navGallery: 'Gallery'
     },
     ru: {
       docTitle: 'Elden Ring Database — Интерактивная карта',
@@ -27,7 +33,13 @@
       mapSubtitle: 'Каждый регион, подземелье и точка интереса — двигайте и увеличивайте карту, чтобы спланировать маршрут. Данные карты предоставлены mapgenie.io.',
       mapCredit: 'Карта на основе',
       menuAccountLabel: 'Аккаунт',
-      menuPrefsLabel: 'Настройки'
+      menuPrefsLabel: 'Настройки',
+      menuNavLabel: 'Навигация',
+      navHome: 'Главная',
+      navGuide: 'Руководство',
+      navMap: 'Карта',
+      navChecklist: 'Чек-лист',
+      navGallery: 'Галерея'
     },
     kk: {
       docTitle: 'Elden Ring Database — Интерактивті карта',
@@ -38,7 +50,13 @@
       mapSubtitle: 'Әр аймақ, зындан және қызықты нүкте — келесі бағытыңызды жоспарлау үшін картаны жылжытып, үлкейтіп қараңыз. Карта деректерін mapgenie.io ұсынды.',
       mapCredit: 'Карта негізі',
       menuAccountLabel: 'Аккаунт',
-      menuPrefsLabel: 'Баптаулар'
+      menuPrefsLabel: 'Баптаулар',
+      menuNavLabel: 'Навигация',
+      navHome: 'Басты бет',
+      navGuide: 'Нұсқаулық',
+      navMap: 'Карта',
+      navChecklist: 'Чек-лист',
+      navGallery: 'Галерея'
     }
   };
 
@@ -59,6 +77,12 @@
     els.langOptions = document.querySelectorAll('.lang-option');
     els.menuAccountLabel = document.getElementById('menu-account-label');
     els.menuPrefsLabel = document.getElementById('menu-prefs-label');
+    els.menuNavLabel = document.getElementById('menu-nav-label');
+    els.navHomeLabel = document.getElementById('nav-home-label');
+    els.navGuideLabel = document.getElementById('nav-guide-label');
+    els.navMapLabel = document.getElementById('nav-map-label');
+    els.navChecklistLabel = document.getElementById('nav-checklist-label');
+    els.navGalleryLabel = document.getElementById('nav-gallery-label');
     els.burgerMenu = document.getElementById('burger-menu');
     els.burgerBtn = document.getElementById('burger-btn');
     els.headerControls = document.getElementById('header-controls');
@@ -107,6 +131,12 @@
     if (els.themeToggle) els.themeToggle.setAttribute('aria-label', t('themeLabel'));
     if (els.menuAccountLabel) els.menuAccountLabel.textContent = t('menuAccountLabel');
     if (els.menuPrefsLabel) els.menuPrefsLabel.textContent = t('menuPrefsLabel');
+    if (els.menuNavLabel) els.menuNavLabel.textContent = t('menuNavLabel');
+    if (els.navHomeLabel) els.navHomeLabel.textContent = t('navHome');
+    if (els.navGuideLabel) els.navGuideLabel.textContent = t('navGuide');
+    if (els.navMapLabel) els.navMapLabel.textContent = t('navMap');
+    if (els.navChecklistLabel) els.navChecklistLabel.textContent = t('navChecklist');
+    if (els.navGalleryLabel) els.navGalleryLabel.textContent = t('navGallery');
 
     if (els.mapEyebrow) els.mapEyebrow.textContent = t('mapEyebrow');
     if (els.mapTitle) els.mapTitle.textContent = t('mapTitle');

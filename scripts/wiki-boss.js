@@ -29,6 +29,12 @@ const i18n = {
     notFoundBack: 'Back to the guide',
     menuAccountLabel: 'Account',
     menuPrefsLabel: 'Preferences',
+    menuNavLabel: 'Navigation',
+    navHome: 'Home',
+    navGuide: 'Guide',
+    navMap: 'Map',
+    navChecklist: 'Checklist',
+    navGallery: 'Gallery',
     hpLabel: 'HP',
     runesLabel: 'Runes',
     descriptionTitle: 'Description',
@@ -62,6 +68,12 @@ const i18n = {
     notFoundBack: 'Вернуться в руководство',
     menuAccountLabel: 'Аккаунт',
     menuPrefsLabel: 'Настройки',
+    menuNavLabel: 'Навигация',
+    navHome: 'Главная',
+    navGuide: 'Руководство',
+    navMap: 'Карта',
+    navChecklist: 'Чек-лист',
+    navGallery: 'Галерея',
     hpLabel: 'Здоровье',
     runesLabel: 'Руны',
     descriptionTitle: 'Описание',
@@ -95,6 +107,12 @@ const i18n = {
     notFoundBack: 'Нұсқаулыққа оралу',
     menuAccountLabel: 'Аккаунт',
     menuPrefsLabel: 'Баптаулар',
+    menuNavLabel: 'Навигация',
+    navHome: 'Басты бет',
+    navGuide: 'Нұсқаулық',
+    navMap: 'Карта',
+    navChecklist: 'Чек-лист',
+    navGallery: 'Галерея',
     hpLabel: 'HP',
     runesLabel: 'Рундар',
     descriptionTitle: 'Сипаттама',
@@ -135,6 +153,12 @@ function cacheDom() {
   els.langOptions = document.querySelectorAll('.lang-option');
   els.menuAccountLabel = document.getElementById('menu-account-label');
   els.menuPrefsLabel = document.getElementById('menu-prefs-label');
+  els.menuNavLabel = document.getElementById('menu-nav-label');
+  els.navHomeLabel = document.getElementById('nav-home-label');
+  els.navGuideLabel = document.getElementById('nav-guide-label');
+  els.navMapLabel = document.getElementById('nav-map-label');
+  els.navChecklistLabel = document.getElementById('nav-checklist-label');
+  els.navGalleryLabel = document.getElementById('nav-gallery-label');
   els.burgerMenu = document.getElementById('burger-menu');
   els.burgerBtn = document.getElementById('burger-btn');
   els.headerControls = document.getElementById('header-controls');
@@ -610,6 +634,12 @@ function applyLanguage(lang) {
   if (els.themeToggle) els.themeToggle.setAttribute('aria-label', t('themeLabel'));
   if (els.menuAccountLabel) els.menuAccountLabel.textContent = t('menuAccountLabel');
   if (els.menuPrefsLabel) els.menuPrefsLabel.textContent = t('menuPrefsLabel');
+  if (els.menuNavLabel) els.menuNavLabel.textContent = t('menuNavLabel');
+  if (els.navHomeLabel) els.navHomeLabel.textContent = t('navHome');
+  if (els.navGuideLabel) els.navGuideLabel.textContent = t('navGuide');
+  if (els.navMapLabel) els.navMapLabel.textContent = t('navMap');
+  if (els.navChecklistLabel) els.navChecklistLabel.textContent = t('navChecklist');
+  if (els.navGalleryLabel) els.navGalleryLabel.textContent = t('navGallery');
 
   renderBoss();
 

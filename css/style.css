@@ -361,6 +361,50 @@ a.brand:focus-visible .brand-logo-lockup {
   display: none;
 }
 
+/* Plain text nav links (Home/Guide/Map/Checklist/Gallery) added to every
+   subpage header so users aren't stuck relying on the browser back
+   button — desktop look matches the animated-underline nav links used
+   on the landing page's own header. */
+.menu-nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 4px;
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--dur-fast) var(--ease-soft);
+}
+
+.menu-nav-link::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 10px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform var(--dur-fast) var(--ease-soft);
+}
+
+.menu-nav-link:hover,
+.menu-nav-link:focus-visible {
+  color: var(--cta);
+}
+
+.menu-nav-link:hover::after,
+.menu-nav-link:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
 /* Login button grows a short subtitle once it's stacked in the mobile
    menu; `display: contents` keeps it invisible-in-layout on desktop so
    the button stays a plain round icon there. */
@@ -2089,6 +2133,8 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
     gap: 6px;
   }
 
+  .menu-section--nav { order: -2; }
+
   .menu-section--account { order: -1; }
 
   .menu-section--prefs { margin-top: 14px; }
@@ -2202,6 +2248,21 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
      letting the group's `overflow: hidden` clip it at the group edge. */
   .header-controls .icon-btn:focus-visible {
     outline-offset: -2px;
+  }
+
+  .header-controls .menu-nav-link {
+    width: 100%;
+    height: 44px;
+    padding: 0 12px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: var(--text-primary);
+  }
+
+  .header-controls .menu-nav-link::after {
+    display: none;
   }
 
   /* Login button grows a subtitle once stacked in the menu, so it needs
