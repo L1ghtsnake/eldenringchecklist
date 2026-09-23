@@ -464,7 +464,16 @@ function renderSections(detail) {
     }
   }
 
-  if (d.attacks && d.attacks.length) {
+  if (d.attackPhases && d.attackPhases.length) {
+    els.sections.appendChild(createSectionHeading(t('attacksTitle')));
+    d.attackPhases.forEach((phase) => {
+      if (phase.heading) {
+        els.sections.appendChild(createTextBlock('h3', 'wiki-phase-heading', phase.heading));
+      }
+      if (phase.intro) els.sections.appendChild(createRichTextBlock('p', 'wiki-section-text', phase.intro));
+      if (phase.items && phase.items.length) els.sections.appendChild(createBulletList(phase.items));
+    });
+  } else if (d.attacks && d.attacks.length) {
     els.sections.appendChild(createSectionHeading(t('attacksTitle')));
     if (d.attacksIntro) els.sections.appendChild(createRichTextBlock('p', 'wiki-section-text', d.attacksIntro));
     els.sections.appendChild(createBulletList(d.attacks));

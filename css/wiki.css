@@ -503,6 +503,17 @@ html[data-theme='light'] .wiki-boss-stats {
   text-decoration-color: var(--cta);
 }
 
+.wiki-phase-heading {
+  margin: 22px 0 10px;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: var(--text-primary, var(--cta));
+}
+
+.wiki-phase-heading:first-child { margin-top: 0; }
+
 /* ---- Boss/lore quotes: a standalone highlighted block, distinct from
    regular body copy, with large decorative quotation marks. ---- */
 
