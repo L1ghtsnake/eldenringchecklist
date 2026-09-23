@@ -176,7 +176,7 @@ button, input {
    ========================================================================== */
 
 .page {
-  max-width: 1300px;
+  max-width: 880px;
   margin: 0 auto;
   padding: 32px 24px 64px;
   opacity: 0;
@@ -195,12 +195,6 @@ body.is-ready .page {
    Header
    ========================================================================== */
 
-/* `.page` is wide enough (1300px) that the header — brand, five nav
-   links, language/theme/account controls — fits on one line within
-   it just like any other content on the page, so the header shares
-   the exact same box as everything below it instead of trying to
-   bleed to its own wider, separately-centered band (that approach
-   fought `scrollbar-gutter: stable` and never lined up right). */
 .site-header {
   display: flex;
   align-items: center;
@@ -365,50 +359,6 @@ a.brand:focus-visible .brand-logo-lockup {
 
 .menu-group-divider {
   display: none;
-}
-
-/* Plain text nav links (Home/Guide/Map/Checklist/Gallery) added to every
-   subpage header so users aren't stuck relying on the browser back
-   button — desktop look matches the animated-underline nav links used
-   on the landing page's own header. */
-.menu-nav-link {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  height: 40px;
-  padding: 0 4px;
-  color: var(--text-secondary);
-  font-size: 12.5px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  text-decoration: none;
-  white-space: nowrap;
-  transition: color var(--dur-fast) var(--ease-soft);
-}
-
-.menu-nav-link::after {
-  content: '';
-  position: absolute;
-  left: 4px;
-  right: 4px;
-  bottom: 10px;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: right center;
-  transition: transform var(--dur-fast) var(--ease-soft);
-}
-
-.menu-nav-link:hover,
-.menu-nav-link:focus-visible {
-  color: var(--cta);
-}
-
-.menu-nav-link:hover::after,
-.menu-nav-link:focus-visible::after {
-  transform: scaleX(1);
-  transform-origin: left center;
 }
 
 /* Login button grows a short subtitle once it's stacked in the mobile
@@ -2084,7 +2034,7 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
   .region-mini-bar { display: block; }
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 640px) {
   .page { padding: 20px 14px 48px; }
   .overview-card { padding: 20px; gap: 20px; }
   .site-header { gap: 12px; }
@@ -2138,8 +2088,6 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
     width: 100%;
     gap: 6px;
   }
-
-  .menu-section--nav { order: -2; }
 
   .menu-section--account { order: -1; }
 
@@ -2254,21 +2202,6 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
      letting the group's `overflow: hidden` clip it at the group edge. */
   .header-controls .icon-btn:focus-visible {
     outline-offset: -2px;
-  }
-
-  .header-controls .menu-nav-link {
-    width: 100%;
-    height: 44px;
-    padding: 0 12px;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    text-transform: none;
-    color: var(--text-primary);
-  }
-
-  .header-controls .menu-nav-link::after {
-    display: none;
   }
 
   /* Login button grows a subtitle once stacked in the menu, so it needs

@@ -83,12 +83,6 @@ const i18n = {
     languageLabel: 'Language',
     menuAccountLabel: 'Account',
     menuPrefsLabel: 'Preferences',
-    menuNavLabel: 'Navigation',
-    navHome: 'Home',
-    navGuide: 'Guide',
-    navMap: 'Map',
-    navChecklist: 'Checklist',
-    navGallery: 'Gallery'
   },
   ru: {
     eyebrow: 'Чек-лист боссов',
@@ -121,12 +115,6 @@ const i18n = {
     languageLabel: 'Язык',
     menuAccountLabel: 'Аккаунт',
     menuPrefsLabel: 'Настройки',
-    menuNavLabel: 'Навигация',
-    navHome: 'Главная',
-    navGuide: 'Руководство',
-    navMap: 'Карта',
-    navChecklist: 'Чек-лист',
-    navGallery: 'Галерея'
   },
   kk: {
     eyebrow: 'Боссы чек-листі',
@@ -159,12 +147,6 @@ const i18n = {
     languageLabel: 'Тіл',
     menuAccountLabel: 'Аккаунт',
     menuPrefsLabel: 'Баптаулар',
-    menuNavLabel: 'Навигация',
-    navHome: 'Басты бет',
-    navGuide: 'Нұсқаулық',
-    navMap: 'Карта',
-    navChecklist: 'Чек-лист',
-    navGallery: 'Галерея'
   }
 };
 
@@ -201,12 +183,6 @@ function cacheDom() {
   els.resetLabel = document.getElementById('reset-label');
   els.menuAccountLabel = document.getElementById('menu-account-label');
   els.menuPrefsLabel = document.getElementById('menu-prefs-label');
-  els.menuNavLabel = document.getElementById('menu-nav-label');
-  els.navHomeLabel = document.getElementById('nav-home-label');
-  els.navGuideLabel = document.getElementById('nav-guide-label');
-  els.navMapLabel = document.getElementById('nav-map-label');
-  els.navChecklistLabel = document.getElementById('nav-checklist-label');
-  els.navGalleryLabel = document.getElementById('nav-gallery-label');
   els.categoryFilterBtn = document.getElementById('category-filter-btn');
   els.categoryFilterPanel = document.getElementById('category-filter-panel');
   els.categoryCheckboxes = document.querySelectorAll('.category-checkbox');
@@ -290,12 +266,6 @@ function refreshFooterText() {
 function refreshMenuSectionText() {
   if (els.menuAccountLabel) els.menuAccountLabel.textContent = t('menuAccountLabel');
   if (els.menuPrefsLabel) els.menuPrefsLabel.textContent = t('menuPrefsLabel');
-  if (els.menuNavLabel) els.menuNavLabel.textContent = t('menuNavLabel');
-  if (els.navHomeLabel) els.navHomeLabel.textContent = t('navHome');
-  if (els.navGuideLabel) els.navGuideLabel.textContent = t('navGuide');
-  if (els.navMapLabel) els.navMapLabel.textContent = t('navMap');
-  if (els.navChecklistLabel) els.navChecklistLabel.textContent = t('navChecklist');
-  if (els.navGalleryLabel) els.navGalleryLabel.textContent = t('navGallery');
 }
 
 function refreshCategoryFilterText() {
