@@ -43,7 +43,8 @@ const i18n = {
     lootTitle: 'Items',
     lootNameHeader: 'Name',
     lootChanceHeader: 'Drop chance',
-    notesTitle: 'Notes'
+    notesTitle: 'Notes',
+    triviaTitle: 'Trivia'
   },
   ru: {
     docTitlePrefix: 'Elden Ring Database — ',
@@ -75,7 +76,8 @@ const i18n = {
     lootTitle: 'Предметы',
     lootNameHeader: 'Название',
     lootChanceHeader: 'Шанс выпадения',
-    notesTitle: 'Примечания'
+    notesTitle: 'Примечания',
+    triviaTitle: 'Интересные факты'
   },
   kk: {
     docTitlePrefix: 'Elden Ring Database — ',
@@ -107,7 +109,8 @@ const i18n = {
     lootTitle: 'Заттар',
     lootNameHeader: 'Атауы',
     lootChanceHeader: 'Түсу мүмкіндігі',
-    notesTitle: 'Ескертпелер'
+    notesTitle: 'Ескертпелер',
+    triviaTitle: 'Қызықты деректер'
   }
 };
 
@@ -266,11 +269,21 @@ function createSectionHeading(titleText) {
 }
 
 function createBulletList(items) {
+  // Each item is either a plain string, or { text, sub: [strings] } for a
+  // one-level-nested sub-bullet (used by tactics lists that call out an
+  // alternative approach under one of the main points).
   const ul = document.createElement('ul');
   ul.className = 'wiki-bullet-list';
   items.forEach((item) => {
     const li = document.createElement('li');
-    li.textContent = item;
+    if (typeof item === 'string') {
+      li.textContent = item;
+    } else {
+      li.textContent = item.text;
+      if (item.sub && item.sub.length) {
+        li.appendChild(createBulletList(item.sub));
+      }
+    }
     ul.appendChild(li);
   });
   return ul;
@@ -312,7 +325,7 @@ function createLootTable(nameHeader, chanceHeader, items) {
   items.forEach((item) => {
     const tr = document.createElement('tr');
     tr.appendChild(createTextBlock('td', '', item.name));
-    tr.appendChild(createTextBlock('td', 'wiki-table-num', item.chance));
+    tr.appendChild(createTextBlock('td', 'wiki-table-num', item.chance || '—'));
     table.appendChild(tr);
   });
 
@@ -347,12 +360,20 @@ function renderSections(detail) {
 
   if (d.description) {
     els.sections.appendChild(createSectionHeading(t('descriptionTitle')));
-    els.sections.appendChild(createTextBlock('p', 'wiki-section-text', d.description));
+    d.description.split('\n').filter(Boolean).forEach((para) => {
+      els.sections.appendChild(createTextBlock('p', 'wiki-section-text', para));
+    });
+    if (d.descriptionList && d.descriptionList.length) {
+      els.sections.appendChild(createBulletList(d.descriptionList));
+    }
   }
 
   if (d.location) {
     els.sections.appendChild(createSectionHeading(t('locationTitle')));
     els.sections.appendChild(createTextBlock('p', 'wiki-section-text', d.location));
+    if (d.locationExtra && d.locationExtra.length) {
+      els.sections.appendChild(createBulletList(d.locationExtra));
+    }
   }
 
   if (d.resistances) {
@@ -371,11 +392,16 @@ function renderSections(detail) {
     els.sections.appendChild(createBulletList(d.attacks));
   }
 
-  if (d.tactics) {
+  if (d.tactics || (d.tacticsList && d.tacticsList.length)) {
     els.sections.appendChild(createSectionHeading(t('tacticsTitle')));
-    d.tactics.split('\n').filter(Boolean).forEach((para) => {
-      els.sections.appendChild(createTextBlock('p', 'wiki-section-text', para));
-    });
+    if (d.tactics) {
+      d.tactics.split('\n').filter(Boolean).forEach((para) => {
+        els.sections.appendChild(createTextBlock('p', 'wiki-section-text', para));
+      });
+    }
+    if (d.tacticsList && d.tacticsList.length) {
+      els.sections.appendChild(createBulletList(d.tacticsList));
+    }
   }
 
   if (d.loot && d.loot.length) {
@@ -385,7 +411,13 @@ function renderSections(detail) {
 
   if (d.notes && d.notes.length) {
     els.sections.appendChild(createSectionHeading(t('notesTitle')));
+    if (d.notesIntro) els.sections.appendChild(createTextBlock('p', 'wiki-section-text', d.notesIntro));
     els.sections.appendChild(createBulletList(d.notes));
+  }
+
+  if (d.trivia) {
+    els.sections.appendChild(createSectionHeading(t('triviaTitle')));
+    els.sections.appendChild(createTextBlock('p', 'wiki-section-text', d.trivia));
   }
 }
 
