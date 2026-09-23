@@ -387,6 +387,25 @@ function renderSections(detail) {
     if (els.runesValue) els.runesValue.textContent = detail.runes != null ? detail.runes : '—';
   }
 
+  if (d.quote && d.quote.text) {
+    const quoteBlock = document.createElement('blockquote');
+    quoteBlock.className = 'wiki-quote';
+
+    const quoteText = document.createElement('p');
+    quoteText.className = 'wiki-quote-text';
+    quoteText.textContent = d.quote.text;
+    quoteBlock.appendChild(quoteText);
+
+    if (d.quote.author) {
+      const quoteAuthor = document.createElement('footer');
+      quoteAuthor.className = 'wiki-quote-author';
+      quoteAuthor.textContent = `~ ${d.quote.author}`;
+      quoteBlock.appendChild(quoteAuthor);
+    }
+
+    els.sections.appendChild(quoteBlock);
+  }
+
   if (d.description) {
     els.sections.appendChild(createSectionHeading(t('descriptionTitle')));
     d.description.split('\n').filter(Boolean).forEach((para) => {

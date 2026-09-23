@@ -490,6 +490,61 @@ html[data-theme='light'] .wiki-boss-stats {
 
 .wiki-section-text:last-child { margin-bottom: 0; }
 
+/* ---- Boss/lore quotes: a standalone highlighted block, distinct from
+   regular body copy, with large decorative quotation marks. ---- */
+
+.wiki-quote {
+  position: relative;
+  margin: 0 0 24px;
+  padding: 30px 44px 26px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-left: 3px solid var(--cta);
+  border-radius: 8px;
+}
+
+.wiki-quote::before,
+.wiki-quote::after {
+  position: absolute;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 46px;
+  line-height: 1;
+  color: var(--cta);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.wiki-quote::before {
+  content: '\201C';
+  top: 8px;
+  left: 14px;
+}
+
+.wiki-quote::after {
+  content: '\201D';
+  bottom: -10px;
+  right: 16px;
+}
+
+.wiki-quote-text {
+  margin: 0 0 14px;
+  font-size: 16px;
+  line-height: 1.75;
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.wiki-quote-text:last-child { margin-bottom: 0; }
+
+.wiki-quote-author {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--cta);
+  text-align: right;
+}
+
+
 .wiki-bullet-list {
   margin: 0;
   padding: 0;
