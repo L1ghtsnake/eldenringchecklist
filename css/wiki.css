@@ -490,6 +490,19 @@ html[data-theme='light'] .wiki-boss-stats {
 
 .wiki-section-text:last-child { margin-bottom: 0; }
 
+.wiki-inline-link {
+  color: var(--cta);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: rgba(255, 255, 255, 0.35);
+  transition: text-decoration-color 0.15s ease;
+}
+
+.wiki-inline-link:hover,
+.wiki-inline-link:focus-visible {
+  text-decoration-color: var(--cta);
+}
+
 /* ---- Boss/lore quotes: a standalone highlighted block, distinct from
    regular body copy, with large decorative quotation marks. ---- */
 

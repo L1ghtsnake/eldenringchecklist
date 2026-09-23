@@ -261,6 +261,36 @@ function createTextBlock(tag, className, text) {
   return el;
 }
 
+// Parses simple `[label](https://...)` markdown-style links inside a plain
+// text string and renders them as real, clickable anchor tags, leaving
+// everything else as plain text. Used for the few fields (description,
+// location, tactics, notes intro, trivia) where a boss entry needs to point
+// the reader at another page instead of repeating its full content.
+function createRichTextBlock(tag, className, text) {
+  const el = document.createElement(tag);
+  if (className) el.className = className;
+  const linkPattern = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+  let lastIndex = 0;
+  let match;
+  while ((match = linkPattern.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      el.appendChild(document.createTextNode(text.slice(lastIndex, match.index)));
+    }
+    const a = document.createElement('a');
+    a.href = match[2];
+    a.textContent = match[1];
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.className = 'wiki-inline-link';
+    el.appendChild(a);
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) {
+    el.appendChild(document.createTextNode(text.slice(lastIndex)));
+  }
+  return el;
+}
+
 function createSectionHeading(titleText) {
   const heading = document.createElement('h2');
   heading.className = 'wiki-section-title';
@@ -409,7 +439,7 @@ function renderSections(detail) {
   if (d.description) {
     els.sections.appendChild(createSectionHeading(t('descriptionTitle')));
     d.description.split('\n').filter(Boolean).forEach((para) => {
-      els.sections.appendChild(createTextBlock('p', 'wiki-section-text', para));
+      els.sections.appendChild(createRichTextBlock('p', 'wiki-section-text', para));
     });
     if (d.descriptionList && d.descriptionList.length) {
       els.sections.appendChild(createBulletList(d.descriptionList));
@@ -418,7 +448,7 @@ function renderSections(detail) {
 
   if (d.location) {
     els.sections.appendChild(createSectionHeading(t('locationTitle')));
-    els.sections.appendChild(createTextBlock('p', 'wiki-section-text', d.location));
+    els.sections.appendChild(createRichTextBlock('p', 'wiki-section-text', d.location));
     if (d.locationExtra && d.locationExtra.length) {
       els.sections.appendChild(createBulletList(d.locationExtra));
     }
@@ -436,7 +466,7 @@ function renderSections(detail) {
 
   if (d.attacks && d.attacks.length) {
     els.sections.appendChild(createSectionHeading(t('attacksTitle')));
-    if (d.attacksIntro) els.sections.appendChild(createTextBlock('p', 'wiki-section-text', d.attacksIntro));
+    if (d.attacksIntro) els.sections.appendChild(createRichTextBlock('p', 'wiki-section-text', d.attacksIntro));
     els.sections.appendChild(createBulletList(d.attacks));
   }
 
@@ -444,7 +474,7 @@ function renderSections(detail) {
     els.sections.appendChild(createSectionHeading(t('tacticsTitle')));
     if (d.tactics) {
       d.tactics.split('\n').filter(Boolean).forEach((para) => {
-        els.sections.appendChild(createTextBlock('p', 'wiki-section-text', para));
+        els.sections.appendChild(createRichTextBlock('p', 'wiki-section-text', para));
       });
     }
     if (d.tacticsList && d.tacticsList.length) {
@@ -459,13 +489,13 @@ function renderSections(detail) {
 
   if (d.notes && d.notes.length) {
     els.sections.appendChild(createSectionHeading(t('notesTitle')));
-    if (d.notesIntro) els.sections.appendChild(createTextBlock('p', 'wiki-section-text', d.notesIntro));
+    if (d.notesIntro) els.sections.appendChild(createRichTextBlock('p', 'wiki-section-text', d.notesIntro));
     els.sections.appendChild(createBulletList(d.notes));
   }
 
   if (d.trivia) {
     els.sections.appendChild(createSectionHeading(t('triviaTitle')));
-    els.sections.appendChild(createTextBlock('p', 'wiki-section-text', d.trivia));
+    els.sections.appendChild(createRichTextBlock('p', 'wiki-section-text', d.trivia));
   }
 }
 
