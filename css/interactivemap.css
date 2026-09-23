@@ -4,10 +4,10 @@
    the framed iframe card.
    ========================================================================== */
 
-.page--map-wide {
-  max-width: 1080px;
-}
-
+/* The shared `.page` is now wide enough (1300px, see style.css) on
+   its own that the map no longer needs its own wider page-width
+   override — this class is kept in the markup harmlessly unused
+   rather than editing the HTML just to drop it. */
 .map-page {
   margin-top: 8px;
 }

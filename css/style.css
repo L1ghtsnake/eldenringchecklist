@@ -176,7 +176,7 @@ button, input {
    ========================================================================== */
 
 .page {
-  max-width: 880px;
+  max-width: 1300px;
   margin: 0 auto;
   padding: 32px 24px 64px;
   opacity: 0;
@@ -195,15 +195,12 @@ body.is-ready .page {
    Header
    ========================================================================== */
 
-/* The header needs more room than most pages' own reading width (a
-   nav bar with five links plus the language/theme/account controls is
-   wider than an 880px article column) — rather than widen every
-   page's whole content column just for this, `.site-header` breaks
-   out of `.page`'s max-width/padding and centers its own, wider band
-   (up to 1400px) with the same 24px minimum side gutter `.page` uses.
-   This is what actually keeps the header on one line: without it, the
-   header would be capped at whatever the page's own max-width is,
-   regardless of how much room the rules below give it to work with. */
+/* `.page` is wide enough (1300px) that the header — brand, five nav
+   links, language/theme/account controls — fits on one line within
+   it just like any other content on the page, so the header shares
+   the exact same box as everything below it instead of trying to
+   bleed to its own wider, separately-centered band (that approach
+   fought `scrollbar-gutter: stable` and never lined up right). */
 .site-header {
   display: flex;
   align-items: center;
@@ -211,20 +208,6 @@ body.is-ready .page {
   gap: 16px;
   margin-bottom: 28px;
   flex-wrap: wrap;
-  width: 100vw;
-  max-width: 1400px;
-  /* `100vw` measures the full window, including the space
-     `scrollbar-gutter: stable` (see the `html` rule) permanently
-     reserves for the scrollbar — but `.page`'s own centering doesn't
-     see that reserved space at all, since it's sized off `body`'s
-     narrower visible content box. That mismatch is what made this
-     bleed sit very slightly left of `.page` below it; nudging the
-     left margin a few pixels closes the gap. */
-  margin-left: calc(50% - 50vw + 8px);
-  margin-right: calc(50% - 50vw);
-  padding-left: max(24px, calc((100vw - 1400px) / 2 + 24px));
-  padding-right: max(24px, calc((100vw - 1400px) / 2 + 24px));
-  box-sizing: border-box;
 }
 
 .brand {
