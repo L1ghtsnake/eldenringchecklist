@@ -618,6 +618,24 @@ html[data-theme='light'] .wiki-boss-stats {
   hyphens: auto;
 }
 
+.wiki-resist-cell-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6em;
+}
+
+.wiki-resist-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  border-radius: 4px;
+  background: var(--surface-3, rgba(0, 0, 0, 0.15));
+  padding: 3px;
+  cursor: default;
+}
+
 .wiki-resist-cell-value {
   font-size: 15px;
   font-weight: 800;

@@ -289,7 +289,20 @@ function createBulletList(items) {
   return ul;
 }
 
-function createResistanceGroup(groupLabel, rows) {
+// Effect/damage icons are matched to each row by position, not by name —
+// the resistances arrays are always written in this fixed order (see the
+// bossDetails schema notes), so index 0 of `effects` is always Balance,
+// index 0 of `damage` is always Standard, and so on.
+const EFFECT_ICONS = [
+  'effect-balance', 'effect-poison', 'effect-scarlet-rot', 'effect-bleed',
+  'effect-frostbite', 'effect-sleep', 'effect-madness', 'effect-death'
+];
+const DAMAGE_ICONS = [
+  'damage-standard', 'damage-strike', 'damage-slash', 'damage-pierce',
+  'damage-magic', 'damage-fire', 'damage-lightning', 'damage-holy'
+];
+
+function createResistanceGroup(groupLabel, rows, icons) {
   const wrap = document.createElement('div');
   wrap.className = 'wiki-resist-group';
 
@@ -298,10 +311,26 @@ function createResistanceGroup(groupLabel, rows) {
   const grid = document.createElement('div');
   grid.className = 'wiki-resist-grid';
 
-  rows.forEach((row) => {
+  rows.forEach((row, i) => {
     const cell = document.createElement('div');
     cell.className = 'wiki-resist-cell';
-    cell.appendChild(createTextBlock('span', 'wiki-resist-cell-label', row.label));
+
+    const iconFile = icons && icons[i];
+    if (iconFile) {
+      const iconWrap = document.createElement('span');
+      iconWrap.className = 'wiki-resist-cell-icon';
+      const img = document.createElement('img');
+      img.className = 'wiki-resist-icon';
+      img.src = `../img/icons/${iconFile}.webp`;
+      img.alt = row.label;
+      img.title = row.label;
+      img.loading = 'lazy';
+      iconWrap.appendChild(img);
+      cell.appendChild(iconWrap);
+    } else {
+      cell.appendChild(createTextBlock('span', 'wiki-resist-cell-label', row.label));
+    }
+
     cell.appendChild(createTextBlock('span', 'wiki-resist-cell-value', row.value));
     grid.appendChild(cell);
   });
@@ -379,10 +408,10 @@ function renderSections(detail) {
   if (d.resistances) {
     els.sections.appendChild(createSectionHeading(t('resistancesTitle')));
     if (d.resistances.effects && d.resistances.effects.length) {
-      els.sections.appendChild(createResistanceGroup(t('resistanceValueHeader'), d.resistances.effects));
+      els.sections.appendChild(createResistanceGroup(t('resistanceValueHeader'), d.resistances.effects, EFFECT_ICONS));
     }
     if (d.resistances.damage && d.resistances.damage.length) {
-      els.sections.appendChild(createResistanceGroup(t('damageValueHeader'), d.resistances.damage));
+      els.sections.appendChild(createResistanceGroup(t('damageValueHeader'), d.resistances.damage, DAMAGE_ICONS));
     }
   }
 
