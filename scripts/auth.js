@@ -54,7 +54,8 @@
       authSubtitleSignup: 'Create an account to save your progress anywhere.',
       loginMenuSub: 'Sync your progress across devices',
       manageAccount: 'Manage account',
-      personalCabinet: 'Personal cabinet'
+      personalCabinet: 'Personal cabinet',
+      adminPanelLabel: 'Admin panel'
     },
     ru: {
       login: 'Войти',
@@ -86,7 +87,8 @@
       authSubtitleSignup: 'Создайте аккаунт, чтобы сохранять прогресс на любом устройстве.',
       loginMenuSub: 'Синхронизируйте прогресс между устройствами',
       manageAccount: 'Управление аккаунтом',
-      personalCabinet: 'Личный кабинет'
+      personalCabinet: 'Личный кабинет',
+      adminPanelLabel: 'Админ-панель'
     },
     kk: {
       login: 'Кіру',
@@ -118,7 +120,8 @@
       authSubtitleSignup: 'Прогресіңізді кез келген құрылғыда сақтау үшін аккаунт жасаңыз.',
       loginMenuSub: 'Прогресіңізді құрылғылар арасында синхрондаңыз',
       manageAccount: 'Аккаунтты басқару',
-      personalCabinet: 'Жеке кабинет'
+      personalCabinet: 'Жеке кабинет',
+      adminPanelLabel: 'Әкімші панелі'
     }
   };
 
@@ -180,6 +183,8 @@
     els.accountAvatarFallback = document.getElementById('account-avatar-fallback');
     els.accountCabinetLink = document.getElementById('account-cabinet-link');
     els.accountCabinetLinkLabel = document.getElementById('account-cabinet-link-label');
+    els.adminPanelLink = document.getElementById('admin-panel-link');
+    els.adminPanelLinkLabel = document.getElementById('admin-panel-link-label');
   }
 
   function refreshAuthModalText() {
@@ -207,6 +212,7 @@
       if (logoutLabel) logoutLabel.textContent = t('logout');
     }
     if (els.accountCabinetLinkLabel) els.accountCabinetLinkLabel.textContent = t('personalCabinet');
+    if (els.adminPanelLinkLabel) els.adminPanelLinkLabel.textContent = t('adminPanelLabel');
   }
 
   function showAuthError(message) {
@@ -373,6 +379,11 @@
       els.accountModalDate.textContent = formatted ? `${t('memberSince')} ${formatted}` : '';
     }
     renderAvatarInto(els.accountAvatarImg, els.accountAvatarFallback, profile && profile.avatarDataUrl);
+    /* Only ever shown to a user whose own Firestore users/{uid} doc has
+       role: 'admin' — that field is never writable by the user's own
+       client (see the Firestore rules in the admin setup notes), so
+       this is a real gate, not just a hidden link. */
+    if (els.adminPanelLink) els.adminPanelLink.hidden = !(profile && profile.role === 'admin');
   }
 
   /* Populates the rich profile row inside the checklist's burger menu —
@@ -634,6 +645,7 @@
     changeNickname,
     isLoggedIn: () => !!currentUser,
     getUser: () => currentUser,
-    getProfile: () => currentUserProfile
+    getProfile: () => currentUserProfile,
+    isAdmin: () => !!(currentUserProfile && currentUserProfile.role === 'admin')
   };
 })();

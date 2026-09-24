@@ -12,8 +12,15 @@
      the Erdtree — sourced from the games' own official Steam store
      listings (not generated). Thumbnails are pre-resized 640x360 crops
      used for the grid; the lightbox always loads the original
-     1920x1080 file. */
-  const IMAGES = Array.from({ length: 20 }, (_, i) => {
+     1920x1080 file.
+
+     This is also the FALLBACK list: the admin panel manages the real,
+     live list in Firestore (gameData/gallery, field `photos`), and
+     `subscribeGalleryImages` below replaces `IMAGES` with whatever it
+     finds there the moment the page loads and again on every future
+     edit. If that doc doesn't exist yet, or Firestore can't be reached,
+     the gallery still shows this original set rather than going blank. */
+  const FALLBACK_IMAGES = Array.from({ length: 20 }, (_, i) => {
     const num = String(i + 1).padStart(2, '0');
     return {
       thumb: `../img/gallery/thumbs/eldenring-gallery-${num}-thumb.jpg`,
@@ -21,6 +28,7 @@
       game: i < 10 ? 'eldenring' : 'shadowerdtree'
     };
   });
+  let IMAGES = FALLBACK_IMAGES;
 
   const i18n = {
     en: {
@@ -408,6 +416,31 @@
     });
   }
 
+
+  /* Live gallery content — the admin panel writes the whole `photos`
+     array back to gameData/gallery on every add/remove/reorder, and
+     onSnapshot means every visitor's already-open gallery page updates
+     immediately, with no refresh and no new deploy. */
+  function subscribeGalleryImages() {
+    if (typeof db === 'undefined' || !db) return;
+    try {
+      db.collection('gameData').doc('gallery').onSnapshot(
+        (snap) => {
+          const data = snap.exists ? snap.data() : null;
+          const photos = data && Array.isArray(data.photos) && data.photos.length ? data.photos : FALLBACK_IMAGES;
+          IMAGES = photos;
+          const pages = totalPages();
+          if (currentPage >= pages) currentPage = Math.max(0, pages - 1);
+          renderGrid();
+          renderPagination();
+        },
+        (err) => console.error('Failed to load gameData/gallery:', err)
+      );
+    } catch (err) {
+      console.error('Failed to subscribe to gameData/gallery:', err);
+    }
+  }
+
   function init() {
     cacheDom();
 
@@ -425,6 +458,7 @@
     attachLangFilterEvents();
     attachBurgerMenuEvents();
     attachLightboxEvents();
+    subscribeGalleryImages();
 
     requestAnimationFrame(() => {
       els.body.classList.add('is-ready');

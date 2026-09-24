@@ -178,6 +178,8 @@
     els.ctaBody = document.getElementById('cta-body');
     els.ctaLink = document.getElementById('cta-link-label');
     els.footerText = document.getElementById('landing-footer-text');
+    els.footerCredit = document.getElementById('landing-footer-credit');
+    els.footerContacts = document.getElementById('landing-footer-contacts');
   }
 
   function loadPreference(key, fallback, validValues) {
@@ -378,6 +380,61 @@
     );
   }
 
+
+  /* ==========================================================================
+     Site config (footer credit + contacts) — editable live from the admin
+     panel (siteConfig/main in Firestore). Falls back to the plain HTML
+     already in the page (the constants below just mirror it) whenever the
+     doc doesn't exist yet, fails to load, or a field is left blank, so the
+     footer never goes empty just because Firestore had a hiccup.
+     ========================================================================== */
+  const FOOTER_FALLBACK = {
+    credit: 'Практическая работа студента 11 ТИС — Михайлов Дмитрий Алексеевич',
+    phone: '+7 705 753 23 22',
+    emails: ['matveyjaneurban1@gmail.com', 'dmitriylighty@gmail.com'],
+    telegram: 'lightsnake'
+  };
+
+  function renderFooterContacts(cfg) {
+    if (!els.footerContacts) return;
+    const phone = (cfg && cfg.phone) || FOOTER_FALLBACK.phone;
+    const emails = (cfg && Array.isArray(cfg.emails) && cfg.emails.length) ? cfg.emails : FOOTER_FALLBACK.emails;
+    const telegram = (cfg && cfg.telegram) || FOOTER_FALLBACK.telegram;
+
+    const phoneHref = 'tel:' + phone.replace(/[^\d+]/g, '');
+    const parts = [`<a href="${phoneHref}">${phone}</a>`];
+    emails.forEach((email) => {
+      parts.push(`<a href="mailto:${email}">${email}</a>`);
+    });
+    parts.push(`<a href="https://t.me/${telegram}" target="_blank" rel="noopener noreferrer">Telegram: @${telegram}</a>`);
+
+    els.footerContacts.innerHTML = parts.join('<span class="landing-footer-sep" aria-hidden="true">•</span>');
+  }
+
+  function renderSiteConfig(cfg) {
+    if (els.footerCredit) els.footerCredit.textContent = (cfg && cfg.footerCredit) || FOOTER_FALLBACK.credit;
+    renderFooterContacts(cfg);
+  }
+
+  function subscribeSiteConfig() {
+    if (typeof db === 'undefined' || !db) {
+      renderSiteConfig(null);
+      return;
+    }
+    try {
+      db.collection('siteConfig').doc('main').onSnapshot(
+        (snap) => renderSiteConfig(snap.exists ? snap.data() : null),
+        (err) => {
+          console.error('Failed to load siteConfig/main:', err);
+          renderSiteConfig(null);
+        }
+      );
+    } catch (err) {
+      console.error('Failed to subscribe to siteConfig/main:', err);
+      renderSiteConfig(null);
+    }
+  }
+
   function init() {
     cacheDom();
 
@@ -394,6 +451,7 @@
     attachReveal();
     attachParallax();
     attachHeaderScroll();
+    subscribeSiteConfig();
 
     requestAnimationFrame(() => {
       els.body.classList.add('is-ready');

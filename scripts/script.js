@@ -220,22 +220,24 @@ function cacheDom() {
    Remote data — boss & region names + Russian translations live in Firestore
    ========================================================================== */
 
-async function fetchGameData() {
-  const [eldenSnap, shadowSnap, translationsSnap] = await Promise.all([
-    db.collection('gameData').doc('eldenring').get(),
-    db.collection('gameData').doc('shadowerdtree').get(),
-    db.collection('gameData').doc('translations').get()
-  ]);
+/* Live boss data — the admin panel writes straight to these same three
+   docs, and onSnapshot means every open checklist tab picks up an edit
+   immediately: the FIRST snapshot from each doc resolves `init()`'s
+   startup exactly like the old one-time `.get()` did (same shape, same
+   error if eldenring/shadowerdtree are missing); every snapshot after
+   that just rebuilds the currently-visible accordion in place, without
+   touching theme/language/open-region state. */
+let latestEldenSnap = null;
+let latestShadowSnap = null;
+let latestTranslationsSnap = null;
+let gameDataFirstLoadDone = false;
+let resolveGameDataFirstLoad = null;
 
-  if (!eldenSnap.exists || !shadowSnap.exists) {
-    throw new Error('Boss data not found in Firestore — run seed.html once to upload it.');
-  }
-
-  const translations = translationsSnap.exists ? translationsSnap.data() : {};
-
+function buildGameDataFromSnapshots() {
+  const translations = (latestTranslationsSnap && latestTranslationsSnap.exists) ? latestTranslationsSnap.data() : {};
   return {
-    eldenRingRegions: eldenSnap.data().regions,
-    shadowErdtreeRegions: shadowSnap.data().regions,
+    eldenRingRegions: latestEldenSnap.data().regions,
+    shadowErdtreeRegions: latestShadowSnap.data().regions,
     nameTranslations: {
       ru: {
         regions: (translations.ru && translations.ru.regions) || {},
@@ -247,6 +249,59 @@ async function fetchGameData() {
       }
     }
   };
+}
+
+function handleGameDataSnapshotUpdate() {
+  if (!latestEldenSnap || !latestShadowSnap) return;
+
+  if (!latestEldenSnap.exists || !latestShadowSnap.exists) {
+    if (!gameDataFirstLoadDone) {
+      gameDataFirstLoadDone = true;
+      resolveGameDataFirstLoad({ error: new Error('Boss data not found in Firestore — run seed.html once to upload it.') });
+    }
+    return;
+  }
+
+  const data = buildGameDataFromSnapshots();
+
+  if (!gameDataFirstLoadDone) {
+    gameDataFirstLoadDone = true;
+    resolveGameDataFirstLoad({ data });
+    return;
+  }
+
+  games = {
+    eldenring: { id: 'eldenring', regions: data.eldenRingRegions },
+    shadowerdtree: { id: 'shadowerdtree', regions: data.shadowErdtreeRegions }
+  };
+  nameTranslations = data.nameTranslations;
+  buildAccordion();
+  updateProgress();
+}
+
+function handleGameDataSnapshotError(err) {
+  console.error('Failed to load boss data from Firebase:', err);
+  if (!gameDataFirstLoadDone) {
+    gameDataFirstLoadDone = true;
+    resolveGameDataFirstLoad({ error: err });
+  }
+}
+
+function subscribeGameData() {
+  const firstLoad = new Promise((resolve) => { resolveGameDataFirstLoad = resolve; });
+  db.collection('gameData').doc('eldenring').onSnapshot((snap) => {
+    latestEldenSnap = snap;
+    handleGameDataSnapshotUpdate();
+  }, handleGameDataSnapshotError);
+  db.collection('gameData').doc('shadowerdtree').onSnapshot((snap) => {
+    latestShadowSnap = snap;
+    handleGameDataSnapshotUpdate();
+  }, handleGameDataSnapshotError);
+  db.collection('gameData').doc('translations').onSnapshot((snap) => {
+    latestTranslationsSnap = snap;
+    handleGameDataSnapshotUpdate();
+  }, handleGameDataSnapshotError);
+  return firstLoad;
 }
 
 /* ==========================================================================
@@ -1044,23 +1099,22 @@ async function init() {
   refreshCategoryFilterText();
   refreshLangFilterText();
 
-  try {
-    const data = await fetchGameData();
-    games = {
-      eldenring: { id: 'eldenring', regions: data.eldenRingRegions },
-      shadowerdtree: { id: 'shadowerdtree', regions: data.shadowErdtreeRegions }
-    };
-    nameTranslations = data.nameTranslations;
-    /* Regions all start collapsed — no location is force-opened on
-       load anymore (the first one used to be pinned open by default,
-       which read as a stray/buggy pre-expanded dropdown). */
-  } catch (err) {
-    console.error('Failed to load boss data from Firebase:', err);
+  const gameDataResult = await subscribeGameData();
+  if (gameDataResult.error) {
+    console.error('Failed to load boss data from Firebase:', gameDataResult.error);
     if (els.accordion) {
       els.accordion.innerHTML = '<p class="no-results">Could not load boss data from the database. Check your connection and reload the page.</p>';
     }
     return;
   }
+  games = {
+    eldenring: { id: 'eldenring', regions: gameDataResult.data.eldenRingRegions },
+    shadowerdtree: { id: 'shadowerdtree', regions: gameDataResult.data.shadowErdtreeRegions }
+  };
+  nameTranslations = gameDataResult.data.nameTranslations;
+  /* Regions all start collapsed — no location is force-opened on
+     load anymore (the first one used to be pinned open by default,
+     which read as a stray/buggy pre-expanded dropdown). */
 
   state.completed = loadProgress();
 

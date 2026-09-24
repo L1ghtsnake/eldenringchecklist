@@ -1,0 +1,65 @@
+rules_version = '2';
+
+// ==========================================================================
+// Elden Ring Database — Firestore Security Rules
+//
+// Paste this whole file into Firebase Console → Firestore Database →
+// Rules → replace everything → Publish. See the setup notes handed over
+// alongside this file for the one-time manual step needed to make your
+// own account an admin (nothing in the app itself can do that).
+//
+// What this enforces:
+//   - users/{uid}: only the signed-in owner can read/write their own
+//     document (nickname, avatar, progress, history, etc.) — but nobody,
+//     not even the owner, can set or change their own "role" field from
+//     the client. That closes the gap where anyone could open the
+//     browser console and write role: "admin" onto themselves.
+//   - gameData/* and siteConfig/*: readable by anyone (signed in or not
+//     — the site works for guests), writable only by a signed-in user
+//     whose own users/{uid} doc has role == "admin".
+// ==========================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get('role', null) == 'admin';
+    }
+
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+
+      // A brand-new account may never arrive with a role already set.
+      allow create: if isOwner(uid) && !('role' in request.resource.data);
+
+      // Any later write may touch every other field freely, but the
+      // "role" value itself must stay exactly what it already was.
+      allow update: if isOwner(uid) &&
+        request.resource.data.get('role', null) == resource.data.get('role', null);
+
+      allow delete: if false;
+    }
+
+    match /gameData/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /siteConfig/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Anything not explicitly listed above is closed by default.
+  }
+}

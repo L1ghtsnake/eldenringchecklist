@@ -1,0 +1,405 @@
+/* ==========================================================================
+   Admin panel — reuses style.css's variables, .page shell, .auth-*
+   (fields/buttons/errors) and .account-cabinet-link component styles;
+   this file only covers the panel-specific layout: the access guard,
+   the tab bar, the cards/forms inside each tab, and the small
+   list/grid widgets (resistances, regions/bosses, gallery).
+   ========================================================================== */
+
+.admin-page {
+  margin-top: 8px;
+}
+
+/* ---- Access guard (logged out, or logged in without the admin role) ---- */
+
+.admin-guard {
+  max-width: 420px;
+  margin: 48px auto;
+  padding: 40px 28px;
+  text-align: center;
+  background: var(--surface-1);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+}
+
+.admin-guard-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--secondary);
+}
+
+.admin-guard-title {
+  margin: 0 0 10px;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+
+.admin-guard-text {
+  margin: 0 0 22px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.admin-guard-btn {
+  max-width: 220px;
+  margin: 0 auto;
+}
+
+.admin-guard-btn[hidden] { display: none; }
+
+/* ---- Tabs ---- */
+
+.admin-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.admin-tab {
+  padding: 10px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 13.5px;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+
+.admin-tab:hover {
+  background: var(--surface-3);
+  color: var(--text-primary);
+}
+
+.admin-tab.active {
+  background: var(--cta);
+  border-color: var(--cta);
+  color: var(--on-cta);
+}
+
+.admin-panel[hidden] { display: none; }
+
+/* ---- Shared cards / forms ---- */
+
+.admin-card {
+  padding: 24px 28px;
+  margin-bottom: 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-field-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.admin-field-third { flex: 1 1 180px; }
+.admin-field-half { flex: 1 1 220px; }
+
+.admin-field-row .auth-field { margin: 0; }
+
+.auth-field select,
+.auth-field textarea {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  color: var(--text-primary);
+  font-weight: 400;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  resize: vertical;
+  transition: var(--theme-transition), box-shadow var(--dur-fast) var(--ease-soft);
+}
+
+.auth-field select:focus,
+.auth-field textarea:focus {
+  border-color: var(--cta);
+  box-shadow: 0 0 0 3px var(--focus-soft);
+}
+
+.admin-hint {
+  margin: 0 0 16px;
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+
+.admin-status {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 13px;
+  text-align: left;
+}
+
+.admin-status[hidden] { display: none; }
+
+.admin-save-btn {
+  max-width: 220px;
+}
+
+.admin-subsection {
+  padding-top: 4px;
+}
+
+.admin-subsection-title {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.admin-resist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.admin-resist-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-resist-cell-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.admin-resist-cell input {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+}
+
+.admin-resist-cell input:focus {
+  border-color: var(--cta);
+  box-shadow: 0 0 0 3px var(--focus-soft);
+}
+
+/* ---- Add / remove buttons ---- */
+
+.admin-add-btn,
+.admin-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-soft), border-color var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+
+.admin-add-btn {
+  margin-bottom: 20px;
+}
+
+.admin-add-btn:hover,
+.admin-icon-btn:hover {
+  background: var(--surface-3);
+  border-color: var(--cta);
+  color: var(--cta);
+}
+
+.admin-icon-btn--danger:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+/* ---- Regions & Categories list ---- */
+
+.admin-regions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.admin-region-card {
+  padding: 18px 20px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-1);
+}
+
+.admin-region-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.admin-region-head .auth-field { flex: 1 1 140px; margin: 0; }
+
+.admin-region-head .auth-field input {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 12px;
+  color: var(--text-primary);
+  font-size: 13.5px;
+  outline: none;
+}
+
+.admin-region-head .auth-field input:focus {
+  border-color: var(--cta);
+  box-shadow: 0 0 0 3px var(--focus-soft);
+}
+
+.admin-boss-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.admin-boss-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.admin-boss-row .auth-field { flex: 1 1 120px; margin: 0; }
+
+.admin-boss-row .auth-field input {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  color: var(--text-primary);
+  font-size: 13px;
+  outline: none;
+}
+
+.admin-boss-row .auth-field input:focus {
+  border-color: var(--cta);
+  box-shadow: 0 0 0 3px var(--focus-soft);
+}
+
+.admin-boss-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1 1 100%;
+}
+
+@media (min-width: 720px) {
+  .admin-boss-cats { flex: 0 0 auto; }
+}
+
+.admin-cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+}
+
+.admin-cat-chip input {
+  margin: 0;
+}
+
+.admin-cat-chip:has(input:checked) {
+  background: var(--cta);
+  border-color: var(--cta);
+  color: var(--on-cta);
+}
+
+/* ---- Gallery ---- */
+
+.admin-gallery-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+}
+
+.admin-gallery-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-1);
+}
+
+.admin-gallery-thumb {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.admin-gallery-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.admin-gallery-actions {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+@media (max-width: 640px) {
+  .admin-card,
+  .admin-region-card {
+    padding: 18px 16px;
+  }
+}

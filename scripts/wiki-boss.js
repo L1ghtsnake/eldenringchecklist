@@ -195,19 +195,25 @@ function savePreference(key, value) {
   }
 }
 
-async function fetchGameData() {
-  const [eldenSnap, shadowSnap, translationsSnap, detailsSnap] = await Promise.all([
-    db.collection('gameData').doc('eldenring').get(),
-    db.collection('gameData').doc('shadowerdtree').get(),
-    db.collection('gameData').doc('translations').get(),
-    db.collection('gameData').doc('bossDetails').get()
-  ]);
+/* Live boss data — same rationale as the identical block in
+   scripts/script.js. The four docs (including bossDetails, which this
+   page alone needs) each get their own onSnapshot listener; the first
+   time all four have reported in, `init()`'s startup resolves exactly
+   like the old one-time `.get()` did, and every snapshot after that
+   just re-renders the boss currently on screen — so an admin edit to
+   THIS boss (or a rename/re-categorize elsewhere) shows up live. */
+let latestEldenSnap = null;
+let latestShadowSnap = null;
+let latestTranslationsSnap = null;
+let latestDetailsSnap = null;
+let gameDataFirstLoadDone = false;
+let resolveGameDataFirstLoad = null;
 
-  const translations = translationsSnap.exists ? translationsSnap.data() : {};
-
+function buildGameDataFromSnapshots() {
+  const translations = (latestTranslationsSnap && latestTranslationsSnap.exists) ? latestTranslationsSnap.data() : {};
   return {
-    eldenRingRegions: eldenSnap.exists ? eldenSnap.data().regions : [],
-    shadowErdtreeRegions: shadowSnap.exists ? shadowSnap.data().regions : [],
+    eldenRingRegions: latestEldenSnap.exists ? latestEldenSnap.data().regions : [],
+    shadowErdtreeRegions: latestShadowSnap.exists ? latestShadowSnap.data().regions : [],
     nameTranslations: {
       ru: {
         regions: (translations.ru && translations.ru.regions) || {},
@@ -218,8 +224,54 @@ async function fetchGameData() {
         bosses: (translations.kk && translations.kk.bosses) || {}
       }
     },
-    bossDetails: detailsSnap.exists ? detailsSnap.data() : {}
+    bossDetails: (latestDetailsSnap && latestDetailsSnap.exists) ? latestDetailsSnap.data() : {}
   };
+}
+
+function handleGameDataSnapshotUpdate() {
+  if (!latestEldenSnap || !latestShadowSnap || !latestTranslationsSnap || !latestDetailsSnap) return;
+
+  const data = buildGameDataFromSnapshots();
+
+  if (!gameDataFirstLoadDone) {
+    gameDataFirstLoadDone = true;
+    resolveGameDataFirstLoad({ data });
+    return;
+  }
+
+  flatBosses = buildFlatList(data.eldenRingRegions, data.shadowErdtreeRegions);
+  nameTranslations = data.nameTranslations;
+  bossDetails = data.bossDetails || {};
+  renderBoss();
+}
+
+function handleGameDataSnapshotError(err) {
+  console.error('Failed to load boss data from Firebase:', err);
+  if (!gameDataFirstLoadDone) {
+    gameDataFirstLoadDone = true;
+    resolveGameDataFirstLoad({ error: err });
+  }
+}
+
+function subscribeGameData() {
+  const firstLoad = new Promise((resolve) => { resolveGameDataFirstLoad = resolve; });
+  db.collection('gameData').doc('eldenring').onSnapshot((snap) => {
+    latestEldenSnap = snap;
+    handleGameDataSnapshotUpdate();
+  }, handleGameDataSnapshotError);
+  db.collection('gameData').doc('shadowerdtree').onSnapshot((snap) => {
+    latestShadowSnap = snap;
+    handleGameDataSnapshotUpdate();
+  }, handleGameDataSnapshotError);
+  db.collection('gameData').doc('translations').onSnapshot((snap) => {
+    latestTranslationsSnap = snap;
+    handleGameDataSnapshotUpdate();
+  }, handleGameDataSnapshotError);
+  db.collection('gameData').doc('bossDetails').onSnapshot((snap) => {
+    latestDetailsSnap = snap;
+    handleGameDataSnapshotUpdate();
+  }, handleGameDataSnapshotError);
+  return firstLoad;
 }
 
 function localizedRegionName(region) {
@@ -707,13 +759,11 @@ async function init() {
     window.AuthWidget.init('en', { onBeforeOpen: closeBurgerMenu, onAuthChange: null });
   }
 
-  try {
-    const data = await fetchGameData();
-    flatBosses = buildFlatList(data.eldenRingRegions, data.shadowErdtreeRegions);
-    nameTranslations = data.nameTranslations;
-    bossDetails = data.bossDetails || {};
-  } catch (err) {
-    console.error('Failed to load boss data from Firebase:', err);
+  const gameDataResult = await subscribeGameData();
+  if (gameDataResult.data) {
+    flatBosses = buildFlatList(gameDataResult.data.eldenRingRegions, gameDataResult.data.shadowErdtreeRegions);
+    nameTranslations = gameDataResult.data.nameTranslations;
+    bossDetails = gameDataResult.data.bossDetails || {};
   }
 
   applyLanguage(savedLang);
