@@ -142,6 +142,9 @@
           <button type="button" class="admin-tab" data-tab="gallery" role="tab" aria-selected="false">
             <span id="tab-label-gallery">Gallery</span>
           </button>
+          <button type="button" class="admin-tab" data-tab="users" role="tab" aria-selected="false">
+            <span id="tab-label-users">Users</span>
+          </button>
         </nav>
 
         <!-- ===================== Bosses tab ===================== -->
@@ -349,6 +352,23 @@
           <div id="gallery-list" class="admin-gallery-list"></div>
         </section>
 
+        <!-- ===================== Users tab ===================== -->
+        <section class="admin-panel" data-panel="users" hidden>
+          <div class="admin-stats-row">
+            <div class="admin-card admin-stat-card">
+              <span class="admin-stat-value" id="users-stat-total">0</span>
+              <span class="admin-stat-label" id="users-stat-total-label">Total accounts</span>
+            </div>
+            <div class="admin-card admin-stat-card">
+              <span class="admin-stat-value" id="users-stat-defeated">0</span>
+              <span class="admin-stat-label" id="users-stat-defeated-label">Bosses defeated across all accounts</span>
+            </div>
+          </div>
+
+          <div id="users-list" class="admin-users-list"></div>
+          <p class="admin-hint" id="users-empty" hidden>No accounts yet.</p>
+        </section>
+
       </section>
     </main>
 
@@ -383,6 +403,8 @@
           <span id="auth-password-label">Password</span>
           <input id="auth-password" type="password" required minlength="6" autocomplete="current-password" />
         </label>
+
+        <button type="button" class="auth-forgot-btn" id="auth-forgot-btn">Forgot password?</button>
 
         <p class="auth-error" id="auth-error" hidden></p>
 

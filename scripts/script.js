@@ -6,6 +6,12 @@ const LANG_KEY = 'eldenRingBossChecklistLang';
 const GAME_KEY = 'eldenRingBossChecklistGame';
 const CATEGORY_FILTER_KEY = 'eldenRingBossChecklistCategories';
 
+/* Region-level pagination for the accordion — mirrors wiki.js's scheme:
+   regions are shown REGION_PAGE_SIZE at a time behind a "Show more" button,
+   client-side over data already synced via onSnapshot. Search bypasses
+   pagination entirely (all matching regions show at once). */
+const REGION_PAGE_SIZE = 5;
+
 /* Boss categories for the category filter. Bosses aren't tagged with these
    yet (that mapping comes later), so matchesCategoryFilter() treats any
    boss without a `categories` array as always visible — the filter is
@@ -83,6 +89,11 @@ const i18n = {
     languageLabel: 'Language',
     menuAccountLabel: 'Account',
     menuPrefsLabel: 'Preferences',
+    sortLabel: 'Sort by',
+    sortDefault: 'Default order',
+    sortName: 'Name (A–Z)',
+    sortBossCount: 'Boss count',
+    loadMoreLabel: 'Show more',
   },
   ru: {
     eyebrow: 'Чек-лист боссов',
@@ -115,6 +126,11 @@ const i18n = {
     languageLabel: 'Язык',
     menuAccountLabel: 'Аккаунт',
     menuPrefsLabel: 'Настройки',
+    sortLabel: 'Сортировка',
+    sortDefault: 'По умолчанию',
+    sortName: 'По имени (А–Я)',
+    sortBossCount: 'По числу боссов',
+    loadMoreLabel: 'Показать ещё',
   },
   kk: {
     eyebrow: 'Боссы чек-листі',
@@ -147,6 +163,11 @@ const i18n = {
     languageLabel: 'Тіл',
     menuAccountLabel: 'Аккаунт',
     menuPrefsLabel: 'Баптаулар',
+    sortLabel: 'Сұрыптау',
+    sortDefault: 'Әдепкі рет',
+    sortName: 'Аты бойынша (А–Я)',
+    sortBossCount: 'Босс саны бойынша',
+    loadMoreLabel: 'Көбірек көрсету',
   }
 };
 
@@ -169,7 +190,9 @@ const state = {
   lang: 'en',
   theme: 'dark',
   activeGame: 'eldenring',
-  categoryFilters: new Set(BOSS_CATEGORIES)
+  categoryFilters: new Set(BOSS_CATEGORIES),
+  sortBy: 'default',
+  visibleRegions: REGION_PAGE_SIZE
 };
 
 const els = {};
@@ -214,6 +237,10 @@ function cacheDom() {
   els.burgerMenu = document.getElementById('burger-menu');
   els.burgerBtn = document.getElementById('burger-btn');
   els.headerControls = document.getElementById('header-controls');
+  els.sortLabel = document.getElementById('sort-label');
+  els.sortSelect = document.getElementById('sort-select');
+  els.loadMoreBtn = document.getElementById('load-more-btn');
+  els.loadMoreLabel = document.getElementById('load-more-label');
 }
 
 /* ==========================================================================
@@ -703,6 +730,20 @@ function matchesSearch(boss) {
   return getBossName(boss).toLowerCase().includes(term);
 }
 
+/* Client-side sort + pagination over the regions already synced via
+   onSnapshot — see the REGION_PAGE_SIZE comment near the top of this
+   file for why this stays client-side rather than moving to Firestore
+   .orderBy()/.limit() queries. */
+function getSortedRegions(regions) {
+  const sorted = regions.slice();
+  if (state.sortBy === 'name') {
+    sorted.sort((a, b) => getRegionName(a).localeCompare(getRegionName(b), state.lang));
+  } else if (state.sortBy === 'bossCount') {
+    sorted.sort((a, b) => b.bosses.length - a.bosses.length);
+  }
+  return sorted;
+}
+
 /* ==========================================================================
    Rendering — accordion
    ========================================================================== */
@@ -711,8 +752,11 @@ function buildAccordion() {
   els.accordion.innerHTML = '';
   let visibleRegionCount = 0;
   const openRegions = state.openRegions[state.activeGame];
+  const isSearching = state.searchTerm.trim().length > 0;
+  const allRegions = getSortedRegions(getActiveRegions());
+  const pagedRegions = isSearching ? allRegions : allRegions.slice(0, state.visibleRegions);
 
-  getActiveRegions().forEach((region, regionIndex) => {
+  pagedRegions.forEach((region, regionIndex) => {
     const { total, done } = getTotals(region.bosses);
     const pct = total ? Math.round((done / total) * 100) : 0;
     const visibleBosses = region.bosses.filter((b) => matchesSearch(b) && matchesFilter(b) && matchesCategoryFilter(b));
@@ -793,6 +837,10 @@ function buildAccordion() {
 
   els.emptyState.hidden = visibleRegionCount !== 0;
   els.emptyState.textContent = t('noneFound');
+
+  if (els.loadMoreBtn) {
+    els.loadMoreBtn.hidden = isSearching || state.visibleRegions >= allRegions.length;
+  }
 }
 
 function createBossRow(boss, index) {
@@ -999,6 +1047,7 @@ function toggleTheme() {
 
 function applyGame(gameId) {
   state.activeGame = gameId;
+  state.visibleRegions = REGION_PAGE_SIZE;
 
   els.gameButtons.forEach((btn) => {
     const active = btn.dataset.game === gameId;
@@ -1053,6 +1102,15 @@ function applyLanguage(lang) {
     if (key === 'completed') btn.textContent = t('filterCompleted');
   });
 
+  if (els.sortLabel) els.sortLabel.textContent = t('sortLabel');
+  if (els.sortSelect) {
+    const opts = els.sortSelect.options;
+    if (opts[0]) opts[0].textContent = t('sortDefault');
+    if (opts[1]) opts[1].textContent = t('sortName');
+    if (opts[2]) opts[2].textContent = t('sortBossCount');
+  }
+  if (els.loadMoreLabel) els.loadMoreLabel.textContent = t('loadMoreLabel');
+
   refreshMenuSectionText();
   refreshCategoryFilterText();
   if (window.AuthWidget) window.AuthWidget.setLanguage(lang);
@@ -1080,6 +1138,20 @@ function attachEvents() {
   attachLangFilterEvents();
   attachBurgerMenuEvents();
   attachMenuEvents();
+
+  if (els.sortSelect) {
+    els.sortSelect.addEventListener('change', (e) => {
+      state.sortBy = e.target.value;
+      state.visibleRegions = REGION_PAGE_SIZE;
+      buildAccordion();
+    });
+  }
+  if (els.loadMoreBtn) {
+    els.loadMoreBtn.addEventListener('click', () => {
+      state.visibleRegions += REGION_PAGE_SIZE;
+      buildAccordion();
+    });
+  }
 }
 
 async function init() {

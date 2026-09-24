@@ -9,11 +9,14 @@ rules_version = '2';
 // own account an admin (nothing in the app itself can do that).
 //
 // What this enforces:
-//   - users/{uid}: only the signed-in owner can read/write their own
-//     document (nickname, avatar, progress, history, etc.) — but nobody,
-//     not even the owner, can set or change their own "role" field from
-//     the client. That closes the gap where anyone could open the
-//     browser console and write role: "admin" onto themselves.
+//   - users/{uid}: the signed-in owner can read/write their own document
+//     (nickname, avatar, progress, history, etc.) — but nobody, not even
+//     the owner, can set or change their own "role" field from the
+//     client. That closes the gap where anyone could open the browser
+//     console and write role: "admin" onto themselves. An admin can also
+//     read every user document and change ANY user's "role" field (both
+//     needed by the admin panel's Users tab), but still can't touch any
+//     other field on an account that isn't their own.
 //   - gameData/* and siteConfig/*: readable by anyone (signed in or not
 //     — the site works for guests), writable only by a signed-in user
 //     whose own users/{uid} doc has role == "admin".
@@ -37,15 +40,27 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      allow read: if isOwner(uid);
+      // isAdmin() reads request.auth.uid's OWN document via get(), which
+      // is an internal lookup that bypasses this same rule (Firestore
+      // rules don't recurse into themselves for that) rather than a
+      // second client-facing read of some other uid — so this stays
+      // well-defined and doesn't grant anyone read access to themselves
+      // that they wouldn't already have.
+      allow read: if isOwner(uid) || isAdmin();
 
       // A brand-new account may never arrive with a role already set.
       allow create: if isOwner(uid) && !('role' in request.resource.data);
 
-      // Any later write may touch every other field freely, but the
-      // "role" value itself must stay exactly what it already was.
-      allow update: if isOwner(uid) &&
-        request.resource.data.get('role', null) == resource.data.get('role', null);
+      // The owner may touch every field except "role", which must stay
+      // exactly what it already was (closes the same self-promotion gap
+      // as before). An admin gets the narrow opposite: allowed to change
+      // ONLY "role" on any account (including stepping themselves down) —
+      // not a blank check to rewrite someone else's nickname, avatar or
+      // checklist progress, which stays the owner's alone to change.
+      allow update: if (isOwner(uid) &&
+        request.resource.data.get('role', null) == resource.data.get('role', null)) ||
+        (isAdmin() &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['role']));
 
       allow delete: if false;
     }

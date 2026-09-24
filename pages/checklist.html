@@ -200,6 +200,15 @@
               </label>
             </div>
           </div>
+
+          <label class="sort-field">
+            <span class="visually-hidden" id="sort-label">Sort by</span>
+            <select id="sort-select">
+              <option value="default">Default order</option>
+              <option value="name">Name (A–Z)</option>
+              <option value="bossCount">Boss count</option>
+            </select>
+          </label>
         </div>
       </section>
 
@@ -210,6 +219,10 @@
         </div>
 
         <div id="accordion" class="accordion"></div>
+
+        <button type="button" class="load-more-btn" id="load-more-btn" hidden>
+          <span id="load-more-label">Show more</span>
+        </button>
 
         <p id="empty-state" class="no-results" hidden>Nothing found. Try a different search term.</p>
       </section>
@@ -262,6 +275,8 @@
           <span id="auth-password-label">Password</span>
           <input id="auth-password" type="password" required minlength="6" autocomplete="current-password" />
         </label>
+
+        <button type="button" class="auth-forgot-btn" id="auth-forgot-btn">Forgot password?</button>
 
         <p class="auth-error" id="auth-error" hidden></p>
 

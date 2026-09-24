@@ -55,7 +55,10 @@
       loginMenuSub: 'Sync your progress across devices',
       manageAccount: 'Manage account',
       personalCabinet: 'Personal cabinet',
-      adminPanelLabel: 'Admin panel'
+      adminPanelLabel: 'Admin panel',
+      forgotPasswordLabel: 'Forgot password?',
+      authErrorEmailRequired: 'Enter your email above first.',
+      authResetEmailSent: 'Password reset email sent — check your inbox.'
     },
     ru: {
       login: 'Войти',
@@ -88,7 +91,10 @@
       loginMenuSub: 'Синхронизируйте прогресс между устройствами',
       manageAccount: 'Управление аккаунтом',
       personalCabinet: 'Личный кабинет',
-      adminPanelLabel: 'Админ-панель'
+      adminPanelLabel: 'Админ-панель',
+      forgotPasswordLabel: 'Забыли пароль?',
+      authErrorEmailRequired: 'Сначала введите почту выше.',
+      authResetEmailSent: 'Письмо для сброса пароля отправлено — проверьте почту.'
     },
     kk: {
       login: 'Кіру',
@@ -121,7 +127,10 @@
       loginMenuSub: 'Прогресіңізді құрылғылар арасында синхрондаңыз',
       manageAccount: 'Аккаунтты басқару',
       personalCabinet: 'Жеке кабинет',
-      adminPanelLabel: 'Әкімші панелі'
+      adminPanelLabel: 'Әкімші панелі',
+      forgotPasswordLabel: 'Құпия сөзді ұмыттыңыз ба?',
+      authErrorEmailRequired: 'Алдымен поштаңызды енгізіңіз.',
+      authResetEmailSent: 'Құпия сөзді қалпына келтіру хаты жіберілді — поштаңызды тексеріңіз.'
     }
   };
 
@@ -168,6 +177,7 @@
     els.authPasswordInput = document.getElementById('auth-password');
     els.authEmailLabel = document.getElementById('auth-email-label');
     els.authPasswordLabel = document.getElementById('auth-password-label');
+    els.authForgotBtn = document.getElementById('auth-forgot-btn');
     els.authError = document.getElementById('auth-error');
     els.authSubmit = document.getElementById('auth-submit');
     els.authSwitchText = document.getElementById('auth-switch-text');
@@ -194,6 +204,7 @@
     if (els.authEmailLabel) els.authEmailLabel.textContent = t('emailLabel');
     if (els.authPasswordLabel) els.authPasswordLabel.textContent = t('passwordLabel');
     if (els.authSubmit) els.authSubmit.textContent = authMode === 'login' ? t('loginSubmit') : t('signupSubmit');
+    if (els.authForgotBtn) els.authForgotBtn.textContent = t('forgotPasswordLabel');
     if (els.authSwitchText) els.authSwitchText.textContent = authMode === 'login' ? t('authNoAccount') : t('authHaveAccount');
     if (els.authSwitchBtn) els.authSwitchBtn.textContent = authMode === 'login' ? t('signup') : t('login');
     if (els.loginBtn) els.loginBtn.setAttribute('aria-label', t('login'));
@@ -265,6 +276,7 @@
       els.authPasswordInput.setAttribute('autocomplete', mode === 'login' ? 'current-password' : 'new-password');
     }
     if (els.authNicknameField) els.authNicknameField.hidden = mode !== 'signup';
+    if (els.authForgotBtn) els.authForgotBtn.hidden = mode !== 'login';
     if (els.authNicknameInput) {
       if (mode === 'signup') {
         els.authNicknameInput.setAttribute('required', 'required');
@@ -490,6 +502,31 @@
     }
   }
 
+  /* Public-ish helper (only used internally, via the "Forgot password?"
+     link) — sends Firebase's own password-reset email to whatever
+     address is currently typed in the login form. Firebase intentionally
+     doesn't distinguish "no such account" from "sent" in some SDK
+     versions for privacy, but when it does surface auth/user-not-found
+     we still show a normal friendly error via the shared mapping. */
+  async function handleForgotPassword() {
+    hideAuthError();
+    const email = els.authEmailInput ? els.authEmailInput.value.trim() : '';
+    if (!email) {
+      showAuthError(t('authErrorEmailRequired'));
+      return;
+    }
+    if (els.authForgotBtn) els.authForgotBtn.disabled = true;
+    try {
+      await auth.sendPasswordResetEmail(email);
+      showAuthToast(t('authResetEmailSent'));
+    } catch (err) {
+      console.error('Password reset error:', err);
+      showAuthError(friendlyAuthError(err));
+    } finally {
+      if (els.authForgotBtn) els.authForgotBtn.disabled = false;
+    }
+  }
+
   async function handleAuthSubmit(event) {
     event.preventDefault();
     hideAuthError();
@@ -609,6 +646,7 @@
         }
       });
     }
+    if (els.authForgotBtn) els.authForgotBtn.addEventListener('click', handleForgotPassword);
     if (els.authForm) els.authForm.addEventListener('submit', handleAuthSubmit);
     document.addEventListener('keydown', (event) => {
       if (event.key !== 'Escape') return;

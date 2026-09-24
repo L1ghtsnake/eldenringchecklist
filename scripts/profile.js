@@ -208,7 +208,9 @@
     if (!loggedIn) {
       /* Clear any previous account's cached recent-activity data so it
          can't briefly flash on screen if a different account logs in
-         later without a full page reload. */
+         later without a full page reload, and tear down that account's
+         real-time listeners. */
+      teardownProgressListeners();
       cachedProgressData = null;
       return;
     }
@@ -221,7 +223,7 @@
       els.heroDate.textContent = formatted || '';
     }
     renderAvatar(profile && profile.avatarDataUrl);
-    loadAndRenderRecent(user.uid);
+    subscribeProgressData(user.uid);
   }
 
   /* ==========================================================================
@@ -236,6 +238,30 @@
      ========================================================================== */
 
   let cachedProgressData = null;
+
+  /* Real-time coordinator for the "Recent activity" feed — tracks the
+     latest snapshot from each of the four docs it depends on and only
+     (re)renders once every one of them has delivered at least one
+     snapshot, exactly like script.js's game-data listeners. */
+  let latestEldenSnap = null;
+  let latestShadowSnap = null;
+  let latestTranslationsSnap = null;
+  let latestUserSnap = null;
+  let unsubGameEldenring = null;
+  let unsubGameShadow = null;
+  let unsubGameTranslations = null;
+  let unsubUserDoc = null;
+
+  function teardownProgressListeners() {
+    if (unsubGameEldenring) { unsubGameEldenring(); unsubGameEldenring = null; }
+    if (unsubGameShadow) { unsubGameShadow(); unsubGameShadow = null; }
+    if (unsubGameTranslations) { unsubGameTranslations(); unsubGameTranslations = null; }
+    if (unsubUserDoc) { unsubUserDoc(); unsubUserDoc = null; }
+    latestEldenSnap = null;
+    latestShadowSnap = null;
+    latestTranslationsSnap = null;
+    latestUserSnap = null;
+  }
 
   function buildBossIndexAndTotals(eldenRegions, shadowRegions, progressSet) {
     const bossIndex = {};
@@ -332,46 +358,65 @@
     });
   }
 
-  async function loadAndRenderRecent(uid) {
-    try {
-      const [eldenSnap, shadowSnap, translationsSnap, userSnap] = await Promise.all([
-        db.collection('gameData').doc('eldenring').get(),
-        db.collection('gameData').doc('shadowerdtree').get(),
-        db.collection('gameData').doc('translations').get(),
-        db.collection('users').doc(uid).get()
-      ]);
-      const eldenRegions = eldenSnap.exists ? eldenSnap.data().regions : [];
-      const shadowRegions = shadowSnap.exists ? shadowSnap.data().regions : [];
-      const translationsData = translationsSnap.exists ? translationsSnap.data() : {};
-      const userData = userSnap.exists ? userSnap.data() : {};
+  function updateCachedProgressFromSnapshots() {
+    if (!latestEldenSnap || !latestShadowSnap || !latestTranslationsSnap || !latestUserSnap) return;
 
-      const progressList = Array.isArray(userData.progress) ? userData.progress : [];
-      const progressSet = new Set(progressList.filter((id) => typeof id === 'string'));
-      const historyList = Array.isArray(userData.history) ? userData.history : [];
-      const history = historyList.filter((entry) => entry && typeof entry.id === 'string' && typeof entry.at === 'number');
+    const eldenRegions = latestEldenSnap.exists ? latestEldenSnap.data().regions : [];
+    const shadowRegions = latestShadowSnap.exists ? latestShadowSnap.data().regions : [];
+    const translationsData = latestTranslationsSnap.exists ? latestTranslationsSnap.data() : {};
+    const userData = latestUserSnap.exists ? latestUserSnap.data() : {};
 
-      const { bossIndex, total, done } = buildBossIndexAndTotals(eldenRegions, shadowRegions, progressSet);
+    const progressList = Array.isArray(userData.progress) ? userData.progress : [];
+    const progressSet = new Set(progressList.filter((id) => typeof id === 'string'));
+    const historyList = Array.isArray(userData.history) ? userData.history : [];
+    const history = historyList.filter((entry) => entry && typeof entry.id === 'string' && typeof entry.at === 'number');
 
-      cachedProgressData = {
-        bossIndex,
-        translations: {
-          ru: {
-            regions: (translationsData.ru && translationsData.ru.regions) || {},
-            bosses: (translationsData.ru && translationsData.ru.bosses) || {}
-          },
-          kk: {
-            regions: (translationsData.kk && translationsData.kk.regions) || {},
-            bosses: (translationsData.kk && translationsData.kk.bosses) || {}
-          }
+    const { bossIndex, total, done } = buildBossIndexAndTotals(eldenRegions, shadowRegions, progressSet);
+
+    cachedProgressData = {
+      bossIndex,
+      translations: {
+        ru: {
+          regions: (translationsData.ru && translationsData.ru.regions) || {},
+          bosses: (translationsData.ru && translationsData.ru.bosses) || {}
         },
-        history,
-        total,
-        done
-      };
-      renderRecentSection();
-    } catch (err) {
-      console.error('Failed to load recent activity:', err);
-    }
+        kk: {
+          regions: (translationsData.kk && translationsData.kk.regions) || {},
+          bosses: (translationsData.kk && translationsData.kk.bosses) || {}
+        }
+      },
+      history,
+      total,
+      done
+    };
+    renderRecentSection();
+  }
+
+  function subscribeProgressData(uid) {
+    /* A different account logging in without a page reload would
+       otherwise leave the previous account's listeners (and its
+       users/{uid} subscription) running. */
+    teardownProgressListeners();
+
+    unsubGameEldenring = db.collection('gameData').doc('eldenring').onSnapshot((snap) => {
+      latestEldenSnap = snap;
+      updateCachedProgressFromSnapshots();
+    }, (err) => console.error('Failed to load boss data (eldenring):', err));
+
+    unsubGameShadow = db.collection('gameData').doc('shadowerdtree').onSnapshot((snap) => {
+      latestShadowSnap = snap;
+      updateCachedProgressFromSnapshots();
+    }, (err) => console.error('Failed to load boss data (shadowerdtree):', err));
+
+    unsubGameTranslations = db.collection('gameData').doc('translations').onSnapshot((snap) => {
+      latestTranslationsSnap = snap;
+      updateCachedProgressFromSnapshots();
+    }, (err) => console.error('Failed to load translations:', err));
+
+    unsubUserDoc = db.collection('users').doc(uid).onSnapshot((snap) => {
+      latestUserSnap = snap;
+      updateCachedProgressFromSnapshots();
+    }, (err) => console.error('Failed to load recent activity:', err));
   }
 
   function applyLanguage(lang) {

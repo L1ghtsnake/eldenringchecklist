@@ -127,6 +127,11 @@
             <span id="wiki-boss-game">—</span>
           </p>
           <p class="wiki-boss-tagline" id="wiki-boss-tagline" hidden></p>
+
+          <button type="button" class="wiki-boss-defeat-btn" id="wiki-boss-defeat-btn" aria-pressed="false">
+            <svg class="wiki-boss-defeat-icon" width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/></svg>
+            <span id="wiki-boss-defeat-label">Mark as defeated</span>
+          </button>
         </div>
 
         <div class="wiki-boss-media" id="wiki-boss-media">
@@ -150,6 +155,11 @@
         <p class="wiki-boss-content-placeholder" id="wiki-boss-content-placeholder">The write-up for this boss is coming soon.</p>
 
         <div id="wiki-boss-sections"></div>
+
+        <div class="wiki-boss-related" id="wiki-boss-related" hidden>
+          <h2 class="wiki-boss-related-title" id="wiki-boss-related-title">Related bosses</h2>
+          <div class="wiki-boss-related-list" id="wiki-boss-related-list"></div>
+        </div>
 
         <nav class="wiki-boss-pagination" aria-label="Boss navigation">
           <a class="wiki-boss-nav-link wiki-boss-nav-link--prev" id="wiki-boss-prev" href="#">
@@ -210,6 +220,8 @@
           <span id="auth-password-label">Password</span>
           <input id="auth-password" type="password" required minlength="6" autocomplete="current-password" />
         </label>
+
+        <button type="button" class="auth-forgot-btn" id="auth-forgot-btn">Forgot password?</button>
 
         <p class="auth-error" id="auth-error" hidden></p>
 

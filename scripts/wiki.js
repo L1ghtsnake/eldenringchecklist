@@ -31,6 +31,11 @@ const i18n = {
     languageLabel: 'Language',
     menuAccountLabel: 'Account',
     menuPrefsLabel: 'Preferences',
+    sortLabel: 'Sort by',
+    sortDefault: 'Default order',
+    sortName: 'Name (A–Z)',
+    sortBossCount: 'Boss count',
+    loadMoreLabel: 'Show more',
   },
   ru: {
     docTitle: 'Elden Ring Database — Руководство',
@@ -50,6 +55,11 @@ const i18n = {
     languageLabel: 'Язык',
     menuAccountLabel: 'Аккаунт',
     menuPrefsLabel: 'Настройки',
+    sortLabel: 'Сортировка',
+    sortDefault: 'По умолчанию',
+    sortName: 'По алфавиту (А–Я)',
+    sortBossCount: 'По количеству боссов',
+    loadMoreLabel: 'Показать ещё',
   },
   kk: {
     docTitle: 'Elden Ring Database — Нұсқаулық',
@@ -69,17 +79,31 @@ const i18n = {
     languageLabel: 'Тіл',
     menuAccountLabel: 'Аккаунт',
     menuPrefsLabel: 'Баптаулар',
+    sortLabel: 'Сұрыптау',
+    sortDefault: 'Әдепкі бойынша',
+    sortName: 'Атауы бойынша (А–Я)',
+    sortBossCount: 'Босс саны бойынша',
+    loadMoreLabel: 'Көбірек көрсету',
   }
 };
 
 let games = {};
 let nameTranslations = { ru: { regions: {}, bosses: {} }, kk: { regions: {}, bosses: {} } };
 
+/* Pagination: regions are the "main entity list" here, shown REGION_PAGE_SIZE
+   at a time with a "Show more" button — a real (if search-bypassed) paged
+   catalog, same idea as the gallery's numbered pages. Search always shows
+   every matching region regardless of how many pages have been revealed,
+   since hiding a real match behind "Show more" would be a worse search. */
+const REGION_PAGE_SIZE = 5;
+
 const state = {
   lang: 'en',
   theme: 'dark',
   activeGame: 'eldenring',
-  searchTerm: ''
+  searchTerm: '',
+  sortBy: 'default',
+  visibleRegions: REGION_PAGE_SIZE
 };
 
 const els = {};
@@ -110,6 +134,11 @@ function cacheDom() {
   els.regionsShownLabel = document.getElementById('regions-shown-label');
   els.accordion = document.getElementById('accordion');
   els.emptyState = document.getElementById('empty-state');
+
+  els.sortLabel = document.getElementById('sort-label');
+  els.sortSelect = document.getElementById('sort-select');
+  els.loadMoreBtn = document.getElementById('load-more-btn');
+  els.loadMoreLabel = document.getElementById('load-more-label');
 }
 
 function t(key) {
@@ -237,12 +266,30 @@ function matchesSearch(boss) {
   return getBossName(boss).toLowerCase().includes(term) || boss.name.toLowerCase().includes(term);
 }
 
+/* Sorting operates on regions (the paginated unit), using whatever is
+   already sitting in memory from the onSnapshot listener — no extra
+   Firestore query needed to re-order what's already loaded. "Default
+   order" is the region order as stored in gameData (roughly the game's
+   own progression), which is itself a meaningful, relevant ordering for
+   this content — not just an arbitrary fallback. */
+function getSortedRegions(regions) {
+  const sorted = regions.slice();
+  if (state.sortBy === 'name') {
+    sorted.sort((a, b) => getRegionName(a).localeCompare(getRegionName(b), state.lang));
+  } else if (state.sortBy === 'bossCount') {
+    sorted.sort((a, b) => b.bosses.length - a.bosses.length);
+  }
+  return sorted;
+}
+
 function buildAccordion() {
   els.accordion.innerHTML = '';
   let visibleRegionCount = 0;
   const hasSearch = state.searchTerm.trim().length > 0;
+  const allRegions = getSortedRegions(getActiveRegions());
+  const pagedRegions = hasSearch ? allRegions : allRegions.slice(0, state.visibleRegions);
 
-  getActiveRegions().forEach((region, regionIndex) => {
+  pagedRegions.forEach((region, regionIndex) => {
     const visibleBosses = region.bosses.filter(matchesSearch);
     if (hasSearch && visibleBosses.length === 0) return;
     visibleRegionCount += 1;
@@ -284,6 +331,10 @@ function buildAccordion() {
 
   els.emptyState.hidden = visibleRegionCount !== 0;
   els.emptyState.textContent = t('noneFound');
+
+  if (els.loadMoreBtn) {
+    els.loadMoreBtn.hidden = hasSearch || state.visibleRegions >= allRegions.length;
+  }
 }
 
 function createBossTile(boss, index) {
@@ -321,6 +372,15 @@ function applyLanguage(lang) {
   if (els.searchInput) els.searchInput.placeholder = t('searchPlaceholder');
   if (els.regionsTitle) els.regionsTitle.textContent = t('regionsTitle');
   if (els.regionsShownLabel) els.regionsShownLabel.textContent = t('shown');
+  if (els.sortLabel) els.sortLabel.textContent = t('sortLabel');
+  if (els.sortSelect) {
+    els.sortSelect.setAttribute('aria-label', t('sortLabel'));
+    const options = els.sortSelect.options;
+    if (options[0]) options[0].textContent = t('sortDefault');
+    if (options[1]) options[1].textContent = t('sortName');
+    if (options[2]) options[2].textContent = t('sortBossCount');
+  }
+  if (els.loadMoreLabel) els.loadMoreLabel.textContent = t('loadMoreLabel');
   if (els.themeToggle) els.themeToggle.setAttribute('aria-label', t('themeLabel'));
   if (els.menuAccountLabel) els.menuAccountLabel.textContent = t('menuAccountLabel');
   if (els.menuPrefsLabel) els.menuPrefsLabel.textContent = t('menuPrefsLabel');
@@ -344,6 +404,7 @@ function applyTheme(theme) {
 
 function setActiveGame(game) {
   state.activeGame = game;
+  state.visibleRegions = REGION_PAGE_SIZE;
   savePreference(GAME_KEY, game);
   els.gameButtons.forEach((btn) => {
     const active = btn.dataset.game === game;
@@ -414,6 +475,19 @@ function attachEvents() {
   if (els.searchInput) {
     els.searchInput.addEventListener('input', (event) => {
       state.searchTerm = event.target.value;
+      buildAccordion();
+    });
+  }
+  if (els.sortSelect) {
+    els.sortSelect.addEventListener('change', (event) => {
+      state.sortBy = event.target.value;
+      state.visibleRegions = REGION_PAGE_SIZE;
+      buildAccordion();
+    });
+  }
+  if (els.loadMoreBtn) {
+    els.loadMoreBtn.addEventListener('click', () => {
+      state.visibleRegions += REGION_PAGE_SIZE;
       buildAccordion();
     });
   }

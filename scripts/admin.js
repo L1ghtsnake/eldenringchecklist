@@ -52,6 +52,7 @@
       tabRegions: 'Regions & Categories',
       tabTexts: 'Site Texts',
       tabGallery: 'Gallery',
+      tabUsers: 'Users',
       saveLabel: 'Save',
       savingLabel: 'Saving…',
       savedLabel: 'Saved.',
@@ -102,7 +103,22 @@
       galleryRemoveLabel: 'Remove',
       galleryMoveUpLabel: 'Move up',
       galleryMoveDownLabel: 'Move down',
-      galleryEmptyLabel: 'No photos yet — add one above.'
+      galleryEmptyLabel: 'No photos yet — add one above.',
+      usersStatTotal: 'Total accounts',
+      usersStatDefeated: 'Bosses defeated across all accounts',
+      usersEmailHeader: 'Email',
+      usersNicknameFallback: '(no nickname)',
+      usersRoleAdmin: 'Admin',
+      usersRoleUser: 'User',
+      usersCreatedLabel: 'Joined',
+      usersDefeatedLabel: 'defeated',
+      usersMakeAdminLabel: 'Make admin',
+      usersRemoveAdminLabel: 'Remove admin',
+      usersSelfHint: "You can't change your own role here.",
+      usersEmptyLabel: 'No accounts yet.',
+      usersConfirmMakeAdmin: 'Grant this account admin access?',
+      usersConfirmRemoveAdmin: "Remove this account's admin access?",
+      usersRoleErrorPrefix: 'Could not update role: '
     },
     ru: {
       docTitle: 'Elden Ring Database — Админ-панель',
@@ -119,6 +135,7 @@
       tabRegions: 'Регионы и категории',
       tabTexts: 'Тексты сайта',
       tabGallery: 'Галерея',
+      tabUsers: 'Пользователи',
       saveLabel: 'Сохранить',
       savingLabel: 'Сохранение…',
       savedLabel: 'Сохранено.',
@@ -169,7 +186,22 @@
       galleryRemoveLabel: 'Удалить',
       galleryMoveUpLabel: 'Выше',
       galleryMoveDownLabel: 'Ниже',
-      galleryEmptyLabel: 'Пока нет фото — добавьте выше.'
+      galleryEmptyLabel: 'Пока нет фото — добавьте выше.',
+      usersStatTotal: 'Всего аккаунтов',
+      usersStatDefeated: 'Боссов повержено во всех аккаунтах',
+      usersEmailHeader: 'Email',
+      usersNicknameFallback: '(без никнейма)',
+      usersRoleAdmin: 'Админ',
+      usersRoleUser: 'Пользователь',
+      usersCreatedLabel: 'Регистрация',
+      usersDefeatedLabel: 'повержено',
+      usersMakeAdminLabel: 'Сделать админом',
+      usersRemoveAdminLabel: 'Забрать права админа',
+      usersSelfHint: 'Вы не можете изменить свою собственную роль здесь.',
+      usersEmptyLabel: 'Пока нет аккаунтов.',
+      usersConfirmMakeAdmin: 'Выдать этому аккаунту права администратора?',
+      usersConfirmRemoveAdmin: 'Забрать у этого аккаунта права администратора?',
+      usersRoleErrorPrefix: 'Не удалось изменить роль: '
     },
     kk: {
       docTitle: 'Elden Ring Database — Әкімші панелі',
@@ -186,6 +218,7 @@
       tabRegions: 'Аймақтар мен санаттар',
       tabTexts: 'Сайт мәтіндері',
       tabGallery: 'Галерея',
+      tabUsers: 'Пайдаланушылар',
       saveLabel: 'Сақтау',
       savingLabel: 'Сақталуда…',
       savedLabel: 'Сақталды.',
@@ -236,7 +269,22 @@
       galleryRemoveLabel: 'Жою',
       galleryMoveUpLabel: 'Жоғары',
       galleryMoveDownLabel: 'Төмен',
-      galleryEmptyLabel: 'Әзірге фото жоқ — жоғарыдан қосыңыз.'
+      galleryEmptyLabel: 'Әзірге фото жоқ — жоғарыдан қосыңыз.',
+      usersStatTotal: 'Барлық аккаунттар',
+      usersStatDefeated: 'Барлық аккаунттарда жеңілген боссылар',
+      usersEmailHeader: 'Email',
+      usersNicknameFallback: '(никнейм жоқ)',
+      usersRoleAdmin: 'Админ',
+      usersRoleUser: 'Пайдаланушы',
+      usersCreatedLabel: 'Тіркелген күні',
+      usersDefeatedLabel: 'жеңілді',
+      usersMakeAdminLabel: 'Админ ету',
+      usersRemoveAdminLabel: 'Админ құқығын алу',
+      usersSelfHint: 'Өз рөліңізді осында өзгерте алмайсыз.',
+      usersEmptyLabel: 'Әзірге аккаунт жоқ.',
+      usersConfirmMakeAdmin: 'Бұл аккаунтқа админ құқығын беру керек пе?',
+      usersConfirmRemoveAdmin: 'Бұл аккаунттан админ құқығын алу керек пе?',
+      usersRoleErrorPrefix: 'Рөлді өзгерту мүмкін болмады: '
     }
   };
 
@@ -273,6 +321,7 @@
     els.tabLabelRegions = document.getElementById('tab-label-regions');
     els.tabLabelTexts = document.getElementById('tab-label-texts');
     els.tabLabelGallery = document.getElementById('tab-label-gallery');
+    els.tabLabelUsers = document.getElementById('tab-label-users');
 
     // Bosses tab
     els.bossGameLabel = document.getElementById('boss-game-label');
@@ -362,6 +411,14 @@
     els.galleryFormError = document.getElementById('gallery-form-error');
     els.galleryFormStatus = document.getElementById('gallery-form-status');
     els.galleryList = document.getElementById('gallery-list');
+
+    // Users tab
+    els.usersStatTotal = document.getElementById('users-stat-total');
+    els.usersStatTotalLabel = document.getElementById('users-stat-total-label');
+    els.usersStatDefeated = document.getElementById('users-stat-defeated');
+    els.usersStatDefeatedLabel = document.getElementById('users-stat-defeated-label');
+    els.usersList = document.getElementById('users-list');
+    els.usersEmpty = document.getElementById('users-empty');
   }
 
   function loadPreference(key, fallback, validValues) {
@@ -524,6 +581,7 @@
     if (els.tabLabelRegions) els.tabLabelRegions.textContent = t('tabRegions');
     if (els.tabLabelTexts) els.tabLabelTexts.textContent = t('tabTexts');
     if (els.tabLabelGallery) els.tabLabelGallery.textContent = t('tabGallery');
+    if (els.tabLabelUsers) els.tabLabelUsers.textContent = t('tabUsers');
 
     if (els.bossGameLabel) els.bossGameLabel.textContent = t('bossGameLabel');
     if (els.bossRegionLabel) els.bossRegionLabel.textContent = t('bossRegionLabel');
@@ -557,6 +615,10 @@
     if (bossState.currentBossId) renderResistGrids(bossState.currentDetail);
     if (regionsState.rendered) renderRegionsList();
     renderGalleryList();
+    if (els.usersStatTotalLabel) els.usersStatTotalLabel.textContent = t('usersStatTotal');
+    if (els.usersStatDefeatedLabel) els.usersStatDefeatedLabel.textContent = t('usersStatDefeated');
+    if (els.usersEmpty) els.usersEmpty.textContent = t('usersEmptyLabel');
+    renderUsersList();
 
     if (window.AuthWidget) {
       window.AuthWidget.setLanguage(lang);
@@ -597,10 +659,11 @@
     translations: { ru: { regions: {}, bosses: {} }, kk: { regions: {}, bosses: {} } },
     bossDetails: {},
     siteConfig: {},
-    gallery: { photos: [] }
+    gallery: { photos: [] },
+    users: []
   };
 
-  const loaded = { eldenring: false, shadowerdtree: false, translations: false, bossDetails: false, siteConfig: false, gallery: false };
+  const loaded = { eldenring: false, shadowerdtree: false, translations: false, bossDetails: false, siteConfig: false, gallery: false, users: false };
   let dataSubscribed = false;
 
   function ensureDataSubscribed() {
@@ -647,6 +710,32 @@
       loaded.gallery = true;
       renderGalleryList();
     }, (err) => { console.error('gallery snapshot error:', err); loaded.gallery = true; });
+
+    /* Firestore's client SDKs (unlike the server-only Admin SDK) don't
+       support field-projection queries — there's no .select() here to
+       skip each account's heavier fields (avatarDataUrl, history).
+       orderBy('email') is the optimization actually available client-side:
+       it offloads the sort to Firestore instead of the browser, and the
+       roster is small enough (one doc per registered account) that a
+       plain, real-time, unpaginated read of it is the right trade-off —
+       see the region-level pagination on the checklist/guide pages for
+       where the ТЗ's "data duplication for performance" applies instead,
+       to the actually large gameData documents. */
+    db.collection('users').orderBy('email').onSnapshot((snap) => {
+      cache.users = snap.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          uid: doc.id,
+          email: data.email || '',
+          nickname: data.nickname || '',
+          role: data.role || '',
+          createdAt: data.createdAt || null,
+          defeatedCount: Array.isArray(data.progress) ? data.progress.length : 0
+        };
+      });
+      loaded.users = true;
+      renderUsersList();
+    }, (err) => { console.error('users snapshot error:', err); loaded.users = true; });
   }
 
   function onGameDataUpdate(source) {
@@ -1258,6 +1347,104 @@
 
   function attachGalleryTabEvents() {
     if (els.galleryAddForm) els.galleryAddForm.addEventListener('submit', handleGalleryAddSubmit);
+  }
+
+  /* ==========================================================================
+     Users tab — a read-mostly roster (see ensureDataSubscribed above for
+     why this is a plain orderBy() query rather than a projection) plus
+     one action: toggling an account's admin role. Everything else about
+     an account (nickname, avatar, progress) stays the owner's alone to
+     change — see the "affectedKeys hasOnly(['role'])" restriction in
+     firestore.rules.
+     ========================================================================== */
+
+  function formatUserJoinDate(timestamp) {
+    if (!timestamp) return '—';
+    const date = typeof timestamp.toDate === 'function' ? timestamp.toDate() : new Date(timestamp);
+    if (Number.isNaN(date.getTime())) return '—';
+    return new Intl.DateTimeFormat(currentLang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' }).format(date);
+  }
+
+  function renderUsersList() {
+    if (!els.usersList) return;
+    const users = cache.users || [];
+    const currentUid = lastAuthState.user ? lastAuthState.user.uid : null;
+
+    const totalDefeated = users.reduce((sum, u) => sum + u.defeatedCount, 0);
+    if (els.usersStatTotal) els.usersStatTotal.textContent = String(users.length);
+    if (els.usersStatDefeated) els.usersStatDefeated.textContent = String(totalDefeated);
+
+    els.usersList.innerHTML = '';
+    if (els.usersEmpty) els.usersEmpty.hidden = users.length !== 0;
+    if (!users.length) return;
+
+    const sorted = users.slice().sort((a, b) => a.email.localeCompare(b.email));
+
+    sorted.forEach((user) => {
+      const isAdminUser = user.role === 'admin';
+      const isSelf = user.uid === currentUid;
+
+      const row = document.createElement('div');
+      row.className = 'admin-user-row';
+
+      const info = document.createElement('div');
+      info.className = 'admin-user-info';
+      const emailEl = document.createElement('span');
+      emailEl.className = 'admin-user-email';
+      emailEl.textContent = user.email || user.uid;
+      info.appendChild(emailEl);
+      const nicknameEl = document.createElement('span');
+      nicknameEl.className = 'admin-user-nickname';
+      nicknameEl.textContent = user.nickname || t('usersNicknameFallback');
+      info.appendChild(nicknameEl);
+      row.appendChild(info);
+
+      const meta = document.createElement('div');
+      meta.className = 'admin-user-meta';
+
+      const badge = document.createElement('span');
+      badge.className = 'admin-role-badge' + (isAdminUser ? ' admin-role-badge--admin' : '');
+      badge.textContent = isAdminUser ? t('usersRoleAdmin') : t('usersRoleUser');
+      meta.appendChild(badge);
+
+      const joined = document.createElement('span');
+      joined.textContent = t('usersCreatedLabel') + ': ' + formatUserJoinDate(user.createdAt);
+      meta.appendChild(joined);
+
+      const defeated = document.createElement('span');
+      defeated.textContent = user.defeatedCount + ' ' + t('usersDefeatedLabel');
+      meta.appendChild(defeated);
+
+      row.appendChild(meta);
+
+      const toggleBtn = document.createElement('button');
+      toggleBtn.type = 'button';
+      toggleBtn.className = 'admin-icon-btn admin-role-toggle-btn' + (isAdminUser ? ' admin-icon-btn--danger' : '');
+      toggleBtn.textContent = isAdminUser ? t('usersRemoveAdminLabel') : t('usersMakeAdminLabel');
+      if (isSelf) {
+        toggleBtn.disabled = true;
+        toggleBtn.title = t('usersSelfHint');
+      } else {
+        toggleBtn.addEventListener('click', () => handleToggleUserRole(user, isAdminUser));
+      }
+      row.appendChild(toggleBtn);
+
+      els.usersList.appendChild(row);
+    });
+  }
+
+  async function handleToggleUserRole(user, isCurrentlyAdmin) {
+    const confirmMsg = isCurrentlyAdmin ? t('usersConfirmRemoveAdmin') : t('usersConfirmMakeAdmin');
+    if (!window.confirm(confirmMsg + '\n\n' + user.email)) return;
+
+    try {
+      await db.collection('users').doc(user.uid).update({
+        role: isCurrentlyAdmin ? firebase.firestore.FieldValue.delete() : 'admin'
+      });
+    } catch (err) {
+      console.error('Failed to update user role:', err);
+      window.alert(t('usersRoleErrorPrefix') + err.message);
+    }
   }
 
   /* ==========================================================================

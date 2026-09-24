@@ -11,6 +11,13 @@
 
 const THEME_KEY = 'eldenRingBossChecklistTheme';
 const LANG_KEY = 'eldenRingBossChecklistLang';
+/* Same key/shape script.js uses for guest (signed-out) progress, and
+   the same users/{uid}.progress + .history fields it uses for signed-in
+   accounts — the "Mark as defeated" button below reads/writes exactly
+   that shared state, so toggling a boss here shows up on the checklist
+   page (and vice versa) without anything special. */
+const STORAGE_KEY = 'eldenRingBossChecklist';
+const HISTORY_LIMIT = 20;
 
 const i18n = {
   en: {
@@ -29,6 +36,9 @@ const i18n = {
     notFoundBack: 'Back to the guide',
     menuAccountLabel: 'Account',
     menuPrefsLabel: 'Preferences',
+    markDefeated: 'Mark as defeated',
+    markDefeatedDone: 'Defeated',
+    relatedBossesTitle: 'Related bosses',
     hpLabel: 'HP',
     runesLabel: 'Runes',
     descriptionTitle: 'Description',
@@ -62,6 +72,9 @@ const i18n = {
     notFoundBack: 'Вернуться в руководство',
     menuAccountLabel: 'Аккаунт',
     menuPrefsLabel: 'Настройки',
+    markDefeated: 'Отметить как побеждённого',
+    markDefeatedDone: 'Побеждён',
+    relatedBossesTitle: 'Похожие боссы',
     hpLabel: 'Здоровье',
     runesLabel: 'Руны',
     descriptionTitle: 'Описание',
@@ -95,6 +108,9 @@ const i18n = {
     notFoundBack: 'Нұсқаулыққа оралу',
     menuAccountLabel: 'Аккаунт',
     menuPrefsLabel: 'Баптаулар',
+    markDefeated: 'Жеңілген деп белгілеу',
+    markDefeatedDone: 'Жеңілді',
+    relatedBossesTitle: 'Ұқсас боссылар',
     hpLabel: 'HP',
     runesLabel: 'Рундар',
     descriptionTitle: 'Сипаттама',
@@ -115,13 +131,19 @@ const i18n = {
 };
 
 let nameTranslations = { ru: { regions: {}, bosses: {} }, kk: { regions: {}, bosses: {} } };
-let flatBosses = []; // [{ id, name, regionId, regionName, game }], in canonical order
+let flatBosses = []; // [{ id, name, regionId, regionName, game, categories }], in canonical order
 let bossDetails = {}; // { [bossId]: { hp, runes, ru: {...} } }
 
 const state = {
   lang: 'en',
   theme: 'dark',
-  currentBoss: null
+  currentBoss: null,
+  /* Same shape as script.js's progress state — a guest's Set is loaded
+     straight from STORAGE_KEY, an account's from users/{uid} via a
+     real-time listener (see subscribeUserProgress below). history stays
+     empty for guests (the personal cabinet's feed is login-only). */
+  completed: new Set(),
+  history: []
 };
 
 const els = {};
@@ -171,6 +193,13 @@ function cacheDom() {
   els.notFoundText = document.getElementById('wiki-not-found-text');
   els.notFoundBackLink = document.getElementById('wiki-not-found-back');
   els.notFoundBackLabel = document.getElementById('wiki-not-found-back-label');
+
+  els.defeatBtn = document.getElementById('wiki-boss-defeat-btn');
+  els.defeatLabel = document.getElementById('wiki-boss-defeat-label');
+
+  els.related = document.getElementById('wiki-boss-related');
+  els.relatedTitle = document.getElementById('wiki-boss-related-title');
+  els.relatedList = document.getElementById('wiki-boss-related-list');
 }
 
 function t(key) {
@@ -290,15 +319,182 @@ function buildFlatList(eldenRegions, shadowRegions) {
   const list = [];
   eldenRegions.forEach((region) => {
     region.bosses.forEach((boss) => {
-      list.push({ id: boss.id, name: boss.name, regionId: region.id, regionName: region.name, game: 'eldenring' });
+      list.push({ id: boss.id, name: boss.name, regionId: region.id, regionName: region.name, game: 'eldenring', categories: Array.isArray(boss.categories) ? boss.categories : [] });
     });
   });
   shadowRegions.forEach((region) => {
     region.bosses.forEach((boss) => {
-      list.push({ id: boss.id, name: boss.name, regionId: region.id, regionName: region.name, game: 'shadowerdtree' });
+      list.push({ id: boss.id, name: boss.name, regionId: region.id, regionName: region.name, game: 'shadowerdtree', categories: Array.isArray(boss.categories) ? boss.categories : [] });
     });
   });
   return list;
+}
+
+/* ==========================================================================
+   Progress — "Mark as defeated" + the shared account/guest state it reads
+   and writes. Mirrors script.js's contract exactly (same STORAGE_KEY for
+   guests, same users/{uid}.progress/.history shape for accounts) so a
+   boss toggled here is reflected on the checklist page and vice versa.
+   ========================================================================== */
+
+function loadGuestProgress() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(parsed)) return new Set();
+    return new Set(parsed.filter((id) => typeof id === 'string'));
+  } catch (err) {
+    return new Set();
+  }
+}
+
+function saveGuestProgress() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(state.completed)));
+  } catch (err) {
+    /* storage unavailable */
+  }
+}
+
+/* Real-time users/{uid} listener — kept separate from the game-data
+   listeners above since it only exists while someone is signed in. */
+let unsubUserProgress = null;
+
+function teardownUserProgress() {
+  if (unsubUserProgress) {
+    unsubUserProgress();
+    unsubUserProgress = null;
+  }
+}
+
+function subscribeUserProgress(uid) {
+  teardownUserProgress();
+  unsubUserProgress = db.collection('users').doc(uid).onSnapshot((snap) => {
+    const data = snap.exists ? snap.data() : {};
+    const progressList = Array.isArray(data.progress) ? data.progress : [];
+    const historyList = Array.isArray(data.history) ? data.history : [];
+    state.completed = new Set(progressList.filter((id) => typeof id === 'string'));
+    state.history = historyList.filter((entry) => entry && typeof entry.id === 'string' && typeof entry.at === 'number');
+    updateMarkDefeatedUI();
+  }, (err) => console.error('Failed to load account progress:', err));
+}
+
+/* AuthWidget's onAuthChange callback — fires once on load (guest or
+   already-logged-in) and again on every later sign-in/sign-out. Mirrors
+   script.js's handleAuthChange/applyAuthState exactly: a real sign-out
+   mid-session resets to empty rather than exposing guest localStorage
+   progress, while a guest on page load keeps whatever loadGuestProgress()
+   already put in state.completed during init(). */
+let progressAuthInitialized = false;
+
+function handleAuthChangeForProgress(user) {
+  const isFirstCall = !progressAuthInitialized;
+  progressAuthInitialized = true;
+
+  if (user) {
+    subscribeUserProgress(user.uid);
+    return;
+  }
+
+  teardownUserProgress();
+  if (!isFirstCall) {
+    state.completed = new Set();
+    state.history = [];
+  }
+  updateMarkDefeatedUI();
+}
+
+function updateMarkDefeatedUI() {
+  if (!els.defeatBtn || !state.currentBoss) return;
+  const isDone = state.completed.has(state.currentBoss.id);
+  els.defeatBtn.setAttribute('aria-pressed', String(isDone));
+  if (els.defeatLabel) els.defeatLabel.textContent = isDone ? t('markDefeatedDone') : t('markDefeated');
+}
+
+function toggleDefeated() {
+  const boss = state.currentBoss;
+  if (!boss) return;
+
+  const nowDone = !state.completed.has(boss.id);
+  if (nowDone) {
+    state.completed.add(boss.id);
+  } else {
+    state.completed.delete(boss.id);
+  }
+
+  if (window.AuthWidget && window.AuthWidget.isLoggedIn()) {
+    const user = window.AuthWidget.getUser();
+    if (nowDone) {
+      state.history = state.history.filter((entry) => entry.id !== boss.id);
+      state.history.unshift({ id: boss.id, at: Date.now() });
+      if (state.history.length > HISTORY_LIMIT) state.history.length = HISTORY_LIMIT;
+    } else {
+      state.history = state.history.filter((entry) => entry.id !== boss.id);
+    }
+    db.collection('users').doc(user.uid).set(
+      { progress: Array.from(state.completed), history: state.history },
+      { merge: true }
+    ).catch((err) => console.error('Failed to save progress to account:', err));
+  } else {
+    saveGuestProgress();
+  }
+
+  updateMarkDefeatedUI();
+}
+
+/* ==========================================================================
+   Related bosses — same region first (same game), then same category,
+   deduplicated, capped at 6. Purely derived from data already loaded by
+   subscribeGameData(), so this needs no extra Firestore reads. */
+
+function getRelatedBosses(boss) {
+  const sameRegion = flatBosses.filter((b) => b.id !== boss.id && b.game === boss.game && b.regionId === boss.regionId);
+  const categories = Array.isArray(boss.categories) ? boss.categories : [];
+  const sameCategory = categories.length
+    ? flatBosses.filter((b) => b.id !== boss.id && !(b.game === boss.game && b.regionId === boss.regionId) && b.categories.some((c) => categories.includes(c)))
+    : [];
+
+  const seen = new Set();
+  const result = [];
+  sameRegion.concat(sameCategory).forEach((b) => {
+    if (seen.has(b.id) || result.length >= 6) return;
+    seen.add(b.id);
+    result.push(b);
+  });
+  return result;
+}
+
+function renderRelatedBosses(boss) {
+  if (!els.related || !els.relatedList) return;
+  const related = getRelatedBosses(boss);
+
+  if (!related.length) {
+    els.related.hidden = true;
+    els.relatedList.innerHTML = '';
+    return;
+  }
+
+  els.related.hidden = false;
+  if (els.relatedTitle) els.relatedTitle.textContent = t('relatedBossesTitle');
+  els.relatedList.innerHTML = '';
+
+  related.forEach((b) => {
+    const link = document.createElement('a');
+    link.className = 'wiki-boss-related-link';
+    link.href = `wiki-boss.html?id=${encodeURIComponent(b.id)}`;
+
+    const name = document.createElement('span');
+    name.className = 'wiki-boss-related-name';
+    name.textContent = localizedBossName(b);
+
+    const region = document.createElement('span');
+    region.className = 'wiki-boss-related-region';
+    region.textContent = localizedRegionName({ id: b.regionId, name: b.regionName });
+
+    link.appendChild(name);
+    link.appendChild(region);
+    els.relatedList.appendChild(link);
+  });
 }
 
 function getBossId() {
@@ -611,6 +807,8 @@ function renderBoss() {
     loadBossPhoto(boss.id);
   }
   renderSections(bossDetails[boss.id]);
+  updateMarkDefeatedUI();
+  renderRelatedBosses(boss);
 
   const prev = index > 0 ? flatBosses[index - 1] : null;
   const next = index < flatBosses.length - 1 ? flatBosses[index + 1] : null;
@@ -659,6 +857,7 @@ function applyLanguage(lang) {
   if (els.notFoundTitle) els.notFoundTitle.textContent = t('notFoundTitle');
   if (els.notFoundText) els.notFoundText.textContent = t('notFoundText');
   if (els.notFoundBackLabel) els.notFoundBackLabel.textContent = t('notFoundBack');
+  if (els.relatedTitle) els.relatedTitle.textContent = t('relatedBossesTitle');
   if (els.themeToggle) els.themeToggle.setAttribute('aria-label', t('themeLabel'));
   if (els.menuAccountLabel) els.menuAccountLabel.textContent = t('menuAccountLabel');
   if (els.menuPrefsLabel) els.menuPrefsLabel.textContent = t('menuPrefsLabel');
@@ -728,6 +927,9 @@ function attachEvents() {
       toggleBurgerMenu();
     });
   }
+  if (els.defeatBtn) {
+    els.defeatBtn.addEventListener('click', toggleDefeated);
+  }
 
   document.addEventListener('click', (event) => {
     if (els.langFilterPanel && !els.langFilterPanel.hidden) {
@@ -755,8 +957,13 @@ async function init() {
 
   const savedLang = loadPreference(LANG_KEY, 'en', ['en', 'ru', 'kk']);
 
+  /* Seeded synchronously so a guest sees the right defeat-button state
+     immediately; handleAuthChangeForProgress overwrites this the moment
+     AuthWidget resolves (guest confirmed, or replaced with account data). */
+  state.completed = loadGuestProgress();
+
   if (window.AuthWidget) {
-    window.AuthWidget.init('en', { onBeforeOpen: closeBurgerMenu, onAuthChange: null });
+    window.AuthWidget.init('en', { onBeforeOpen: closeBurgerMenu, onAuthChange: handleAuthChangeForProgress });
   }
 
   const gameDataResult = await subscribeGameData();
