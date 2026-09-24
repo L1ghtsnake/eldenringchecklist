@@ -716,6 +716,15 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
               color var(--dur-fast) var(--ease-soft);
 }
 
+/* Same gotcha as .icon-btn[hidden] above: .account-cabinet-link's own
+   `display: flex` beats the browser's built-in `[hidden] { display: none }`
+   rule (author styles always win over user-agent defaults), so without
+   this, setting `.hidden = true` on the "Admin panel" link in auth.js
+   did nothing — the link stayed visible to every logged-in user
+   regardless of role. The "Personal cabinet" link never gets `hidden`
+   set on it, so it's unaffected. */
+.admin-panel-link[hidden] { display: none; }
+
 .account-cabinet-link:hover,
 .account-cabinet-link:focus-visible {
   background: var(--surface-3);
@@ -981,6 +990,14 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
 .auth-submit:hover { background: var(--cta-hover); }
 .auth-submit:active { transform: scale(0.98); }
 .auth-submit:disabled { opacity: 0.6; cursor: default; }
+
+/* Same [hidden]-vs-author-display gotcha as .icon-btn[hidden] /
+   .admin-panel-link[hidden] above: .auth-submit's own `display: flex`
+   beats the browser's default `[hidden] { display: none }` rule, so
+   without this, toggling `hidden` on the admin-guard "Log in" button
+   (#admin-guard-login-btn, shown only when logged out, hidden once
+   logged in as a non-admin) silently did nothing. */
+.auth-submit[hidden] { display: none; }
 
 .auth-submit:focus-visible {
   outline: 2px solid var(--cta);

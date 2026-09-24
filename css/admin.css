@@ -109,6 +109,14 @@
   gap: 16px;
 }
 
+/* Same [hidden]-vs-author-display gotcha as .icon-btn[hidden] /
+   .admin-panel-link[hidden] in style.css: #boss-form starts with the
+   `hidden` attribute in admin.html (shown only once an admin picks a
+   boss to edit), and admin.js toggles that attribute — but without
+   this override, .admin-form's own `display: flex` would keep the
+   empty edit form visible on page load, before any boss is selected. */
+.admin-form[hidden] { display: none; }
+
 .admin-field-row {
   display: flex;
   flex-wrap: wrap;
