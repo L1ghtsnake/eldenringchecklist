@@ -54,7 +54,21 @@ const i18n = {
     lootNameHeader: 'Name',
     lootChanceHeader: 'Drop chance',
     notesTitle: 'Notes',
-    triviaTitle: 'Trivia'
+    triviaTitle: 'Trivia',
+    commentsTitle: 'Comments',
+    commentsEmpty: 'No comments yet — be the first to leave one.',
+    commentLabel: 'Add a comment',
+    commentSubmit: 'Post comment',
+    commentSubmitting: 'Posting…',
+    commentLoginPrompt: 'Log in',
+    commentLoginPromptText: ' to leave a comment.',
+    commentErrorRequired: 'Write something before posting.',
+    commentErrorTooLong: 'Comments can be at most 500 characters.',
+    commentErrorGeneric: 'Could not post the comment. Please try again.',
+    commentDeleteLabel: 'Delete comment',
+    commentDeleteConfirm: 'Delete this comment?',
+    commentDeleteError: 'Could not delete the comment. Please try again.',
+    commentJustNow: 'Just now'
   },
   ru: {
     docTitlePrefix: 'Elden Ring Database — ',
@@ -90,7 +104,21 @@ const i18n = {
     lootNameHeader: 'Название',
     lootChanceHeader: 'Шанс выпадения',
     notesTitle: 'Примечания',
-    triviaTitle: 'Интересные факты'
+    triviaTitle: 'Интересные факты',
+    commentsTitle: 'Комментарии',
+    commentsEmpty: 'Пока нет комментариев — оставьте первый.',
+    commentLabel: 'Оставить комментарий',
+    commentSubmit: 'Отправить',
+    commentSubmitting: 'Отправка…',
+    commentLoginPrompt: 'Войдите',
+    commentLoginPromptText: ', чтобы оставить комментарий.',
+    commentErrorRequired: 'Напишите что-нибудь перед отправкой.',
+    commentErrorTooLong: 'Комментарий может содержать не более 500 символов.',
+    commentErrorGeneric: 'Не удалось отправить комментарий. Попробуйте ещё раз.',
+    commentDeleteLabel: 'Удалить комментарий',
+    commentDeleteConfirm: 'Удалить этот комментарий?',
+    commentDeleteError: 'Не удалось удалить комментарий. Попробуйте ещё раз.',
+    commentJustNow: 'Только что'
   },
   kk: {
     docTitlePrefix: 'Elden Ring Database — ',
@@ -126,7 +154,21 @@ const i18n = {
     lootNameHeader: 'Атауы',
     lootChanceHeader: 'Түсу мүмкіндігі',
     notesTitle: 'Ескертпелер',
-    triviaTitle: 'Қызықты деректер'
+    triviaTitle: 'Қызықты деректер',
+    commentsTitle: 'Пікірлер',
+    commentsEmpty: 'Әзірге пікір жоқ — бірінші болып қалдырыңыз.',
+    commentLabel: 'Пікір қалдыру',
+    commentSubmit: 'Жіберу',
+    commentSubmitting: 'Жіберілуде…',
+    commentLoginPrompt: 'Кіріңіз',
+    commentLoginPromptText: ', пікір қалдыру үшін.',
+    commentErrorRequired: 'Жібермес бұрын бірдеңе жазыңыз.',
+    commentErrorTooLong: 'Пікір 500 таңбадан аспауы керек.',
+    commentErrorGeneric: 'Пікірді жіберу мүмкін болмады. Қайталап көріңіз.',
+    commentDeleteLabel: 'Пікірді жою',
+    commentDeleteConfirm: 'Бұл пікірді жою керек пе?',
+    commentDeleteError: 'Пікірді жою мүмкін болмады. Қайталап көріңіз.',
+    commentJustNow: 'Жаңа ғана'
   }
 };
 
@@ -143,7 +185,8 @@ const state = {
      real-time listener (see subscribeUserProgress below). history stays
      empty for guests (the personal cabinet's feed is login-only). */
   completed: new Set(),
-  history: []
+  history: [],
+  comments: []
 };
 
 const els = {};
@@ -200,6 +243,19 @@ function cacheDom() {
   els.related = document.getElementById('wiki-boss-related');
   els.relatedTitle = document.getElementById('wiki-boss-related-title');
   els.relatedList = document.getElementById('wiki-boss-related-list');
+
+  els.commentsTitle = document.getElementById('wiki-boss-comments-title');
+  els.commentsList = document.getElementById('wiki-boss-comments-list');
+  els.commentsEmpty = document.getElementById('wiki-boss-comments-empty');
+  els.commentForm = document.getElementById('wiki-boss-comment-form');
+  els.commentLabel = document.getElementById('wiki-boss-comment-label');
+  els.commentInput = document.getElementById('wiki-boss-comment-input');
+  els.commentError = document.getElementById('wiki-boss-comment-error');
+  els.commentSubmit = document.getElementById('wiki-boss-comment-submit');
+  els.commentSubmitLabel = document.getElementById('wiki-boss-comment-submit-label');
+  els.commentGuestNote = document.getElementById('wiki-boss-comment-guest-note');
+  els.commentLoginLink = document.getElementById('wiki-boss-comment-login-link');
+  els.commentGuestText = document.getElementById('wiki-boss-comment-guest-text');
 }
 
 function t(key) {
@@ -393,6 +449,8 @@ function handleAuthChangeForProgress(user) {
 
   if (user) {
     subscribeUserProgress(user.uid);
+    updateCommentComposeUI();
+    renderComments();
     return;
   }
 
@@ -402,6 +460,8 @@ function handleAuthChangeForProgress(user) {
     state.history = [];
   }
   updateMarkDefeatedUI();
+  updateCommentComposeUI();
+  renderComments();
 }
 
 function updateMarkDefeatedUI() {
@@ -495,6 +555,203 @@ function renderRelatedBosses(boss) {
     link.appendChild(region);
     els.relatedList.appendChild(link);
   });
+}
+
+/* ==========================================================================
+   Boss comments — one Firestore doc per comment in the top-level
+   `comments` collection ({ bossId, game, uid, nickname, text, createdAt }),
+   read with a single equality filter (`where('bossId', '==', …)`) so no
+   composite index is needed, sorted newest-first client-side. Mirrors the
+   users/{uid} onSnapshot pattern used everywhere else on this page: an
+   admin (or the author, from another tab) deleting a comment shows up
+   here live, same as an edit anywhere else in this codebase. */
+
+let unsubComments = null;
+let subscribedCommentsBossId = null;
+
+function teardownComments() {
+  if (unsubComments) {
+    unsubComments();
+    unsubComments = null;
+  }
+  subscribedCommentsBossId = null;
+}
+
+function subscribeComments(bossId) {
+  if (subscribedCommentsBossId === bossId) return;
+  teardownComments();
+  subscribedCommentsBossId = bossId;
+
+  unsubComments = db.collection('comments').where('bossId', '==', bossId).onSnapshot((snap) => {
+    const list = [];
+    snap.forEach((doc) => {
+      const data = doc.data();
+      if (typeof data.text !== 'string' || typeof data.uid !== 'string') return;
+      // A comment just posted from this tab shows up in this same
+      // snapshot before the server has assigned its serverTimestamp()
+      // — createdAt reads as null for that brief window, not a Date.
+      const createdAt = data.createdAt && typeof data.createdAt.toMillis === 'function' ? data.createdAt.toMillis() : null;
+      list.push({
+        id: doc.id,
+        uid: data.uid,
+        nickname: (typeof data.nickname === 'string' && data.nickname) || '—',
+        text: data.text,
+        createdAt
+      });
+    });
+    // Newest first; a pending (createdAt === null) comment sorts to the
+    // very top so it doesn't jump once the real timestamp arrives.
+    list.sort((a, b) => (b.createdAt == null ? Infinity : b.createdAt) - (a.createdAt == null ? Infinity : a.createdAt));
+    state.comments = list;
+    renderComments();
+  }, (err) => console.error('Failed to load comments:', err));
+}
+
+function formatCommentDate(ms) {
+  if (ms == null) return t('commentJustNow');
+  const date = new Date(ms);
+  if (Number.isNaN(date.getTime())) return '';
+  const locale = state.lang === 'ru' ? 'ru-RU' : state.lang === 'kk' ? 'kk-KZ' : 'en-US';
+  try {
+    return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(date);
+  } catch (err) {
+    return date.toLocaleString();
+  }
+}
+
+function renderComments() {
+  if (!els.commentsList || !els.commentsEmpty) return;
+  const comments = state.comments || [];
+
+  if (!comments.length) {
+    els.commentsList.hidden = true;
+    els.commentsList.innerHTML = '';
+    els.commentsEmpty.hidden = false;
+    return;
+  }
+
+  els.commentsEmpty.hidden = true;
+  els.commentsList.hidden = false;
+  els.commentsList.innerHTML = '';
+
+  const loggedIn = !!(window.AuthWidget && window.AuthWidget.isLoggedIn());
+  const currentUid = loggedIn ? window.AuthWidget.getUser().uid : null;
+  const isAdmin = loggedIn && window.AuthWidget.isAdmin ? window.AuthWidget.isAdmin() : false;
+
+  comments.forEach((comment) => {
+    const li = document.createElement('li');
+    li.className = 'wiki-boss-comment-item';
+
+    const head = document.createElement('div');
+    head.className = 'wiki-boss-comment-head';
+
+    const author = document.createElement('span');
+    author.className = 'wiki-boss-comment-author';
+    author.textContent = comment.nickname;
+    head.appendChild(author);
+
+    const date = document.createElement('span');
+    date.className = 'wiki-boss-comment-date';
+    date.textContent = formatCommentDate(comment.createdAt);
+    head.appendChild(date);
+
+    if (currentUid && (currentUid === comment.uid || isAdmin)) {
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'wiki-boss-comment-delete';
+      deleteBtn.setAttribute('aria-label', t('commentDeleteLabel'));
+      deleteBtn.title = t('commentDeleteLabel');
+      deleteBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14Z"/></svg>';
+      deleteBtn.addEventListener('click', () => deleteComment(comment.id));
+      head.appendChild(deleteBtn);
+    }
+
+    li.appendChild(head);
+
+    // textContent, never innerHTML — this is arbitrary user-submitted
+    // text and must never be parsed as markup.
+    const textEl = document.createElement('p');
+    textEl.className = 'wiki-boss-comment-text';
+    textEl.textContent = comment.text;
+    li.appendChild(textEl);
+
+    els.commentsList.appendChild(li);
+  });
+}
+
+function deleteComment(commentId) {
+  if (!confirm(t('commentDeleteConfirm'))) return;
+  db.collection('comments').doc(commentId).delete().catch((err) => {
+    console.error('Failed to delete comment:', err);
+    alert(t('commentDeleteError'));
+  });
+}
+
+function showCommentError(message) {
+  if (!els.commentError) return;
+  els.commentError.textContent = message;
+  els.commentError.hidden = false;
+}
+
+function hideCommentError() {
+  if (!els.commentError) return;
+  els.commentError.hidden = true;
+  els.commentError.textContent = '';
+}
+
+/* Shows the compose form to a signed-in visitor, the "log in to comment"
+   note to everyone else. Defaults to the guest note in the markup (see
+   the comment there) so there's no flash of a compose box a guest can't
+   actually use before AuthWidget resolves. */
+function updateCommentComposeUI() {
+  const loggedIn = !!(window.AuthWidget && window.AuthWidget.isLoggedIn());
+  if (els.commentForm) els.commentForm.hidden = !loggedIn;
+  if (els.commentGuestNote) els.commentGuestNote.hidden = loggedIn;
+}
+
+async function handleCommentSubmit(event) {
+  event.preventDefault();
+  hideCommentError();
+
+  if (!window.AuthWidget || !window.AuthWidget.isLoggedIn()) return;
+  const boss = state.currentBoss;
+  if (!boss) return;
+
+  const text = els.commentInput ? els.commentInput.value.trim() : '';
+  if (!text) {
+    showCommentError(t('commentErrorRequired'));
+    return;
+  }
+  if (text.length > 500) {
+    showCommentError(t('commentErrorTooLong'));
+    return;
+  }
+
+  const user = window.AuthWidget.getUser();
+  const profile = window.AuthWidget.getProfile();
+  const nickname = user.displayName || (profile && profile.nickname) || user.email || '—';
+
+  if (els.commentSubmit) els.commentSubmit.disabled = true;
+  const originalLabel = els.commentSubmitLabel ? els.commentSubmitLabel.textContent : '';
+  if (els.commentSubmitLabel) els.commentSubmitLabel.textContent = t('commentSubmitting');
+
+  try {
+    await db.collection('comments').add({
+      bossId: boss.id,
+      game: boss.game,
+      uid: user.uid,
+      nickname,
+      text,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    if (els.commentForm) els.commentForm.reset();
+  } catch (err) {
+    console.error('Failed to post comment:', err);
+    showCommentError(t('commentErrorGeneric'));
+  } finally {
+    if (els.commentSubmit) els.commentSubmit.disabled = false;
+    if (els.commentSubmitLabel) els.commentSubmitLabel.textContent = originalLabel;
+  }
 }
 
 function getBossId() {
@@ -784,6 +1041,7 @@ function renderBoss() {
     if (els.bossView) els.bossView.hidden = true;
     if (els.notFoundView) els.notFoundView.hidden = false;
     document.title = t('docTitlePrefix') + t('notFoundTitle');
+    teardownComments();
     return;
   }
 
@@ -809,6 +1067,7 @@ function renderBoss() {
   renderSections(bossDetails[boss.id]);
   updateMarkDefeatedUI();
   renderRelatedBosses(boss);
+  subscribeComments(boss.id);
 
   const prev = index > 0 ? flatBosses[index - 1] : null;
   const next = index < flatBosses.length - 1 ? flatBosses[index + 1] : null;
@@ -858,6 +1117,15 @@ function applyLanguage(lang) {
   if (els.notFoundText) els.notFoundText.textContent = t('notFoundText');
   if (els.notFoundBackLabel) els.notFoundBackLabel.textContent = t('notFoundBack');
   if (els.relatedTitle) els.relatedTitle.textContent = t('relatedBossesTitle');
+  if (els.commentsTitle) els.commentsTitle.textContent = t('commentsTitle');
+  if (els.commentsEmpty) els.commentsEmpty.textContent = t('commentsEmpty');
+  if (els.commentLabel) els.commentLabel.textContent = t('commentLabel');
+  if (els.commentSubmitLabel) els.commentSubmitLabel.textContent = t('commentSubmit');
+  if (els.commentLoginLink) els.commentLoginLink.textContent = t('commentLoginPrompt');
+  if (els.commentGuestText) els.commentGuestText.textContent = t('commentLoginPromptText');
+  hideCommentError();
+  renderComments();
+  updateCommentComposeUI();
   if (els.themeToggle) els.themeToggle.setAttribute('aria-label', t('themeLabel'));
   if (els.menuAccountLabel) els.menuAccountLabel.textContent = t('menuAccountLabel');
   if (els.menuPrefsLabel) els.menuPrefsLabel.textContent = t('menuPrefsLabel');
@@ -929,6 +1197,14 @@ function attachEvents() {
   }
   if (els.defeatBtn) {
     els.defeatBtn.addEventListener('click', toggleDefeated);
+  }
+  if (els.commentForm) {
+    els.commentForm.addEventListener('submit', handleCommentSubmit);
+  }
+  if (els.commentLoginLink) {
+    els.commentLoginLink.addEventListener('click', () => {
+      if (window.AuthWidget) window.AuthWidget.openAuthModal('login');
+    });
   }
 
   document.addEventListener('click', (event) => {

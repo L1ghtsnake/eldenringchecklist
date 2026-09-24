@@ -201,6 +201,18 @@
               <span id="profile-action-checklist">Continue the checklist</span>
             </a>
           </div>
+
+          <div class="profile-section">
+            <div class="profile-recent-head">
+              <h2 class="profile-section-title" id="profile-comments-title">Your comments</h2>
+              <p class="profile-recent-summary" id="profile-comments-summary">0 comments</p>
+            </div>
+            <p class="profile-comments-hint" id="profile-comments-hint">See every comment you've left across the guide, and when you left it.</p>
+            <button type="button" class="profile-action-btn" id="profile-comments-view-btn">
+              <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg>
+              <span id="profile-comments-view-label">View all your comments</span>
+            </button>
+          </div>
         </section>
 
       </div>
@@ -276,6 +288,20 @@
         <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
         <span id="logout-label">Log out</span>
       </button>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="my-comments-modal" hidden>
+    <div class="modal-card modal-card--comments" role="dialog" aria-modal="true" aria-labelledby="my-comments-title">
+      <button type="button" class="modal-close" id="my-comments-close" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="m6 6 12 12M18 6 6 18"/></svg>
+      </button>
+
+      <h2 class="modal-comments-title" id="my-comments-title">Your comments</h2>
+
+      <ul class="my-comments-list" id="my-comments-list" hidden></ul>
+
+      <p class="my-comments-empty" id="my-comments-empty">You haven't left any comments yet — leave one on a boss's guide page.</p>
     </div>
   </div>
 

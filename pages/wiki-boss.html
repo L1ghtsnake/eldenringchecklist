@@ -177,6 +177,31 @@
             <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="m9 6 6 6-6 6"/></svg>
           </a>
         </nav>
+
+        <section class="wiki-boss-comments" id="wiki-boss-comments">
+          <h2 class="wiki-boss-comments-title" id="wiki-boss-comments-title">Comments</h2>
+
+          <ul class="wiki-boss-comments-list" id="wiki-boss-comments-list" hidden></ul>
+
+          <p class="wiki-boss-comments-empty" id="wiki-boss-comments-empty">No comments yet — be the first to leave one.</p>
+
+          <form class="wiki-boss-comment-form" id="wiki-boss-comment-form" hidden>
+            <label class="wiki-boss-comment-field">
+              <span id="wiki-boss-comment-label">Add a comment</span>
+              <textarea id="wiki-boss-comment-input" maxlength="500" rows="3" required></textarea>
+            </label>
+            <p class="auth-error" id="wiki-boss-comment-error" hidden></p>
+            <button type="submit" class="auth-submit wiki-boss-comment-submit" id="wiki-boss-comment-submit">
+              <span id="wiki-boss-comment-submit-label">Post comment</span>
+            </button>
+          </form>
+
+          <!-- Visible by default (same fail-safe default as
+               #profile-guard elsewhere: assume signed-out until
+               AuthWidget resolves) — updateCommentComposeUI() swaps
+               this for the form above once a real session is known. -->
+          <p class="wiki-boss-comment-guest-note" id="wiki-boss-comment-guest-note"><button type="button" class="wiki-boss-comment-login-link" id="wiki-boss-comment-login-link">Log in</button><span id="wiki-boss-comment-guest-text"> to leave a comment.</span></p>
+        </section>
       </div>
 
       <div id="wiki-boss-not-found" class="wiki-not-found" hidden>

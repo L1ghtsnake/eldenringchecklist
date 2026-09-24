@@ -741,6 +741,25 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
 
 .modal-card--account { padding-top: 26px; }
 
+/* Wider, left-aligned, scrollable variant for content that's a list of
+   text rather than a short form — the "My comments" modal on the
+   profile page. Everything else about .modal-card (background, border,
+   shadow, entrance animation) still applies. */
+.modal-card--comments {
+  max-width: 520px;
+  max-height: min(600px, 80vh);
+  overflow-y: auto;
+  text-align: left;
+}
+
+.modal-comments-title {
+  margin: 0 0 16px;
+  padding-right: 24px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
 .account-avatar-wrap {
   position: relative;
   width: 76px;

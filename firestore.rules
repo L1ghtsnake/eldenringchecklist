@@ -53,6 +53,30 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Boss-guide comments. Public/guest read (so a signed-out visitor can
+    // still see the discussion), but only a signed-in account can post,
+    // and only as themselves — the fields below are exactly what
+    // wiki-boss.js's handleCommentSubmit() writes. Comments aren't
+    // editable once posted (no update rule at all), only deletable by
+    // their own author or an admin — same isOwner/isAdmin split already
+    // used for users/{uid}.
+    match /comments/{commentId} {
+      allow read: if true;
+
+      allow create: if isSignedIn() &&
+        request.resource.data.uid == request.auth.uid &&
+        request.resource.data.bossId is string && request.resource.data.bossId.size() > 0 &&
+        request.resource.data.game is string &&
+        request.resource.data.nickname is string && request.resource.data.nickname.size() > 0 &&
+        request.resource.data.text is string &&
+        request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 2000 &&
+        request.resource.data.createdAt == request.time;
+
+      allow update: if false;
+
+      allow delete: if isOwner(resource.data.uid) || isAdmin();
+    }
+
     // Anything not explicitly listed above is closed by default.
   }
 }

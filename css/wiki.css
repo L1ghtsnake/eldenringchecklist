@@ -883,6 +883,176 @@ html[data-theme='light'] .wiki-boss-stats {
   text-overflow: ellipsis;
 }
 
+/* ---- Boss comments ---- */
+
+.wiki-boss-comments {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.wiki-boss-comments-title {
+  margin: 0 0 14px;
+  font-size: 15.5px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.wiki-boss-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.wiki-boss-comments-list[hidden] { display: none; }
+
+.wiki-boss-comments-empty {
+  margin: 0 0 20px;
+  padding: 16px;
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--text-muted);
+  border: 1px dashed var(--border-soft);
+  border-radius: var(--radius-md);
+}
+
+.wiki-boss-comments-empty[hidden] { display: none; }
+
+.wiki-boss-comment-item {
+  padding: 14px 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+}
+
+.wiki-boss-comment-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.wiki-boss-comment-author {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.wiki-boss-comment-date {
+  font-size: 12px;
+  color: var(--text-muted);
+  flex: 1;
+  min-width: 0;
+}
+
+.wiki-boss-comment-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-soft), color var(--dur-fast) var(--ease-soft);
+}
+
+.wiki-boss-comment-delete:hover,
+.wiki-boss-comment-delete:focus-visible {
+  background: var(--danger-soft);
+  color: var(--danger-strong);
+}
+
+.wiki-boss-comment-delete:focus-visible {
+  outline: 2px solid var(--danger);
+  outline-offset: 1px;
+}
+
+.wiki-boss-comment-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+}
+
+.wiki-boss-comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Same [hidden]-vs-author-display gotcha as .icon-btn[hidden] /
+   .admin-panel-link[hidden] in style.css: without this, the compose
+   form (hidden by default until a signed-in session is confirmed — see
+   the markup comment in wiki-boss.html) would stay visible to guests. */
+.wiki-boss-comment-form[hidden] { display: none; }
+
+.wiki-boss-comment-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.wiki-boss-comment-field textarea {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 11px 14px;
+  color: var(--text-primary);
+  font: inherit;
+  font-weight: 400;
+  resize: vertical;
+  min-height: 76px;
+  outline: none;
+  transition: var(--theme-transition), box-shadow var(--dur-fast) var(--ease-soft);
+}
+
+.wiki-boss-comment-field textarea:focus {
+  border-color: var(--cta);
+  box-shadow: 0 0 0 3px var(--focus-soft);
+}
+
+.wiki-boss-comment-submit {
+  align-self: flex-start;
+  width: auto;
+  padding: 11px 22px;
+}
+
+.wiki-boss-comment-guest-note {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+
+.wiki-boss-comment-guest-note[hidden] { display: none; }
+
+.wiki-boss-comment-login-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: var(--cta);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.wiki-boss-comment-login-link:hover,
+.wiki-boss-comment-login-link:focus-visible {
+  color: var(--cta-hover);
+}
+
 /* ---- Not-found state ---- */
 
 .wiki-not-found {

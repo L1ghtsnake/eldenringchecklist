@@ -33,7 +33,16 @@
       avatarEditLabel: 'Change avatar',
       nicknameEditLabel: 'Edit nickname',
       nicknameSave: 'Save',
-      nicknameCancel: 'Cancel'
+      nicknameCancel: 'Cancel',
+      commentsTitle: 'Your comments',
+      commentsCount: '{n} comments',
+      commentsHint: "See every comment you've left across the guide, and when you left it.",
+      commentsViewBtn: 'View all your comments',
+      commentsModalTitle: 'Your comments',
+      commentsModalEmpty: "You haven't left any comments yet — leave one on a boss's guide page.",
+      commentDeleteLabel: 'Delete comment',
+      commentDeleteConfirm: 'Delete this comment?',
+      commentDeleteError: 'Could not delete the comment. Please try again.'
     },
     ru: {
       docTitle: 'Elden Ring Database — Личный кабинет',
@@ -61,7 +70,16 @@
       avatarEditLabel: 'Изменить аватар',
       nicknameEditLabel: 'Изменить никнейм',
       nicknameSave: 'Сохранить',
-      nicknameCancel: 'Отмена'
+      nicknameCancel: 'Отмена',
+      commentsTitle: 'Ваши комментарии',
+      commentsCount: '{n} комментариев',
+      commentsHint: 'Здесь собраны все ваши комментарии по всему руководству — какой босс, что написано и когда.',
+      commentsViewBtn: 'Просмотреть все ваши комментарии',
+      commentsModalTitle: 'Ваши комментарии',
+      commentsModalEmpty: 'Вы ещё не оставили ни одного комментария — оставьте первый на странице любого босса.',
+      commentDeleteLabel: 'Удалить комментарий',
+      commentDeleteConfirm: 'Удалить этот комментарий?',
+      commentDeleteError: 'Не удалось удалить комментарий. Попробуйте ещё раз.'
     },
     kk: {
       docTitle: 'Elden Ring Database — Жеке кабинет',
@@ -89,7 +107,16 @@
       avatarEditLabel: 'Аватарды өзгерту',
       nicknameEditLabel: 'Никнеймді өзгерту',
       nicknameSave: 'Сақтау',
-      nicknameCancel: 'Бас тарту'
+      nicknameCancel: 'Бас тарту',
+      commentsTitle: 'Сіздің пікірлеріңіз',
+      commentsCount: '{n} пікір',
+      commentsHint: 'Нұсқаулық бойынша қалдырған барлық пікірлеріңіз осында — қай босс, не жазылған және қашан.',
+      commentsViewBtn: 'Барлық пікірлеріңізді қарау',
+      commentsModalTitle: 'Сіздің пікірлеріңіз',
+      commentsModalEmpty: 'Сіз әлі пікір қалдырған жоқсыз — кез келген босс бетінде біріншісін қалдырыңыз.',
+      commentDeleteLabel: 'Пікірді жою',
+      commentDeleteConfirm: 'Бұл пікірді жою керек пе?',
+      commentDeleteError: 'Пікірді жою мүмкін болмады. Қайталап көріңіз.'
     }
   };
 
@@ -148,6 +175,18 @@
     els.recentEmptyState = document.getElementById('profile-recent-empty-state');
     els.recentEmpty = document.getElementById('profile-recent-empty');
     els.recentContinueLabel = document.getElementById('profile-action-checklist');
+
+    els.commentsTitle = document.getElementById('profile-comments-title');
+    els.commentsSummary = document.getElementById('profile-comments-summary');
+    els.commentsHint = document.getElementById('profile-comments-hint');
+    els.commentsViewBtn = document.getElementById('profile-comments-view-btn');
+    els.commentsViewLabel = document.getElementById('profile-comments-view-label');
+
+    els.myCommentsModal = document.getElementById('my-comments-modal');
+    els.myCommentsClose = document.getElementById('my-comments-close');
+    els.myCommentsTitle = document.getElementById('my-comments-title');
+    els.myCommentsList = document.getElementById('my-comments-list');
+    els.myCommentsEmpty = document.getElementById('my-comments-empty');
   }
 
   function loadPreference(key, fallback, validValues) {
@@ -212,6 +251,8 @@
          real-time listeners. */
       teardownProgressListeners();
       cachedProgressData = null;
+      teardownMyComments();
+      closeMyCommentsModal();
       return;
     }
 
@@ -224,6 +265,7 @@
     }
     renderAvatar(profile && profile.avatarDataUrl);
     subscribeProgressData(user.uid);
+    subscribeMyComments(user.uid);
   }
 
   /* ==========================================================================
@@ -390,6 +432,7 @@
       done
     };
     renderRecentSection();
+    renderMyCommentsModal();
   }
 
   function subscribeProgressData(uid) {
@@ -417,6 +460,138 @@
       latestUserSnap = snap;
       updateCachedProgressFromSnapshots();
     }, (err) => console.error('Failed to load recent activity:', err));
+  }
+
+  /* ==========================================================================
+     Your comments — every comments/{id} doc this account authored
+     (single equality filter, `where('uid', '==', uid)`, sorted
+     newest-first client-side — same no-composite-index approach as the
+     per-boss query in wiki-boss.js). Boss names are resolved through the
+     same bossIndex/translations the Recent Activity feed above already
+     builds, rather than storing a name snapshot on each comment, so a
+     later boss rename stays correct here too.
+     ========================================================================== */
+
+  let myComments = [];
+  let unsubMyComments = null;
+
+  function teardownMyComments() {
+    if (unsubMyComments) {
+      unsubMyComments();
+      unsubMyComments = null;
+    }
+    myComments = [];
+  }
+
+  function subscribeMyComments(uid) {
+    teardownMyComments();
+    unsubMyComments = db.collection('comments').where('uid', '==', uid).onSnapshot((snap) => {
+      const list = [];
+      snap.forEach((doc) => {
+        const data = doc.data();
+        if (typeof data.text !== 'string' || typeof data.bossId !== 'string') return;
+        const createdAt = data.createdAt && typeof data.createdAt.toMillis === 'function' ? data.createdAt.toMillis() : null;
+        list.push({ id: doc.id, bossId: data.bossId, text: data.text, createdAt });
+      });
+      list.sort((a, b) => (b.createdAt == null ? Infinity : b.createdAt) - (a.createdAt == null ? Infinity : a.createdAt));
+      myComments = list;
+      updateCommentsSummary();
+      renderMyCommentsModal();
+    }, (err) => console.error('Failed to load your comments:', err));
+  }
+
+  function updateCommentsSummary() {
+    if (els.commentsSummary) els.commentsSummary.textContent = t('commentsCount').replace('{n}', myComments.length);
+  }
+
+  function formatCommentDateTime(ms) {
+    if (ms == null) return t('timeJustNow');
+    const date = new Date(ms);
+    if (Number.isNaN(date.getTime())) return '';
+    const locale = currentLang === 'ru' ? 'ru-RU' : currentLang === 'kk' ? 'kk-KZ' : 'en-US';
+    try {
+      return new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(date);
+    } catch (err) {
+      return date.toLocaleString();
+    }
+  }
+
+  function renderMyCommentsModal() {
+    if (!els.myCommentsList || !els.myCommentsEmpty) return;
+
+    if (!myComments.length) {
+      els.myCommentsList.hidden = true;
+      els.myCommentsList.innerHTML = '';
+      els.myCommentsEmpty.hidden = false;
+      return;
+    }
+
+    els.myCommentsEmpty.hidden = true;
+    els.myCommentsList.hidden = false;
+    els.myCommentsList.innerHTML = '';
+
+    const bossIndex = cachedProgressData ? cachedProgressData.bossIndex : {};
+    const translations = cachedProgressData ? cachedProgressData.translations : null;
+    const langTable = translations && (currentLang === 'ru' || currentLang === 'kk') ? translations[currentLang] : null;
+
+    myComments.forEach((comment) => {
+      const info = bossIndex[comment.bossId];
+      const bossName = (info && langTable && langTable.bosses[comment.bossId]) || (info && info.name) || comment.bossId;
+
+      const li = document.createElement('li');
+      li.className = 'my-comment-item';
+
+      const head = document.createElement('div');
+      head.className = 'my-comment-head';
+
+      const link = document.createElement('a');
+      link.className = 'my-comment-boss-link';
+      link.href = `wiki-boss.html?id=${encodeURIComponent(comment.bossId)}`;
+      link.textContent = bossName;
+      head.appendChild(link);
+
+      const date = document.createElement('span');
+      date.className = 'my-comment-date';
+      date.textContent = formatCommentDateTime(comment.createdAt);
+      head.appendChild(date);
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'my-comment-delete';
+      deleteBtn.setAttribute('aria-label', t('commentDeleteLabel'));
+      deleteBtn.title = t('commentDeleteLabel');
+      deleteBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14Z"/></svg>';
+      deleteBtn.addEventListener('click', () => deleteMyComment(comment.id));
+      head.appendChild(deleteBtn);
+
+      li.appendChild(head);
+
+      const text = document.createElement('p');
+      text.className = 'my-comment-text';
+      text.textContent = comment.text;
+      li.appendChild(text);
+
+      els.myCommentsList.appendChild(li);
+    });
+  }
+
+  function deleteMyComment(commentId) {
+    if (!confirm(t('commentDeleteConfirm'))) return;
+    db.collection('comments').doc(commentId).delete().catch((err) => {
+      console.error('Failed to delete comment:', err);
+      alert(t('commentDeleteError'));
+    });
+  }
+
+  function openMyCommentsModal() {
+    if (!els.myCommentsModal) return;
+    closeBurgerMenu();
+    els.myCommentsModal.hidden = false;
+  }
+
+  function closeMyCommentsModal() {
+    if (!els.myCommentsModal) return;
+    els.myCommentsModal.hidden = true;
   }
 
   function applyLanguage(lang) {
@@ -462,6 +637,14 @@
     if (els.recentTitle) els.recentTitle.textContent = t('recentTitle');
     if (els.recentEmpty) els.recentEmpty.textContent = t('recentEmpty');
     if (els.recentContinueLabel) els.recentContinueLabel.textContent = t('recentContinue');
+
+    if (els.commentsTitle) els.commentsTitle.textContent = t('commentsTitle');
+    if (els.commentsHint) els.commentsHint.textContent = t('commentsHint');
+    if (els.commentsViewLabel) els.commentsViewLabel.textContent = t('commentsViewBtn');
+    if (els.myCommentsTitle) els.myCommentsTitle.textContent = t('commentsModalTitle');
+    if (els.myCommentsEmpty) els.myCommentsEmpty.textContent = t('commentsModalEmpty');
+    updateCommentsSummary();
+    renderMyCommentsModal();
 
     if (window.AuthWidget) {
       window.AuthWidget.setLanguage(lang);
@@ -641,7 +824,22 @@
       if (event.key !== 'Escape') return;
       if (els.langFilterPanel && !els.langFilterPanel.hidden) closeLangPanel();
       if (els.headerControls && els.headerControls.classList.contains('mobile-open')) closeBurgerMenu();
+      if (els.myCommentsModal && !els.myCommentsModal.hidden) closeMyCommentsModal();
     });
+  }
+
+  function attachMyCommentsEvents() {
+    if (els.commentsViewBtn) {
+      els.commentsViewBtn.addEventListener('click', openMyCommentsModal);
+    }
+    if (els.myCommentsClose) {
+      els.myCommentsClose.addEventListener('click', closeMyCommentsModal);
+    }
+    if (els.myCommentsModal) {
+      els.myCommentsModal.addEventListener('click', (event) => {
+        if (event.target === els.myCommentsModal) closeMyCommentsModal();
+      });
+    }
   }
 
   function init() {
@@ -664,6 +862,7 @@
     attachLangFilterEvents();
     attachBurgerMenuEvents();
     attachProfileEditEvents();
+    attachMyCommentsEvents();
 
     if (els.guardLoginBtn) {
       els.guardLoginBtn.addEventListener('click', () => {
