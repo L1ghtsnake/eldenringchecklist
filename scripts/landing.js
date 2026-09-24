@@ -17,6 +17,10 @@
       navGuide: 'Guide',
       langLabel: 'Language',
       themeLabel: 'Toggle dark or light theme',
+      menuLabel: 'Menu',
+      menuNavLabel: 'Navigation',
+      menuPrefsLabel: 'Preferences',
+      menuAccountLabel: 'Account',
       heroTitle: 'Welcome to the Lands Between',
       heroSubtitle: 'A companion site for the Lands Between — track bosses, explore the map and browse the gallery, all in one place.',
       scrollHint: 'Scroll',
@@ -58,6 +62,10 @@
       navGuide: 'Руководство',
       langLabel: 'Язык',
       themeLabel: 'Переключить тёмную или светлую тему',
+      menuLabel: 'Меню',
+      menuNavLabel: 'Навигация',
+      menuPrefsLabel: 'Настройки',
+      menuAccountLabel: 'Аккаунт',
       heroTitle: 'Добро пожаловать в Междуземье',
       heroSubtitle: 'Сайт-спутник по Междуземью — боссы, карта и галерея в одном месте.',
       scrollHint: 'Листайте',
@@ -99,6 +107,10 @@
       navGuide: 'Нұсқаулық',
       langLabel: 'Тіл',
       themeLabel: 'Қараңғы немесе ашық тақырыпты ауыстыру',
+      menuLabel: 'Мәзір',
+      menuNavLabel: 'Шарлау',
+      menuPrefsLabel: 'Баптаулар',
+      menuAccountLabel: 'Аккаунт',
       heroTitle: 'Аралық Жерге қош келдіңіз',
       heroSubtitle: 'Аралық Жер бойынша серіктес сайт — босстар, карта және галерея бір жерде.',
       scrollHint: 'Айналдырыңыз',
@@ -144,6 +156,14 @@
     els.navGalleryLabel = document.getElementById('nav-gallery-label');
     els.navGuideLabel = document.getElementById('nav-guide-label');
     els.themeToggle = document.getElementById('theme-toggle');
+
+    els.burgerMenu = document.getElementById('burger-menu');
+    els.burgerBtn = document.getElementById('burger-btn');
+    els.headerControls = document.getElementById('header-controls');
+    els.menuNavLabel = document.getElementById('menu-nav-label');
+    els.menuPrefsLabel = document.getElementById('menu-prefs-label');
+    els.menuAccountLabel = document.getElementById('menu-account-label');
+
     els.langFilterBtn = document.getElementById('lang-filter-btn');
     els.langFilterBtnLabel = document.getElementById('lang-filter-btn-label');
     els.langFilterPanel = document.getElementById('lang-filter-panel');
@@ -228,6 +248,13 @@
     if (els.navGalleryLabel) els.navGalleryLabel.textContent = t(lang, 'navGallery');
     if (els.navGuideLabel) els.navGuideLabel.textContent = t(lang, 'navGuide');
     if (els.themeToggle) els.themeToggle.setAttribute('aria-label', t(lang, 'themeLabel'));
+    if (els.burgerBtn) {
+      els.burgerBtn.setAttribute('aria-label', t(lang, 'menuLabel'));
+      els.burgerBtn.setAttribute('title', t(lang, 'menuLabel'));
+    }
+    if (els.menuNavLabel) els.menuNavLabel.textContent = t(lang, 'menuNavLabel');
+    if (els.menuPrefsLabel) els.menuPrefsLabel.textContent = t(lang, 'menuPrefsLabel');
+    if (els.menuAccountLabel) els.menuAccountLabel.textContent = t(lang, 'menuAccountLabel');
 
     if (els.heroTitle) els.heroTitle.textContent = t(lang, 'heroTitle');
     if (els.heroSubtitle) els.heroSubtitle.textContent = t(lang, 'heroSubtitle');
@@ -267,6 +294,41 @@
     if (window.AuthWidget) window.AuthWidget.setLanguage(lang);
   }
 
+  /* Mobile burger menu — collapses the nav links + language/theme/account
+     controls into one dropdown below the shared 640px breakpoint (see
+     .burger-menu/.header-controls in style.css, and the landing-page-only
+     tweaks in landing.css). Same open/close/outside-click/Escape pattern
+     used on every other page (see attachBurgerMenuEvents in profile.js /
+     wiki-boss.js). */
+  function closeBurgerMenu() {
+    if (!els.headerControls) return;
+    els.headerControls.classList.remove('mobile-open');
+    if (els.burgerBtn) els.burgerBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  function toggleBurgerMenu() {
+    if (!els.headerControls) return;
+    const willOpen = !els.headerControls.classList.contains('mobile-open');
+    els.headerControls.classList.toggle('mobile-open', willOpen);
+    if (els.burgerBtn) els.burgerBtn.setAttribute('aria-expanded', String(willOpen));
+  }
+
+  function attachBurgerMenuEvents() {
+    if (els.burgerBtn) {
+      els.burgerBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        toggleBurgerMenu();
+      });
+    }
+    document.addEventListener('click', (event) => {
+      if (!els.headerControls || !els.headerControls.classList.contains('mobile-open')) return;
+      if (els.burgerMenu && !els.burgerMenu.contains(event.target)) closeBurgerMenu();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeBurgerMenu();
+    });
+  }
+
   function closeLangPanel() {
     if (!els.langFilterPanel) return;
     els.langFilterPanel.hidden = true;
@@ -293,6 +355,7 @@
           savePreference(LANG_KEY, btn.dataset.lang);
           applyLanguage(btn.dataset.lang);
           closeLangPanel();
+          closeBurgerMenu();
         });
       });
     }
@@ -438,7 +501,7 @@
   function init() {
     cacheDom();
 
-    if (window.AuthWidget) window.AuthWidget.init('en');
+    if (window.AuthWidget) window.AuthWidget.init('en', { onBeforeOpen: closeBurgerMenu });
 
     const theme = loadPreference(THEME_KEY, 'dark', ['dark', 'light']);
     applyTheme(theme);
@@ -446,6 +509,7 @@
     const lang = loadPreference(LANG_KEY, 'en', ['en', 'ru', 'kk']);
     applyLanguage(lang);
 
+    attachBurgerMenuEvents();
     attachLangEvents();
     attachThemeEvents();
     attachReveal();
