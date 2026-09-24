@@ -1,27 +1,5 @@
 rules_version = '2';
 
-// ==========================================================================
-// Elden Ring Database — Firestore Security Rules
-//
-// Paste this whole file into Firebase Console → Firestore Database →
-// Rules → replace everything → Publish. See the setup notes handed over
-// alongside this file for the one-time manual step needed to make your
-// own account an admin (nothing in the app itself can do that).
-//
-// What this enforces:
-//   - users/{uid}: the signed-in owner can read/write their own document
-//     (nickname, avatar, progress, history, etc.) — but nobody, not even
-//     the owner, can set or change their own "role" field from the
-//     client. That closes the gap where anyone could open the browser
-//     console and write role: "admin" onto themselves. An admin can also
-//     read every user document and change ANY user's "role" field (both
-//     needed by the admin panel's Users tab), but still can't touch any
-//     other field on an account that isn't their own.
-//   - gameData/* and siteConfig/*: readable by anyone (signed in or not
-//     — the site works for guests), writable only by a signed-in user
-//     whose own users/{uid} doc has role == "admin".
-// ==========================================================================
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
