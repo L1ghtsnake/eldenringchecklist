@@ -1057,6 +1057,33 @@ html[data-theme='light'] .theme-icon--sun { color: var(--secondary); }
 
 .auth-forgot-btn[hidden] { display: none; }
 
+/* ---- Standalone reset-password page (reuses .modal-card/.auth-* —
+   this just centers that card in the page instead of a fixed overlay) ---- */
+
+.reset-password-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 48px 16px;
+}
+
+.reset-password-card {
+  margin: 0;
+  animation: none;
+}
+
+.reset-success {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: var(--success-soft);
+  border: 1px solid var(--success);
+  color: var(--success-strong);
+  font-size: 13px;
+  text-align: left;
+}
+
+.reset-success[hidden] { display: none; }
+
 /* ---- Success toast ---- */
 
 .toast {
